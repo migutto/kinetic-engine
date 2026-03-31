@@ -1,7 +1,0 @@
-przy wprowadzaniu treningu nie ma pola do wprowadzenia dystansu i wyboru daty(np wczorajszy trening) tak jak przy Sylwetce;
-W ustawieniach powinny być też opcje importu i eksportu sylwetki, a usuwanie wszystkiego również powinno usuwać dane sylwetki oraz powinno wymagać potwierdzenia poprzez wpisanie słowa TAK.
-strona Sylwetka, Trening i Poradnik mają dobrą responsywność, Dashboard i Cardio przy powiększaniu strony nie mają responsywności i wyjeżdża treść za ekran;
-w poradniku (który zmieni nazwę na encyklopedie ćwiczeń) spis treści z ćwiczeniami jest oki, ale te kategorie nad wymagają przesuwania suwakiem w bok by zobaczyć wszyustkie, jest to niewygodne. oraz jak już się otworzy dane ćwiczenie to jest na danej karcie sporo pustego miejsca przy standardowym powiększeniu, coś z tym trzeba zrobić. na każdej karcie ćwiczenia "bolt
-Technika Mistrzowska" jest niepotrzebne;
-w Treningu możliwość układania własnego planu treningowego bez narzucania tych 3 dni i tego konkretnego planu który tam mamy, ale można zapisać ten plan dodać jako jedna z opcji do wyboru i wtedy on będzie domyślnym planem po wybraniu( bo to mój plan ;) .), tak samo nowy plan kóry utworzy użytkownik, trafia na liste planów i możliwość oznaczenia go jako domyślny - wtedy pojawia się w zakładce trening, w dashboardzie w harmonogramie itd;
-na dashboardzie górne kafle wyglądają dziwnie; dodać do dasboardu dwa przyciski na szybki dodanie cardio lub danych sylwetki
