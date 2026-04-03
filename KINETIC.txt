@@ -17,3 +17,6 @@ baza wger
 zapisywanie wprowadoznych danych online
 
 tygodniowe i miesięczne podsumowania w niedziele i ostatni dzień miesiąca
+
+
+"Dystans (km) — opcjonalnie" usunąć to opcjonalnie. To najważniejszy wskaźnik i powinien być brany do obliczania śr tempa i prędkosći a nie tam wszystko jest z czapy teraz
