@@ -13,3 +13,7 @@ Język angielski
 PWA
 
 baza wger
+
+zapisywanie wprowadoznych danych online
+
+tygodniowe i miesięczne podsumowania w niedziele i ostatni dzień miesiąca
