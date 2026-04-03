@@ -10,10 +10,9 @@ const PRECACHE_URLS = [
   '/kinetic-engine/',
   '/kinetic-engine/index.html',
   '/kinetic-engine/manifest.json',
-  '/kinetic-engine/css/style.css',
+  '/kinetic-engine/style.css',,
   '/kinetic-engine/js/data.js',
   '/kinetic-engine/js/utils.js',
-  '/kinetic-engine/js/plan.js',
   '/kinetic-engine/js/guide.js',
   '/kinetic-engine/js/training.js',
   '/kinetic-engine/js/cardio.js',
@@ -97,8 +96,8 @@ self.addEventListener('push', event => {
   const data = event.data.json();
   self.registration.showNotification(data.title || 'Kinetic Engine', {
     body: data.body || '',
-    icon: '/kinetic-engine/icons/icon-192.png',
-    badge: '/kinetic-engine/icons/icon-192.png',
+    icon: '/kinetic-engine/icon-192.png',,
+    badge: '/kinetic-engine/icon-192.png',,
     tag: data.tag || 'kinetic',
     data: { url: data.url || '/kinetic-engine/' }
   });
