@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── Rejestracja Service Workera ────────────────────────────
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/kinetic-engine/sw.js')
+    navigator.serviceWorker.register('sw.js')
       .then(reg => console.log('[KE] SW zarejestrowany:', reg.scope))
       .catch(err => console.warn('[KE] SW błąd:', err));
   }
