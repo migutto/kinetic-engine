@@ -101,7 +101,16 @@
       <!-- ══ DASHBOARD ══ -->
       <div id="panel-dashboard" class="panel active" style="flex-direction:column;overflow-y:auto;">
         <div style="padding:24px 28px;">
-          <div id="dash-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;"></div>
+          <div id="dash-stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:16px;"></div>
+          <!-- Szybkie akcje -->
+          <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+            <button class="btn-s" style="padding:10px 18px;font-size:10px;flex:1;min-width:140px;" onclick="openModal('quick-cardio')">
+              <span style="display:flex;align-items:center;justify-content:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:16px;">directions_walk</span>+ Dodaj Cardio</span>
+            </button>
+            <button class="btn-s" style="padding:10px 18px;font-size:10px;flex:1;min-width:140px;border-color:rgba(166,140,255,.25);color:var(--s);" onclick="openModal('quick-body')">
+              <span style="display:flex;align-items:center;justify-content:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:16px;">monitor_weight</span>+ Dodaj Pomiar</span>
+            </button>
+          </div>
           <div id="dash-body-banner" style="margin-bottom:20px;"></div>
           <div style="display:grid;grid-template-columns:1fr 330px;gap:20px;">
             <div style="display:flex;flex-direction:column;gap:18px;">
@@ -197,6 +206,16 @@
                 <div class="lex" style="font-weight:800;font-size:17px;">Loguj Spacer</div>
               </div>
               <div style="display:flex;flex-direction:column;gap:15px;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                  <div>
+                    <label class="form-label">Data</label>
+                    <input class="inp" type="date" id="c-date" style="font-size:13px;">
+                  </div>
+                  <div>
+                    <label class="form-label">Dystans (km) — opcjonalnie</label>
+                    <input class="inp" type="number" step="0.01" id="c-dist" placeholder="np. 3.5" oninput="calcCardio()">
+                  </div>
+                </div>
                 <div>
                   <label class="form-label">Czas Trwania (min)</label>
                   <input class="inp" type="number" id="c-duration" placeholder="45" oninput="calcCardio()">
@@ -466,9 +485,23 @@
         <input type="file" id="import-cardio-inp2" accept=".json" style="display:none;" onchange="importCardio(this)">
       </div>
     </div>
-    <button class="btn-s" style="width:100%;border-color:rgba(255,113,108,.2);color:var(--er);" onclick="clearAllData()">
-      <span style="display:flex;align-items:center;justify-content:center;gap:8px;"><span class="material-symbols-outlined" style="font-size:16px;">delete_forever</span>Wyczyść wszystkie dane</span>
-    </button>
+    <div style="margin-bottom:16px;">
+      <div class="drawer-section-label">Sylwetka</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <button class="btn-s" style="padding:11px;font-size:9px;" onclick="exportBodyJSON()"><span style="display:flex;align-items:center;justify-content:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:15px;">download</span>Eksport JSON</span></button>
+        <button class="btn-s" style="padding:11px;font-size:9px;" onclick="exportBodyCSV()"><span style="display:flex;align-items:center;justify-content:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:15px;">table_chart</span>Eksport CSV</span></button>
+        <button class="btn-s" style="padding:11px;font-size:9px;grid-column:1/-1;" onclick="document.getElementById('settings-body-import-inp').click()"><span style="display:flex;align-items:center;justify-content:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:15px;">upload</span>Importuj JSON</span></button>
+        <input type="file" id="settings-body-import-inp" accept=".json" style="display:none;" onchange="importBodyJSON(this)">
+      </div>
+    </div>
+    <div style="margin-bottom:16px;padding:14px;background:rgba(255,113,108,.04);border:1px solid rgba(255,113,108,.12);border-radius:12px;">
+      <div class="drawer-section-label" style="color:var(--er);margin-bottom:10px;">Strefa niebezpieczna</div>
+      <div style="font-size:11px;color:var(--osd);margin-bottom:10px;">Wpisz <strong style="color:var(--er);">TAK</strong> aby potwierdzić usunięcie wszystkich danych (treningi, cardio, sylwetka, ustawienia).</div>
+      <input class="inp" type="text" id="clear-confirm-inp" placeholder="Wpisz TAK" style="margin-bottom:10px;border-color:rgba(255,113,108,.3);">
+      <button class="btn-s" style="width:100%;border-color:rgba(255,113,108,.3);color:var(--er);" onclick="clearAllData()">
+        <span style="display:flex;align-items:center;justify-content:center;gap:8px;"><span class="material-symbols-outlined" style="font-size:16px;">delete_forever</span>Wyczyść wszystkie dane</span>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -497,6 +530,54 @@
     <button class="btn-p" style="margin-top:16px;width:100%;padding:14px;" onclick="saveCustomWorkout()">
       <span style="display:flex;align-items:center;justify-content:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:16px;">save</span>Zapisz Trening</span>
     </button>
+  </div>
+</div>
+
+<!-- Quick Cardio Modal -->
+<div class="overlay" id="quick-cardio-overlay" onclick="if(event.target===this)closeModal('quick-cardio')">
+  <div class="modal" style="max-width:400px;">
+    <button class="modal-close" onclick="closeModal('quick-cardio')"><span class="material-symbols-outlined" style="font-size:18px;">close</span></button>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+      <span class="material-symbols-outlined" style="font-size:24px;color:var(--p);">directions_walk</span>
+      <div class="modal-title">Szybkie Cardio</div>
+    </div>
+    <p style="font-size:12px;color:var(--osd);margin-bottom:20px;">Dodaj aktywność bez wychodzenia z dashboardu.</p>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div><label class="form-label">Data</label><input class="inp" type="date" id="qc-date" style="font-size:13px;"></div>
+        <div><label class="form-label">Czas (min)</label><input class="inp" type="number" id="qc-duration" placeholder="45"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div><label class="form-label">Kroki</label><input class="inp" type="number" id="qc-steps" placeholder="6000"></div>
+        <div><label class="form-label">Kalorie</label><input class="inp" type="number" id="qc-cal" placeholder="250"></div>
+      </div>
+      <div><label class="form-label">Dystans (km) — opcjonalnie</label><input class="inp" type="number" step="0.01" id="qc-dist" placeholder="3.5"></div>
+      <button class="btn-p" style="width:100%;padding:13px;" onclick="saveQuickCardio()">
+        <span style="display:flex;align-items:center;justify-content:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:16px;">save</span>Zapisz</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Body Modal -->
+<div class="overlay" id="quick-body-overlay" onclick="if(event.target===this)closeModal('quick-body')">
+  <div class="modal" style="max-width:400px;">
+    <button class="modal-close" onclick="closeModal('quick-body')"><span class="material-symbols-outlined" style="font-size:18px;">close</span></button>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+      <span class="material-symbols-outlined" style="font-size:24px;color:var(--s);">monitor_weight</span>
+      <div class="modal-title">Szybki Pomiar</div>
+    </div>
+    <p style="font-size:12px;color:var(--osd);margin-bottom:20px;">Dodaj pomiar sylwetki bez wychodzenia z dashboardu.</p>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div><label class="form-label">Data</label><input class="inp" type="date" id="qb-date" style="font-size:13px;"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div><label class="form-label">Waga (kg)</label><input class="inp" type="number" step="0.05" id="qb-weight" placeholder="85.0"></div>
+        <div><label class="form-label">Tłuszcz (%)</label><input class="inp" type="number" step="0.1" id="qb-fat" placeholder="22.5"></div>
+      </div>
+      <button class="btn-p" style="width:100%;padding:13px;background:var(--g2);" onclick="saveQuickBody()">
+        <span style="display:flex;align-items:center;justify-content:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:16px;">save</span>Zapisz</span>
+      </button>
+    </div>
   </div>
 </div>
 
