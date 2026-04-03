@@ -5,3 +5,11 @@ w poradniku (który zmieni nazwę na encyklopedie ćwiczeń) spis treści z ćwi
 Technika Mistrzowska" jest niepotrzebne;
 w Treningu możliwość układania własnego planu treningowego bez narzucania tych 3 dni i tego konkretnego planu który tam mamy, ale można zapisać ten plan dodać jako jedna z opcji do wyboru i wtedy on będzie domyślnym planem po wybraniu( bo to mój plan ;) .), tak samo nowy plan kóry utworzy użytkownik, trafia na liste planów i możliwość oznaczenia go jako domyślny - wtedy pojawia się w zakładce trening, w dashboardzie w harmonogramie itd;
 na dashboardzie górne kafle wyglądają dziwnie; dodać do dasboardu dwa przyciski na szybki dodanie cardio lub danych sylwetki
+
+"loguj spacer" brzmi dziwnie
+
+Język angielski
+
+PWA
+
+baza wger
