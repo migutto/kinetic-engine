@@ -2,7 +2,7 @@
 // THE KINETIC ENGINE — cardio.js
 // ═══════════════════════════════════════════════════════════════
 
-const STEP_LENGTH_M = 0.73;
+const STEP_LENGTH_M = globalThis.KECore?.CARDIO_STEP_LENGTH_M || 0.73;
 
 function initCardioDate() {
   const el = document.getElementById('c-date');
@@ -14,6 +14,12 @@ function calcCardio() {
   const duration = parseFloat(document.getElementById('c-duration').value) || 0;
   const distInp  = parseFloat(document.getElementById('c-dist')?.value)    || 0;
   const distKm   = distInp > 0 ? distInp : 0;
+  if (globalThis.KECore?.computeCardioMetrics) {
+    const metrics = globalThis.KECore.computeCardioMetrics(duration, distKm);
+    document.getElementById('c-pace').textContent = metrics.paceText;
+    document.getElementById('c-speed').textContent = metrics.speedText;
+    return;
+  }
 
   let paceStr = '–', speedStr = '–';
   if (distKm > 0 && duration > 0) {
@@ -39,7 +45,10 @@ function saveCardio() {
   if (!duration) { showToast('Podaj czas trwania!', 'error', 'var(--er)'); return; }
 
   const data = getData();
-  data.cardio.push({ id: Date.now().toString(), date: dateVal, duration, calories, steps, heartRate: hr, distKm: +distInp.toFixed(2) });
+  const entry = globalThis.KECore?.createCardioEntry
+    ? globalThis.KECore.createCardioEntry({ id: Date.now().toString(), date: dateVal, duration, calories, steps, heartRate: hr, distKm: distInp })
+    : { id: Date.now().toString(), date: dateVal, duration, calories, steps, heartRate: hr, distKm: +distInp.toFixed(2) };
+  data.cardio.push(entry);
   addNotification('🚶 Aktywność zapisana', `${duration} min · ${distInp.toFixed(1)} km · ${calories} kcal`, 'directions_walk', data);
   saveData(data);
 
@@ -71,7 +80,9 @@ function renderCardio() {
   const thisWeekMon = getMondayOfWeek(new Date());
   const weekFri     = addDays(thisWeekMon, 6);
   const weekEntries = data.cardio.filter(c => c.date >= thisWeekMon && c.date <= weekFri);
-  const totalDist   = data.cardio.reduce((s, c) => s + (c.distKm || (c.steps || 0) * STEP_LENGTH_M / 1000), 0);
+  const totalDist   = globalThis.KECore?.sumCardioDistance
+    ? globalThis.KECore.sumCardioDistance(data.cardio)
+    : data.cardio.reduce((s, c) => s + (c.distKm || (c.steps || 0) * STEP_LENGTH_M / 1000), 0);
   const weekSteps   = weekEntries.reduce((s, c) => s + (c.steps || 0), 0);
   const weekCal     = weekEntries.reduce((s, c) => s + (c.calories || 0), 0);
 
@@ -116,9 +127,16 @@ function renderCardio() {
 
   const sorted = [...data.cardio].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 20);
   histEl.innerHTML = sorted.map(c => {
-    const dist = c.distKm || (c.steps || 0) * STEP_LENGTH_M / 1000;
+    const dist = globalThis.KECore?.getEntryDistanceKm
+      ? globalThis.KECore.getEntryDistanceKm(c)
+      : (c.distKm || (c.steps || 0) * STEP_LENGTH_M / 1000);
+    const metrics = globalThis.KECore?.computeCardioMetrics
+      ? globalThis.KECore.computeCardioMetrics(c.duration, dist)
+      : null;
     let paceStr = '';
-    if (dist > 0 && c.duration) {
+    if (metrics) {
+      paceStr = metrics.paceText !== '–' ? metrics.paceText + ' min/km' : '';
+    } else if (dist > 0 && c.duration) {
       const p = c.duration / dist;
       paceStr = Math.floor(p) + ':' + String(Math.round((p - Math.floor(p)) * 60)).padStart(2, '0') + ' min/km';
     }
@@ -150,7 +168,10 @@ function saveQuickCardio() {
   if (!duration) { showToast('Podaj czas trwania!', 'error', 'var(--er)'); return; }
 
   const data = getData();
-  data.cardio.push({ id: Date.now().toString(), date: dateVal, duration, calories, steps, heartRate: 0, distKm: +distInp.toFixed(2) });
+  const entry = globalThis.KECore?.createCardioEntry
+    ? globalThis.KECore.createCardioEntry({ id: Date.now().toString(), date: dateVal, duration, calories, steps, heartRate: 0, distKm: distInp })
+    : { id: Date.now().toString(), date: dateVal, duration, calories, steps, heartRate: 0, distKm: +distInp.toFixed(2) };
+  data.cardio.push(entry);
   addNotification('🚶 Aktywność zapisana', `${duration} min · ${distInp.toFixed(1)} km`, 'directions_walk', data);
   saveData(data);
 

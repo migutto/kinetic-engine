@@ -12,7 +12,9 @@ function renderDashboard() {
   const settings   = getSettings();
   const weekCardio = data.cardio.filter(c => c.date >= thisMonday && c.date <= addDays(thisMonday, 6));
   const weekDone   = ['A', 'B', 'C'].filter(t => data.workouts[wDates[t]]?.completed).length;
-  const weekDist   = weekCardio.reduce((s, c) => s + (c.distKm || (c.steps || 0) * 0.73 / 1000), 0);
+  const weekDist   = globalThis.KECore?.sumCardioDistance
+    ? globalThis.KECore.sumCardioDistance(weekCardio)
+    : weekCardio.reduce((s, c) => s + (c.distKm || (c.steps || 0) * 0.73 / 1000), 0);
   const todaySteps = data.cardio.filter(c => c.date === today).reduce((s, c) => s + (c.steps || 0), 0);
   const todayGoal  = settings.stepGoal || 8000;
   const todayPct   = Math.min(999, Math.round((todaySteps / todayGoal) * 100));
@@ -235,6 +237,10 @@ function renderDashboardSummaries(data, today, weekStart) {
 }
 
 function buildPeriodSummary(data, startDate, endDate) {
+  if (globalThis.KECore?.buildPeriodSummary) {
+    return globalThis.KECore.buildPeriodSummary(data, startDate, endDate);
+  }
+
   const completedWorkouts = Object.entries(data.workouts)
     .filter(([date, workout]) => date >= startDate && date <= endDate && workout.completed);
   const cardioEntries = data.cardio.filter(entry => entry.date >= startDate && entry.date <= endDate);
@@ -338,6 +344,10 @@ function formatBodyMeta(summary) {
 }
 
 function countDoneSets(workout) {
+  if (globalThis.KECore?.countDoneSets) {
+    return globalThis.KECore.countDoneSets(workout);
+  }
+
   if (!workout?.sets) return 0;
   return Object.values(workout.sets).reduce((sum, sets) => sum + sets.filter(set => set.done).length, 0);
 }
@@ -360,6 +370,10 @@ function formatSignedNumber(value, digits = 0) {
 }
 
 function getMonthRange(dateStr) {
+  if (globalThis.KECore?.getMonthRange) {
+    return globalThis.KECore.getMonthRange(dateStr);
+  }
+
   const d = new Date(dateStr + 'T00:00:00');
   return {
     start: fmtDate(new Date(d.getFullYear(), d.getMonth(), 1)),
@@ -368,6 +382,10 @@ function getMonthRange(dateStr) {
 }
 
 function getShiftedMonthRange(dateStr, offset) {
+  if (globalThis.KECore?.getShiftedMonthRange) {
+    return globalThis.KECore.getShiftedMonthRange(dateStr, offset);
+  }
+
   const d = new Date(dateStr + 'T00:00:00');
   return {
     start: fmtDate(new Date(d.getFullYear(), d.getMonth() + offset, 1)),

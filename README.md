@@ -112,6 +112,16 @@ Then open:
 http://localhost:8000
 ```
 
+### Run Unit Tests
+
+This repo includes a lightweight Node-based unit test setup for shared cardio and dashboard summary logic.
+
+Run:
+
+```bash
+npm test
+```
+
 ### Deploy with GitHub Pages
 
 1. Push the project to a GitHub repository.
