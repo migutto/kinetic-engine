@@ -3,14 +3,48 @@
 // Strategia: Cache First dla assetów, Network First dla HTML
 // ═══════════════════════════════════════════════════════════════
 
-const CACHE_NAME = 'kinetic-engine-v1';
+const CACHE_NAME = 'kinetic-engine-v2';
+const SCOPE_URL = new URL(self.registration.scope);
+const APP_ORIGIN = SCOPE_URL.origin;
+
+function appUrl(path = '') {
+  return new URL(path, SCOPE_URL).toString();
+}
+
+const APP_PRECACHE_URLS = [
+  '',
+  'index.html',
+  'manifest.json',
+  'style.css',
+  'icon-192.png',
+  'icon-512.png',
+  'js/data.js',
+  'js/utils.js',
+  'js/guide.js',
+  'js/training.js',
+  'js/cardio.js',
+  'js/body.js',
+  'js/dashboard.js',
+  'js/ui.js',
+  'js/app.js',
+].map(appUrl);
+
+async function putIfCacheable(cache, request, response) {
+  if (!response) return response;
+
+  if (response.ok || response.type === 'opaque') {
+    await cache.put(request, response.clone());
+  }
+
+  return response;
+}
 
 // Pliki do cache'owania przy instalacji
 const PRECACHE_URLS = [
   '/kinetic-engine/',
   '/kinetic-engine/index.html',
   '/kinetic-engine/manifest.json',
-  '/kinetic-engine/style.css',,
+  '/kinetic-engine/style.css',
   '/kinetic-engine/js/data.js',
   '/kinetic-engine/js/utils.js',
   '/kinetic-engine/js/guide.js',
@@ -24,7 +58,7 @@ const PRECACHE_URLS = [
 ];
 
 // ── Install ────────────────────────────────────────────────────
-self.addEventListener('install', event => {
+self.addEventListener('legacy-install-disabled', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(PRECACHE_URLS))
@@ -33,7 +67,7 @@ self.addEventListener('install', event => {
 });
 
 // ── Activate — usuń stare cache ────────────────────────────────
-self.addEventListener('activate', event => {
+self.addEventListener('legacy-activate-disabled', event => {
   event.waitUntil(
     caches.keys().then(cacheNames =>
       Promise.all(
@@ -46,7 +80,7 @@ self.addEventListener('activate', event => {
 });
 
 // ── Fetch — strategia Cache First dla assetów ─────────────────
-self.addEventListener('fetch', event => {
+self.addEventListener('legacy-fetch-disabled', event => {
   const { request } = event;
   const url = new URL(request.url);
 
@@ -91,21 +125,140 @@ self.addEventListener('fetch', event => {
 });
 
 // ── Push Notifications (placeholder na przyszłość) ─────────────
-self.addEventListener('push', event => {
+self.addEventListener('legacy-push-disabled', event => {
   if (!event.data) return;
   const data = event.data.json();
   self.registration.showNotification(data.title || 'Kinetic Engine', {
     body: data.body || '',
-    icon: '/kinetic-engine/icon-192.png',,
-    badge: '/kinetic-engine/icon-192.png',,
+    icon: '/kinetic-engine/icon-192.png',
+    badge: '/kinetic-engine/icon-192.png',
     tag: data.tag || 'kinetic',
     data: { url: data.url || '/kinetic-engine/' }
   });
 });
 
-self.addEventListener('notificationclick', event => {
+self.addEventListener('legacy-notificationclick-disabled', event => {
   event.notification.close();
   event.waitUntil(
     clients.openWindow(event.notification.data.url)
   );
+});
+
+self.addEventListener('install', event => {
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    await cache.addAll(APP_PRECACHE_URLS);
+    await self.skipWaiting();
+  })());
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil((async () => {
+    const cacheNames = await caches.keys();
+    await Promise.all(
+      cacheNames
+        .filter(name => name !== CACHE_NAME)
+        .map(name => caches.delete(name))
+    );
+    await self.clients.claim();
+  })());
+});
+
+self.addEventListener('fetch', event => {
+  const { request } = event;
+
+  if (request.method !== 'GET') return;
+
+  const url = new URL(request.url);
+
+  if (!/^https?:$/.test(url.protocol)) return;
+
+  if (request.mode === 'navigate') {
+    event.respondWith((async () => {
+      const cache = await caches.open(CACHE_NAME);
+
+      try {
+        const response = await fetch(request);
+        return await putIfCacheable(cache, request, response);
+      } catch {
+        return (await cache.match(request)) || (await cache.match(appUrl('index.html')));
+      }
+    })());
+    return;
+  }
+
+  if (url.origin !== APP_ORIGIN) {
+    event.respondWith((async () => {
+      const cache = await caches.open(CACHE_NAME);
+      const cached = await cache.match(request);
+
+      try {
+        const response = await fetch(request);
+        return await putIfCacheable(cache, request, response);
+      } catch {
+        return cached || Response.error();
+      }
+    })());
+    return;
+  }
+
+  event.respondWith((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    const cached = await cache.match(request);
+
+    if (cached) return cached;
+
+    try {
+      const response = await fetch(request);
+      return await putIfCacheable(cache, request, response);
+    } catch {
+      if (request.destination === 'document') {
+        return (await cache.match(appUrl('index.html'))) || Response.error();
+      }
+
+      return Response.error();
+    }
+  })());
+});
+
+self.addEventListener('push', event => {
+  if (!event.data) return;
+
+  const data = event.data.json();
+
+  event.waitUntil(
+    self.registration.showNotification(data.title || 'Kinetic Engine', {
+      body: data.body || '',
+      icon: appUrl('icon-192.png'),
+      badge: appUrl('icon-192.png'),
+      tag: data.tag || 'kinetic',
+      data: {
+        url: data.url ? new URL(data.url, SCOPE_URL).toString() : appUrl(''),
+      },
+    })
+  );
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+
+  event.waitUntil((async () => {
+    const targetUrl = event.notification.data?.url || appUrl('');
+    const clientList = await clients.matchAll({
+      type: 'window',
+      includeUncontrolled: true,
+    });
+
+    const existingClient = clientList.find(client =>
+      client.url === targetUrl || client.url.startsWith(targetUrl)
+    );
+
+    if (existingClient && 'focus' in existingClient) {
+      return existingClient.focus();
+    }
+
+    if (clients.openWindow) {
+      return clients.openWindow(targetUrl);
+    }
+  })());
 });

@@ -47,15 +47,16 @@ function skipTimer() { clearInterval(timerState.interval); timerState.running = 
 function addTimerTime(s) { timerState.remaining += s; timerState.total = Math.max(timerState.total, timerState.remaining); updateTimerDisplay(); }
 
 // ── POWIADOMIENIA ───────────────────────────────────────────────
-function addNotification(title, body, icon = 'notifications') {
-  const data = getData();
+function addNotification(title, body, icon = 'notifications', dataRef = null) {
+  const data = dataRef || getData();
   data.notifications.unshift({ id: Date.now().toString(), title, body, icon, date: new Date().toISOString(), read: false });
   if (data.notifications.length > 20) data.notifications = data.notifications.slice(0, 20);
-  saveData(data); updateNotifBadge();
+  if (!dataRef) saveData(data);
+  updateNotifBadge(data);
+  return data;
 }
 
-function updateNotifBadge() {
-  const data = getData();
+function updateNotifBadge(data = getData()) {
   const unread = data.notifications.filter(n => !n.read).length;
   const dot = document.getElementById('notif-dot');
   if (dot) dot.style.display = unread > 0 ? 'block' : 'none';
@@ -132,7 +133,7 @@ function openProfile() {
   const totalDist     = data.cardio.reduce((s, c) => s + (c.distKm || (c.steps || 0) * 0.73 / 1000), 0);
   document.getElementById('profile-stats-grid').innerHTML = `
     <div class="profile-stat"><div class="profile-stat-val" style="color:var(--p);">${totalWorkouts}</div><div class="profile-stat-lbl">Treningi</div></div>
-    <div class="profile-stat"><div class="profile-stat-val" style="color:var(--s);">${totalCardio}</div><div class="profile-stat-lbl">Spacery</div></div>
+    <div class="profile-stat"><div class="profile-stat-val" style="color:var(--s);">${totalCardio}</div><div class="profile-stat-lbl">Cardio</div></div>
     <div class="profile-stat"><div class="profile-stat-val" style="color:var(--t);">${totalDist.toFixed(1)}</div><div class="profile-stat-lbl">km łącznie</div></div>`;
   openModal('profile');
 }

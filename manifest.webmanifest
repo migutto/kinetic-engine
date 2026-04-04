@@ -2,7 +2,7 @@
   "id": "./",
   "name": "The Kinetic Engine",
   "short_name": "Kinetic",
-  "description": "Dziennik treningowy — siła, cardio, sylwetka",
+  "description": "Dziennik treningowy: trening, cardio, sylwetka i lokalne podsumowania w jednym miejscu.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -13,6 +13,7 @@
   "lang": "pl",
   "dir": "ltr",
   "prefer_related_applications": false,
+  "categories": ["health", "fitness", "sports"],
   "icons": [
     {
       "src": "icon-192.png",
@@ -27,21 +28,45 @@
       "purpose": "any"
     }
   ],
-  "categories": ["health", "fitness", "sports"],
   "shortcuts": [
     {
       "name": "Nowy trening",
       "short_name": "Trening",
       "description": "Otwórz zakładkę treningu",
       "url": "./?tab=training",
-      "icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     },
     {
       "name": "Dodaj cardio",
       "short_name": "Cardio",
       "description": "Otwórz zakładkę cardio",
       "url": "./?tab=cardio",
-      "icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Szybki pomiar",
+      "short_name": "Sylwetka",
+      "description": "Przejdź do pomiarów sylwetki",
+      "url": "./?tab=sylwetka",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }

@@ -146,6 +146,28 @@ function selectCustomDay(date) {
   renderTraining();
 }
 
+function setTrainingDate(date) {
+  if (!state.activeDayType || state.activeDayType === 'custom') return;
+
+  const nextDate = date || getWeekDates(state.currentWeekMonday)[state.activeDayType];
+  const existing = getData().workouts[nextDate];
+
+  if (existing && existing.type && existing.type !== state.activeDayType) {
+    showToast('Na ten dzień jest już zapisany inny trening', 'warning', 'var(--er)');
+    renderWorkoutDetail();
+    return;
+  }
+
+  state.activeDayDate = nextDate;
+  renderWorkoutDetail();
+}
+
+function resetTrainingDate() {
+  if (!state.activeDayType || state.activeDayType === 'custom') return;
+  state.activeDayDate = getWeekDates(state.currentWeekMonday)[state.activeDayType];
+  renderWorkoutDetail();
+}
+
 function deleteCustomDay(date) {
   if (!confirm('Usunąć ten trening?')) return;
   const data = getData();
@@ -190,6 +212,8 @@ function renderWorkoutDetail() {
   const subtitle    = isCustom
     ? `${exercises.length} ćwiczeń niestandardowych`
     : (PLAN[state.activeDayType]?.subtitle || '');
+  const scheduledDate = !isCustom ? getWeekDates(state.currentWeekMonday)[state.activeDayType] : date;
+  const isOffSchedule = !isCustom && date !== scheduledDate;
 
   let html = `<div class="fade-up">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;padding-top:4px;">
@@ -200,7 +224,17 @@ function renderWorkoutDetail() {
             <span style="color:var(--osd);font-weight:400;font-size:14px;">· ${subtitle}</span>
           </div>
         </div>
-        <div style="font-size:11px;color:var(--osd);">${formatDatePL(date)}</div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px;">
+          <div style="font-size:11px;color:var(--osd);">${formatDatePL(date)}</div>
+          ${!isCustom ? `<span class="badge ${isOffSchedule ? 'bdg-s' : 'bdg-p'}">${isOffSchedule ? 'Poza harmonogramem' : 'Data z harmonogramu'}</span>` : ''}
+        </div>
+        ${!isCustom ? `<div class="training-date-tools">
+          <div class="training-date-field">
+            <label class="form-label">Data treningu</label>
+            <input class="inp training-date-input" type="date" value="${date}" onchange="setTrainingDate(this.value)">
+          </div>
+          ${isOffSchedule ? `<button class="btn-g" style="padding:10px 0;" onclick="resetTrainingDate()">Przywróć ${formatDatePL(scheduledDate)}</button>` : ''}
+        </div>` : ''}
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
         ${wd.completed ? '<span class="badge bdg-t"><span class="material-symbols-outlined" style="font-size:12px;">check_circle</span> Ukończony</span>' : ''}
@@ -371,10 +405,12 @@ function toggleSet(date, exName, setIdx, exIdx, si) { toggleSetGeneric(date, exN
 // ── UKOŃCZENIE TRENINGU ──────────────────────────────────────────
 function completeDayGeneric(date) {
   const data = getData();
-  if (!data.workouts[date]) return;
+  if (!data.workouts[date]) {
+    data.workouts[date] = { type: state.activeDayType, sets: {}, completed: false };
+  }
   data.workouts[date].completed = true;
   const name = data.workouts[date].name || PLAN[state.activeDayType]?.name || 'Trening';
-  addNotification('🏆 Trening ukończony!', `${name} — ${formatDatePL(date)}`, 'emoji_events');
+  addNotification('🏆 Trening ukończony!', `${name} — ${formatDatePL(date)}`, 'emoji_events', data);
   showToast('Trening ukończony! 🏆', 'task_alt', 'var(--t)');
   saveData(data);
   renderTraining();
@@ -453,7 +489,7 @@ function renderCBExercises() {
   const el = document.getElementById('cb-exercises');
   if (!cbExercises.length) {
     el.innerHTML = `<div style="text-align:center;padding:24px;color:var(--osd);font-size:12px;border:1px dashed rgba(255,255,255,.08);border-radius:10px;">
-      Brak ćwiczeń — dodaj poniżej lub wybierz z poradnika
+      Brak ćwiczeń — dodaj poniżej lub wybierz z encyklopedii
     </div>`;
     return;
   }
