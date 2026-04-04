@@ -16,6 +16,7 @@
 - [Done] Clear-all confirmation with `TAK`
 - [Done] Weekly and monthly summary cards v1
 - [Done] PWA hardening v1
+- [Done] Legacy service worker cleanup
 
 ### Still Worth Checking Manually
 - Real browser/device smoke test for the new PWA flow
@@ -82,7 +83,6 @@ Finish the "ideal PWA" track with validation, not only implementation.
 - test install/update/offline on desktop Chrome
 - test install/update/offline on Android Chrome
 - test install guidance flow on iOS Safari
-- remove legacy `sw.js` once the new path is validated
 - align versioning/update notes
 
 **Acceptance criteria**
@@ -137,7 +137,6 @@ Finish the "ideal PWA" track with validation, not only implementation.
 ## Technical Debt
 
 ### TD.1 Remove legacy or transitional code paths
-- old service worker file
 - temporary compatibility layers
 - leftover naming drift across modules
 

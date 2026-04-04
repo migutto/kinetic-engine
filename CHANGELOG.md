@@ -32,6 +32,7 @@ All notable user-facing changes to **The Kinetic Engine** are documented here.
 - Exercise detail cards use space more efficiently.
 - Destructive clear-all copy now clearly matches the current data scope and still requires `TAK` confirmation.
 - Active PWA registration now flows through the dedicated PWA module rather than the old direct `sw.js` path.
+- Legacy service worker cleanup now runs automatically before the current PWA worker is registered.
 
 ### Fixed
 
@@ -39,10 +40,10 @@ All notable user-facing changes to **The Kinetic Engine** are documented here.
 - Dashboard and Cardio overflow issues on smaller layouts.
 - Fragile icon and path assumptions in the PWA setup.
 - Broken or incomplete install/update behavior for the app shell.
+- Old `sw.js` fallback registration and leftover legacy cache path.
 
 ### Known Follow-Ups
 
-- `sw.js` is still present as a legacy file and should be removed after broader smoke testing.
 - Cloud sync still does not exist.
 - The UI-visible app version and export payload version should be aligned.
 

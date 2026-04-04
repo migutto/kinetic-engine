@@ -334,7 +334,7 @@ The app already behaved like a local-first tool, but the PWA layer still had rou
 
 ### Known follow-ups
 
-- The old `sw.js` file is still present in the repo as legacy code, but the active registration now points at the new `sw-pwa.js`.
+- The old `sw.js` file was still present at this stage, but that legacy cleanup was completed later the same day once the new PWA path had been verified.
 - A proper in-browser install test and device smoke test are still worth doing on Android, desktop Chrome, and iOS Safari.
 
 ---

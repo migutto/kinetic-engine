@@ -1,5 +1,7 @@
 const PWA_INSTALL_DISMISS_KEY = 'ke_pwa_install_banner_dismissed_at';
 const PWA_INSTALL_REMIND_AFTER_MS = 1000 * 60 * 60 * 24 * 3;
+const LEGACY_SW_FILENAMES = new Set(['sw.js']);
+const LEGACY_CACHE_PREFIXES = ['kinetic-engine-v'];
 
 const pwaState = {
   bannerMode: null,
@@ -16,8 +18,13 @@ function initPWA() {
   maybeShowPWASurface();
 
   if ('serviceWorker' in navigator) {
-    registerPWAServiceWorker();
+    void bootPWA();
   }
+}
+
+async function bootPWA() {
+  await cleanupLegacyPWAArtifacts();
+  await registerPWAServiceWorker();
 }
 
 function bindPWAControls() {
@@ -75,6 +82,59 @@ async function registerPWAServiceWorker() {
     }
   } catch (error) {
     console.warn('[KE] PWA SW error:', error);
+  }
+}
+
+async function cleanupLegacyPWAArtifacts() {
+  await Promise.all([
+    cleanupLegacyServiceWorkers(),
+    cleanupLegacyCaches(),
+  ]);
+}
+
+async function cleanupLegacyServiceWorkers() {
+  try {
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    const legacyRegistrations = registrations.filter(isLegacyServiceWorkerRegistration);
+
+    await Promise.all(
+      legacyRegistrations.map(registration => registration.unregister())
+    );
+  } catch (error) {
+    console.warn('[KE] Legacy SW cleanup skipped:', error);
+  }
+}
+
+function isLegacyServiceWorkerRegistration(registration) {
+  const scriptUrl = registration.active?.scriptURL
+    || registration.waiting?.scriptURL
+    || registration.installing?.scriptURL
+    || '';
+
+  if (!scriptUrl) return false;
+
+  try {
+    const url = new URL(scriptUrl, window.location.href);
+    return LEGACY_SW_FILENAMES.has(url.pathname.split('/').pop());
+  } catch (error) {
+    return false;
+  }
+}
+
+async function cleanupLegacyCaches() {
+  if (!('caches' in window)) return;
+
+  try {
+    const cacheNames = await caches.keys();
+    const legacyCacheNames = cacheNames.filter(name =>
+      LEGACY_CACHE_PREFIXES.some(prefix => name.startsWith(prefix))
+    );
+
+    await Promise.all(
+      legacyCacheNames.map(cacheName => caches.delete(cacheName))
+    );
+  } catch (error) {
+    console.warn('[KE] Legacy cache cleanup skipped:', error);
   }
 }
 

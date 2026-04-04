@@ -74,7 +74,6 @@ kinetic-engine/
 |-- icon-192.png
 |-- icon-512.png
 |-- sw-pwa.js
-|-- sw.js
 `-- js/
     |-- data.js
     |-- utils.js
@@ -92,8 +91,8 @@ kinetic-engine/
 
 - `manifest.webmanifest` is the active manifest linked from `index.html`
 - `sw-pwa.js` is the active service worker registered by the app
+- `js/pwa.js` also cleans up old service-worker registrations and legacy caches from earlier builds
 - `manifest.json` remains in the repo as a compatibility copy and should stay aligned
-- `sw.js` is now legacy and should be removed once the new PWA flow is fully smoke-tested
 
 ## Getting Started
 
@@ -142,7 +141,6 @@ Because the product is local-first, import/export and backup flows are part of t
 - Custom training plans are not implemented yet; the current model is still built around the existing weekly plan structure.
 - Cloud sync and account-based storage do not exist yet.
 - Full English/i18n support is still pending.
-- The legacy `sw.js` file is still in the repo and should be removed after broader browser testing.
 - The UI-visible app version and export schema version should be aligned.
 
 ## Near-Term Roadmap

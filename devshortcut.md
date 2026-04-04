@@ -20,6 +20,16 @@ Jest napisany zwyklym jezykiem, bez technicznego zargonu.
 
 ---
 
+## 2026-04-04 - Sprzatanie starego PWA
+
+### Poprawiono
+
+- Usunieto stary plik `sw.js`, ktory nie byl juz potrzebny.
+- Aplikacja sama sprzata stare wpisy i cache po dawnym service workerze.
+- Zostala jedna glowna sciezka PWA, dzieki czemu latwiej uniknac problemow z przestarzala wersja strony.
+
+---
+
 ## 2026-04-04 - Podsumowania tygodniowe i miesieczne
 
 ### Dodano
