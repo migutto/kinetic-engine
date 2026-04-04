@@ -12,9 +12,8 @@ function initCardioDate() {
 // ── OBLICZENIA ──────────────────────────────────────────────────
 function calcCardio() {
   const duration = parseFloat(document.getElementById('c-duration').value) || 0;
-  const steps    = parseFloat(document.getElementById('c-steps').value)    || 0;
   const distInp  = parseFloat(document.getElementById('c-dist')?.value)    || 0;
-  const distKm   = distInp > 0 ? distInp : steps * STEP_LENGTH_M / 1000;
+  const distKm   = distInp > 0 ? distInp : 0;
 
   let paceStr = '–', speedStr = '–';
   if (distKm > 0 && duration > 0) {
@@ -28,21 +27,20 @@ function calcCardio() {
 
 // ── ZAPIS SPACERU ───────────────────────────────────────────────
 function saveCardio() {
-  const dateVal  = document.getElementById('c-date')?.value || fmtDate(new Date());
+  const dateVal  = document.getElementById('c-date')?.value || '';
   const duration = parseFloat(document.getElementById('c-duration').value) || 0;
   const calories = parseFloat(document.getElementById('c-cal').value)      || 0;
   const steps    = parseFloat(document.getElementById('c-steps').value)    || 0;
   const hr       = parseFloat(document.getElementById('c-hr').value)       || 0;
   const distInp  = parseFloat(document.getElementById('c-dist')?.value)    || 0;
 
+  if (!dateVal) { showToast('Wybierz datę aktywności!', 'error', 'var(--er)'); return; }
+  if (!distInp) { showToast('Podaj dystans w kilometrach!', 'error', 'var(--er)'); return; }
   if (!duration) { showToast('Podaj czas trwania!', 'error', 'var(--er)'); return; }
 
-  const finalSteps = steps || (distInp > 0 ? Math.round(distInp * 1000 / STEP_LENGTH_M) : 0);
-  const distKm     = distInp > 0 ? distInp : finalSteps * STEP_LENGTH_M / 1000;
-
   const data = getData();
-  data.cardio.push({ id: Date.now().toString(), date: dateVal, duration, calories, steps: finalSteps, heartRate: hr, distKm: +distKm.toFixed(2) });
-  addNotification('🚶 Aktywność zapisana', `${duration} min · ${distKm.toFixed(1)} km · ${calories} kcal`, 'directions_walk');
+  data.cardio.push({ id: Date.now().toString(), date: dateVal, duration, calories, steps, heartRate: hr, distKm: +distInp.toFixed(2) });
+  addNotification('🚶 Aktywność zapisana', `${duration} min · ${distInp.toFixed(1)} km · ${calories} kcal`, 'directions_walk', data);
   saveData(data);
 
   ['c-duration', 'c-cal', 'c-steps', 'c-hr', 'c-dist'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
@@ -51,7 +49,7 @@ function saveCardio() {
   document.getElementById('c-pace').textContent  = '–';
   document.getElementById('c-speed').textContent = '–';
 
-  showToast('Aktywność zapisana!', 'check_circle', 'var(--p)');
+  showToast('Cardio zapisane!', 'check_circle', 'var(--p)');
   renderCardio();
 }
 
@@ -114,7 +112,7 @@ function renderCardio() {
 
   document.getElementById('cardio-count-label').textContent = data.cardio.length + ' aktywności';
   const histEl = document.getElementById('cardio-history');
-  if (!data.cardio.length) { histEl.innerHTML = '<div style="color:var(--osd);font-size:13px;text-align:center;padding:24px;">Brak aktywności. Zaloguj pierwszy spacer!</div>'; return; }
+  if (!data.cardio.length) { histEl.innerHTML = '<div style="color:var(--osd);font-size:13px;text-align:center;padding:24px;">Brak aktywności. Dodaj pierwsze cardio!</div>'; return; }
 
   const sorted = [...data.cardio].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 20);
   histEl.innerHTML = sorted.map(c => {
@@ -141,25 +139,24 @@ function renderCardio() {
 
 // ── SZYBKIE DODANIE (modal z dashboardu) ────────────────────────
 function saveQuickCardio() {
-  const dateVal  = document.getElementById('qc-date')?.value || fmtDate(new Date());
+  const dateVal  = document.getElementById('qc-date')?.value || '';
   const duration = parseFloat(document.getElementById('qc-duration').value) || 0;
   const steps    = parseFloat(document.getElementById('qc-steps').value)    || 0;
   const calories = parseFloat(document.getElementById('qc-cal').value)      || 0;
   const distInp  = parseFloat(document.getElementById('qc-dist')?.value)    || 0;
 
+  if (!dateVal)  { showToast('Wybierz datę aktywności!', 'error', 'var(--er)'); return; }
+  if (!distInp)  { showToast('Podaj dystans w kilometrach!', 'error', 'var(--er)'); return; }
   if (!duration) { showToast('Podaj czas trwania!', 'error', 'var(--er)'); return; }
 
-  const finalSteps = steps || (distInp > 0 ? Math.round(distInp * 1000 / STEP_LENGTH_M) : 0);
-  const distKm     = distInp > 0 ? distInp : finalSteps * STEP_LENGTH_M / 1000;
-
   const data = getData();
-  data.cardio.push({ id: Date.now().toString(), date: dateVal, duration, calories, steps: finalSteps, heartRate: 0, distKm: +distKm.toFixed(2) });
-  addNotification('🚶 Aktywność zapisana', `${duration} min · ${distKm.toFixed(1)} km`, 'directions_walk');
+  data.cardio.push({ id: Date.now().toString(), date: dateVal, duration, calories, steps, heartRate: 0, distKm: +distInp.toFixed(2) });
+  addNotification('🚶 Aktywność zapisana', `${duration} min · ${distInp.toFixed(1)} km`, 'directions_walk', data);
   saveData(data);
 
   ['qc-duration', 'qc-steps', 'qc-cal', 'qc-dist'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
   closeModal('quick-cardio');
-  showToast('Aktywność zapisana!', 'check_circle', 'var(--p)');
+  showToast('Cardio zapisane!', 'check_circle', 'var(--p)');
   if (state.currentTab === 'dashboard') renderDashboard();
   if (state.currentTab === 'cardio')    renderCardio();
 }

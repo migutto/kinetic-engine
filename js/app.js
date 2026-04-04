@@ -39,7 +39,9 @@ document.addEventListener('DOMContentLoaded', () => {
     _seedDemoData(data);
   }
 
-  if ('serviceWorker' in navigator) {
+  if (typeof initPWA === 'function') {
+    initPWA();
+  } else if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js')
       .then(reg => console.log('[KE] SW:', reg.scope))
       .catch(err => console.warn('[KE] SW błąd:', err));

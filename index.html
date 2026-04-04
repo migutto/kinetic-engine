@@ -4,11 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#060e20">
+  <meta name="description" content="Local-first dziennik treningowy: trening, cardio, sylwetka i podsumowania w jednym PWA.">
+  <meta name="application-name" content="The Kinetic Engine">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Kinetic">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="color-scheme" content="dark">
   <title>The Kinetic Engine | Dziennik Treningowy</title>
 
   <!-- PWA -->
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
 
   <!-- Fonts & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lexend:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -45,7 +55,7 @@
       </div>
       <div class="nav-item" data-tab="guide" onclick="switchTab('guide')">
         <div class="nav-icon-wrap"><span class="mi material-symbols-outlined">menu_book</span></div>
-        <span>Poradnik</span>
+        <span>Encyklopedia</span>
       </div>
       <div class="nav-item" data-tab="sylwetka" onclick="switchTab('sylwetka')">
         <div class="nav-icon-wrap"><span class="mi material-symbols-outlined">monitor_weight</span></div>
@@ -78,8 +88,11 @@
       <div style="display:flex;align-items:center;gap:10px;">
         <div style="position:relative;display:none;" id="search-wrap">
           <span class="material-symbols-outlined" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--osd);">search</span>
-          <input class="tb-search" type="text" placeholder="Szukaj ćwiczenia..." id="guide-search" oninput="filterGuide(this.value)">
+          <input class="tb-search" type="text" placeholder="Szukaj w encyklopedii..." id="guide-search" oninput="filterGuide(this.value)">
         </div>
+        <button class="icon-btn pwa-btn" id="pwa-action-btn" type="button" title="Zainstaluj aplikację" hidden>
+          <span class="mi material-symbols-outlined" id="pwa-action-icon">download</span>
+        </button>
         <button class="icon-btn" onclick="openNotifications()" title="Powiadomienia" id="notif-btn">
           <span class="mi material-symbols-outlined">notifications</span>
           <div class="notif-dot" id="notif-dot"></div>
@@ -100,10 +113,10 @@
 
       <!-- ══ DASHBOARD ══ -->
       <div id="panel-dashboard" class="panel active" style="flex-direction:column;overflow-y:auto;">
-        <div style="padding:24px 28px;">
+        <div class="panel-shell" style="padding:24px 28px;">
           <div id="dash-stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:16px;"></div>
           <!-- Szybkie akcje -->
-          <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+          <div class="quick-actions-row" style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
             <button class="btn-s" style="padding:10px 18px;font-size:10px;flex:1;min-width:140px;" onclick="openModal('quick-cardio')">
               <span style="display:flex;align-items:center;justify-content:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:16px;">directions_walk</span>+ Dodaj Cardio</span>
             </button>
@@ -112,7 +125,7 @@
             </button>
           </div>
           <div id="dash-body-banner" style="margin-bottom:20px;"></div>
-          <div style="display:grid;grid-template-columns:1fr 330px;gap:20px;">
+          <div id="dashboard-main-grid" style="display:grid;grid-template-columns:1fr 330px;gap:20px;">
             <div style="display:flex;flex-direction:column;gap:18px;">
               <div class="card card-glow" style="padding:24px;">
                 <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;">
@@ -124,7 +137,7 @@
                 </div>
                 <div style="height:185px;"><canvas id="chart-volume"></canvas></div>
               </div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+              <div id="dashboard-secondary-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
                 <div class="card card-glow" style="padding:22px;">
                   <div class="lex" style="font-weight:800;font-size:14px;margin-bottom:14px;">Trend Kroków (7 dni)</div>
                   <div style="height:130px;"><canvas id="chart-steps"></canvas></div>
@@ -132,6 +145,12 @@
                 <div class="card card-glow" style="padding:22px;">
                   <div class="lex" style="font-weight:800;font-size:14px;margin-bottom:14px;">Postęp Tygodniowy</div>
                   <div id="dash-week-mini"></div>
+                </div>
+                <div class="card card-glow dashboard-summary-card" style="padding:22px;">
+                  <div id="dash-week-summary"></div>
+                </div>
+                <div class="card card-glow dashboard-summary-card" style="padding:22px;">
+                  <div id="dash-month-summary"></div>
                 </div>
               </div>
             </div>
@@ -157,8 +176,8 @@
 
       <!-- ══ TRAINING ══ -->
       <div id="panel-training" class="panel" style="flex-direction:column;overflow:hidden;">
-        <div style="padding:20px 28px 0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
-          <div style="display:flex;align-items:center;gap:12px;">
+        <div id="training-toolbar" style="padding:20px 28px 0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+          <div class="training-toolbar-main" style="display:flex;align-items:center;gap:12px;">
             <button class="week-nav-btn" onclick="changeWeek(-1)"><span class="material-symbols-outlined" style="font-size:18px;">chevron_left</span></button>
             <div>
               <div class="lex" id="week-label" style="font-weight:800;font-size:16px;"></div>
@@ -167,7 +186,7 @@
             <button class="week-nav-btn" onclick="changeWeek(1)"><span class="material-symbols-outlined" style="font-size:18px;">chevron_right</span></button>
             <button class="btn-g" onclick="goToCurrentWeek()">Bieżący tydzień</button>
           </div>
-          <div style="display:flex;align-items:center;gap:10px;">
+          <div class="training-toolbar-actions" style="display:flex;align-items:center;gap:10px;">
             <div class="prog-bar" style="width:110px;"><div class="prog-fill" id="week-prog-fill"></div></div>
             <span id="week-prog-txt" style="font-size:11px;color:var(--osd);"></span>
             <button class="btn-s" style="padding:7px 12px;font-size:9px;" onclick="openModal('orm')">
@@ -197,30 +216,30 @@
 
       <!-- ══ CARDIO ══ -->
       <div id="panel-cardio" class="panel" style="overflow-y:auto;">
-        <div style="padding:24px 28px;width:100%;">
+        <div class="panel-shell panel-shell-cardio" style="padding:24px 28px;width:100%;">
           <div id="cardio-stats-row" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;"></div>
-          <div style="display:grid;grid-template-columns:360px 1fr;gap:20px;">
-            <div class="card" style="padding:24px;height:fit-content;background:linear-gradient(180deg,#0d1d3a,#091328);">
+          <div id="cardio-main-grid" style="display:grid;grid-template-columns:360px 1fr;gap:20px;">
+            <div class="card" id="cardio-form-card" style="padding:24px;height:fit-content;background:linear-gradient(180deg,#0d1d3a,#091328);">
               <div style="display:flex;align-items:center;gap:10px;margin-bottom:22px;">
                 <div style="width:3px;height:22px;background:var(--g1);border-radius:2px;box-shadow:0 0 10px rgba(137,172,255,.4);"></div>
-                <div class="lex" style="font-weight:800;font-size:17px;">Loguj Spacer</div>
+                <div class="lex" style="font-weight:800;font-size:17px;">Dodaj Cardio</div>
               </div>
               <div style="display:flex;flex-direction:column;gap:15px;">
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div class="form-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                   <div>
                     <label class="form-label">Data</label>
                     <input class="inp" type="date" id="c-date" style="font-size:13px;">
                   </div>
                   <div>
-                    <label class="form-label">Dystans (km) — opcjonalnie</label>
-                    <input class="inp" type="number" step="0.01" id="c-dist" placeholder="np. 3.5" oninput="calcCardio()">
+                    <label class="form-label">Dystans (km)</label>
+                    <input class="inp" type="number" step="0.01" min="0.01" id="c-dist" placeholder="np. 3.5" oninput="calcCardio()">
                   </div>
                 </div>
                 <div>
                   <label class="form-label">Czas Trwania (min)</label>
                   <input class="inp" type="number" id="c-duration" placeholder="45" oninput="calcCardio()">
                 </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div class="form-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                   <div>
                     <label class="form-label">Kalorie</label>
                     <input class="inp" type="number" id="c-cal" placeholder="0" oninput="calcCardio()">
@@ -234,7 +253,7 @@
                   <label class="form-label">Średnie Tętno (BPM)</label>
                   <input class="inp" type="number" id="c-hr" placeholder="115">
                 </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div class="form-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                   <div class="cardio-form-metric">
                     <div class="cardio-val" id="c-pace">–</div>
                     <div class="cardio-sub">Tempo min/km</div>
@@ -246,10 +265,10 @@
                 </div>
                 <button class="btn-p" style="width:100%;padding:15px;font-size:11px;letter-spacing:1.5px;" onclick="saveCardio()">
                   <span style="display:flex;align-items:center;justify-content:center;gap:8px;">
-                    <span class="material-symbols-outlined" style="font-size:17px;">save</span>ZAPISZ SPACER
+                    <span class="material-symbols-outlined" style="font-size:17px;">save</span>ZAPISZ CARDIO
                   </span>
                 </button>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div class="form-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
                   <button class="btn-s" style="padding:10px;font-size:9px;" onclick="exportCardio()">
                     <span style="display:flex;align-items:center;justify-content:center;gap:5px;"><span class="material-symbols-outlined" style="font-size:14px;">download</span>Eksport JSON</span>
                   </button>
@@ -260,7 +279,7 @@
                 </div>
               </div>
             </div>
-            <div style="display:flex;flex-direction:column;gap:18px;">
+            <div id="cardio-side-column" style="display:flex;flex-direction:column;gap:18px;">
               <div class="card card-glow" style="padding:24px;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
                   <div>
@@ -284,10 +303,10 @@
       </div>
 
       <!-- ══ GUIDE ══ -->
-      <div id="panel-guide" class="panel" style="overflow:hidden;">
-        <div style="width:360px;flex-shrink:0;background:linear-gradient(180deg,#091c3e,#060e20);display:flex;flex-direction:column;overflow:hidden;border-right:1px solid rgba(137,172,255,.05);">
+        <div id="panel-guide" class="panel" style="overflow:hidden;">
+          <div id="guide-sidebar" style="width:360px;flex-shrink:0;background:linear-gradient(180deg,#091c3e,#060e20);display:flex;flex-direction:column;overflow:hidden;border-right:1px solid rgba(137,172,255,.05);">
           <div style="padding:18px 18px 10px;">
-            <div style="display:flex;gap:7px;overflow-x:auto;padding-bottom:8px;" id="guide-cats"></div>
+            <div style="display:flex;gap:7px;flex-wrap:wrap;padding-bottom:8px;" id="guide-cats"></div>
           </div>
           <div style="flex:1;overflow-y:auto;padding:6px 14px 20px;" id="guide-list"></div>
         </div>
@@ -300,8 +319,8 @@
       </div>
 
       <!-- ══ SYLWETKA ══ -->
-      <div id="panel-sylwetka" class="panel" style="overflow:hidden;">
-        <div style="width:320px;flex-shrink:0;display:flex;flex-direction:column;overflow-y:auto;background:linear-gradient(180deg,#091c3e,#060e20);border-right:1px solid rgba(137,172,255,.05);padding:20px 18px;">
+        <div id="panel-sylwetka" class="panel" style="overflow:hidden;">
+          <div id="body-sidebar" style="width:320px;flex-shrink:0;display:flex;flex-direction:column;overflow-y:auto;background:linear-gradient(180deg,#091c3e,#060e20);border-right:1px solid rgba(137,172,255,.05);padding:20px 18px;">
           <div id="body-current-stats" style="margin-bottom:18px;"></div>
           <div style="margin-bottom:20px;">
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
@@ -313,7 +332,7 @@
                 <label class="form-label">Data</label>
                 <input class="inp" type="date" id="b-date" style="font-size:13px;">
               </div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div class="form-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
                 <div>
                   <label class="form-label">Waga (kg)</label>
                   <input class="inp" type="number" step="0.05" id="b-weight" placeholder="95.0">
@@ -323,7 +342,7 @@
                   <input class="inp" type="number" step="0.1" id="b-fat" placeholder="29.5">
                 </div>
               </div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div class="form-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
                 <div>
                   <label class="form-label">Mięśnie (kg)</label>
                   <input class="inp" type="number" step="0.1" id="b-muscle" placeholder="37.0">
@@ -353,7 +372,7 @@
                 <div style="font-size:10px;color:var(--osd);margin-top:2px;">Kliknij lub upuść plik</div>
                 <input type="file" id="json-import-inp" accept=".json" style="display:none;" onchange="importBodyJSON(this)">
               </div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div class="form-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
                 <button class="btn-s" onclick="exportBodyJSON()" style="font-size:9px;padding:10px 8px;">
                   <span style="display:flex;align-items:center;justify-content:center;gap:5px;"><span class="material-symbols-outlined" style="font-size:14px;">download</span>JSON</span>
                 </button>
@@ -364,8 +383,8 @@
             </div>
           </div>
         </div>
-        <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
-          <div style="padding:16px 22px 0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+        <div id="body-main" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+          <div id="body-toolbar" style="padding:16px 22px 0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
             <div style="display:flex;gap:7px;" id="smooth-btns">
               <button class="smooth-btn active" onclick="setSmoothBody('raw')">Surowe</button>
               <button class="smooth-btn" onclick="setSmoothBody('7d')">Średnia 7 dni</button>
@@ -374,23 +393,23 @@
             <span id="body-count-label" style="font-size:11px;color:var(--osd);"></span>
           </div>
           <div style="flex:1;overflow-y:auto;padding:16px 22px;" id="body-charts-area">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="body-chart-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
               <div class="chart-card"><div class="chart-title">WAGA + PROJEKCJA</div><div class="chart-subtitle">Waga (kg) z prognozą trendu</div><div style="height:200px;"><canvas id="bc-weight"></canvas></div></div>
               <div class="chart-card"><div class="chart-title">SKŁAD (%)</div><div class="chart-subtitle">Tłuszcz % i Mięśnie (kg)</div><div style="height:200px;"><canvas id="bc-comp"></canvas></div></div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="body-chart-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
               <div class="chart-card"><div class="chart-title">JAKOŚĆ (RATIO)</div><div class="chart-subtitle">LBM / Tłuszcz (kg)</div><div style="height:180px;"><canvas id="bc-ratio"></canvas></div></div>
               <div class="chart-card"><div class="chart-title">FFMI (POTENCJAŁ)</div><div class="chart-subtitle">Fat Free Mass Index</div><div style="height:180px;"><canvas id="bc-ffmi"></canvas></div></div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="body-chart-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
               <div class="chart-card"><div class="chart-title">RZECZYWISTA MASA (KG)</div><div class="chart-subtitle">Tłuszcz (kg) i LBM (kg)</div><div style="height:180px;"><canvas id="bc-mass"></canvas></div></div>
               <div class="chart-card"><div class="chart-title">TEMPO ZMIAN (KG/TYDZ)</div><div class="chart-subtitle">Tygodniowa delta wagi</div><div style="height:180px;"><canvas id="bc-delta"></canvas></div></div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="body-chart-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
               <div class="chart-card"><div class="chart-title">EFEKTYWNOŚĆ (TŁUSZCZ VS LBM)</div><div class="chart-subtitle">Tygodniowe delty składu</div><div style="height:180px;"><canvas id="bc-eff"></canvas></div></div>
               <div class="chart-card"><div class="chart-title">MACIERZ (WAGA VS FAT%)</div><div class="chart-subtitle">Korelacja wagi i tłuszczu</div><div style="height:180px;"><canvas id="bc-scatter"></canvas></div></div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+            <div class="body-chart-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
               <div class="chart-card" style="padding:18px;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
                   <div class="chart-title" style="margin-bottom:0;">HISTORIA POMIARÓW</div>
@@ -496,7 +515,7 @@
     </div>
     <div style="margin-bottom:16px;padding:14px;background:rgba(255,113,108,.04);border:1px solid rgba(255,113,108,.12);border-radius:12px;">
       <div class="drawer-section-label" style="color:var(--er);margin-bottom:10px;">Strefa niebezpieczna</div>
-      <div style="font-size:11px;color:var(--osd);margin-bottom:10px;">Wpisz <strong style="color:var(--er);">TAK</strong> aby potwierdzić usunięcie wszystkich danych (treningi, cardio, sylwetka, ustawienia).</div>
+      <div style="font-size:11px;color:var(--osd);margin-bottom:10px;">Wpisz <strong style="color:var(--er);">TAK</strong> aby potwierdzić usunięcie wszystkich danych: treningi, cardio, sylwetka, profil, powiadomienia i ustawienia.</div>
       <input class="inp" type="text" id="clear-confirm-inp" placeholder="Wpisz TAK" style="margin-bottom:10px;border-color:rgba(255,113,108,.3);">
       <button class="btn-s" style="width:100%;border-color:rgba(255,113,108,.3);color:var(--er);" onclick="clearAllData()">
         <span style="display:flex;align-items:center;justify-content:center;gap:8px;"><span class="material-symbols-outlined" style="font-size:16px;">delete_forever</span>Wyczyść wszystkie dane</span>
@@ -524,7 +543,7 @@
     </div>
     <div id="cb-exercises" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:7px;min-height:80px;max-height:340px;padding-right:2px;"></div>
     <div style="margin-top:12px;">
-      <div class="form-label" style="margin-bottom:8px;">Szybkie dodanie z poradnika</div>
+      <div class="form-label" style="margin-bottom:8px;">Szybkie dodanie z encyklopedii</div>
       <div style="display:flex;flex-wrap:wrap;gap:5px;" id="cb-quick-list"></div>
     </div>
     <button class="btn-p" style="margin-top:16px;width:100%;padding:14px;" onclick="saveCustomWorkout()">
@@ -551,9 +570,9 @@
         <div><label class="form-label">Kroki</label><input class="inp" type="number" id="qc-steps" placeholder="6000"></div>
         <div><label class="form-label">Kalorie</label><input class="inp" type="number" id="qc-cal" placeholder="250"></div>
       </div>
-      <div><label class="form-label">Dystans (km) — opcjonalnie</label><input class="inp" type="number" step="0.01" id="qc-dist" placeholder="3.5"></div>
+      <div><label class="form-label">Dystans (km)</label><input class="inp" type="number" step="0.01" min="0.01" id="qc-dist" placeholder="3.5"></div>
       <button class="btn-p" style="width:100%;padding:13px;" onclick="saveQuickCardio()">
-        <span style="display:flex;align-items:center;justify-content:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:16px;">save</span>Zapisz</span>
+        <span style="display:flex;align-items:center;justify-content:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:16px;">save</span>Zapisz cardio</span>
       </button>
     </div>
   </div>
@@ -660,6 +679,21 @@
   <span id="toast-msg"></span>
 </div>
 
+<!-- PWA Banner -->
+<div id="pwa-banner" class="pwa-banner" hidden>
+  <div class="pwa-banner-icon-wrap">
+    <span id="pwa-banner-icon" class="material-symbols-outlined">download</span>
+  </div>
+  <div class="pwa-banner-copy">
+    <div id="pwa-banner-title" class="pwa-banner-title">Zainstaluj aplikację</div>
+    <div id="pwa-banner-text" class="pwa-banner-text">Dodaj Kinetic Engine do ekranu głównego i korzystaj offline.</div>
+  </div>
+  <div class="pwa-banner-actions">
+    <button id="pwa-banner-secondary" class="btn-g" type="button">Nie teraz</button>
+    <button id="pwa-banner-primary" class="btn-p" type="button">Zainstaluj</button>
+  </div>
+</div>
+
 <!-- ════════════════ JS MODULES ════════════════ -->
 <script src="js/data.js"></script>
 <script src="js/utils.js"></script>
@@ -669,6 +703,7 @@
 <script src="js/body.js"></script>
 <script src="js/dashboard.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/pwa.js"></script>
 <script src="js/app.js"></script>
 
 </body>

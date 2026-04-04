@@ -1,81 +1,63 @@
-# Changelog
+﻿# Changelog
 
-All notable changes to **The Kinetic Engine** will be documented in this file.
-
-The format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and is adapted for a solo GitHub-hosted project.
+All notable user-facing changes to **The Kinetic Engine** are documented here.
 
 ---
 
-## [Unreleased]
+## [2026-04-04]
 
 ### Added
 
-- Dashboard quick actions for **Quick Cardio** and **Quick Body Measurement**.
-- Quick cardio modal with support for:
-  - date
-  - duration
-  - steps
-  - calories
-  - optional manual distance
-- Quick body modal with fast weight and body-fat logging.
-- Cardio pace and speed calculation based on duration and distance.
-- Cardio JSON export and import flow.
-- Full backup export/import from Settings.
-- Confirmation gate requiring `TAK` before wiping all application data.
-- Weekly cardio summary cards and richer cardio activity history rendering.
+- Date backfill for training entries.
+- Weekly and monthly dashboard summary cards generated locally.
+- Dashboard quick actions for cardio and body entry.
+- Body data import/export from Settings.
+- A stronger PWA layer built around:
+  - `manifest.webmanifest`
+  - `sw-pwa.js`
+  - `js/pwa.js`
+  - `offline.html`
+- Install/update surfaces in the UI:
+  - topbar action button
+  - install banner
+  - update-ready banner
+  - iOS install guidance fallback
 
 ### Changed
 
-- Switched frontend asset references in `index.html` to deployment-friendly relative paths.
-- Updated service worker registration in `app.js` to use `sw.js` directly.
-- Extended cardio logging logic to derive missing distance from steps and missing steps from distance.
-- Improved dashboard-to-data-entry flow by allowing logging without leaving the home screen.
-- Reset cardio form metrics after save for cleaner repeated entry flow.
-- Refreshed settings drawer behavior to clear destructive confirmation input on open.
-
-### Improved
-
-- Better daily-use ergonomics for the most common actions.
-- Safer local data handling through backup and wipe confirmation.
-- More complete cardio analytics in the UI.
-- Better readiness for GitHub Pages deployment.
+- Cardio distance is now treated as the primary metric for pace and speed.
+- Dashboard top cards were refreshed to show more useful current-state metrics.
+- The old guide section is now presented as an exercise encyclopedia.
+- Encyclopedia categories now wrap instead of forcing sideways scrolling.
+- Exercise detail cards use space more efficiently.
+- Destructive clear-all copy now clearly matches the current data scope and still requires `TAK` confirmation.
+- Active PWA registration now flows through the dedicated PWA module rather than the old direct `sw.js` path.
 
 ### Fixed
 
-- Broken or outdated path assumptions around CSS/icon/manifest usage for static hosting.
-- Incorrect service worker registration path for the current deployment structure.
-- Missing dashboard shortcuts for common logging actions.
-- Missing import/export affordances for cardio and full backup workflows.
+- State overwrite bug where a fresh notification could be lost behind an older localStorage snapshot.
+- Dashboard and Cardio overflow issues on smaller layouts.
+- Fragile icon and path assumptions in the PWA setup.
+- Broken or incomplete install/update behavior for the app shell.
 
-### Known Issues
+### Known Follow-Ups
 
-- Export payload versions already reference `3.1`, while the settings UI still displays `v3.0`.
-- Quick modal date prefill only fills empty inputs, so previously retained dates can persist between openings.
-- There is minor transitional/dead code around modal patching that should be cleaned up later.
-
----
-
-## [Earlier Development]
-
-### Added
-
-- Core application shell with sidebar, topbar, panels, modals, drawers, and toast system.
-- Training module with weekly navigation, day selection, check-ins, and session tracking.
-- Rest timer widget and 1RM calculator.
-- Cardio module for walking/activity logging.
-- Body composition module with charts, history, smoothing options, and exports.
-- Profile view and notification drawer.
-- PWA-oriented document head configuration.
-
-### Improved
-
-- Modular file structure for a cleaner front-end codebase.
-- Product identity and UI consistency across tabs.
-- Dashboard visibility for key fitness signals.
+- `sw.js` is still present as a legacy file and should be removed after broader smoke testing.
+- Cloud sync still does not exist.
+- The UI-visible app version and export payload version should be aligned.
 
 ---
 
-## Version Notes
+## [2026-04-03 and earlier]
 
-Current UI-visible app version: `v3.0`  
-Current export payload version markers seen in code: `3.1`
+### Added Over Time
+
+- Core dashboard, training, cardio, and body-composition modules.
+- Rest timer and 1RM calculator.
+- Profile and notifications.
+- Backup/import flows.
+- Local-first persistence.
+
+### Direction
+
+The app has moved from a simple static workout logger toward a more complete local-first training cockpit with installable PWA behavior.

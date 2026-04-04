@@ -1,47 +1,59 @@
-# The Kinetic Engine
+﻿# The Kinetic Engine
 
-**The Kinetic Engine** is a modular training journal built as a lightweight front-end web app. It combines workout tracking, cardio logging, body composition monitoring, dashboards, notifications, local backup/import tools, and Progressive Web App foundations in a single static project.
+**The Kinetic Engine** is a local-first training journal built as a static front-end app. It combines workout logging, cardio tracking, body-composition monitoring, dashboards, notifications, backup tools, and a stronger installable PWA layer in one project.
 
 ## Overview
 
-The app is designed to work without a backend. It focuses on fast interaction, a polished desktop-style UI, and local persistence so it can be deployed easily as a static site, including through GitHub Pages.
+The app is intentionally backend-free today. It is designed to feel fast, personal, and portable: open it in a browser, install it like an app where supported, keep data locally, and export what matters when needed.
 
-## Features
+## Current Product Snapshot
 
 ### Training
-- Weekly training flow with dedicated workout days and schedule tiles
-- Check-in flow for marking workout days as active or completed
-- Rest timer widget for managing breaks between sets
-- 1RM calculator integrated into the training flow
-- Workout export/import support
+- Weekly workout flow with schedule tiles and check-in actions
+- Date backfill for logging an earlier training session
+- Rest timer widget
+- 1RM calculator
+- Workout import/export support
 
 ### Cardio
-- Manual cardio logging with duration, calories, steps, heart rate, and optional distance
-- Automatic pace and speed calculation based on duration and distance
+- Manual cardio logging with date, duration, distance, calories, steps, and heart rate
+- Distance is now the primary metric for pace and speed calculations
 - Quick cardio entry directly from the dashboard
 - Weekly cardio stats and recent activity history
-- Cardio export/import in JSON format
+- JSON export/import for cardio data
 
-### Body tracking
+### Body Tracking
 - Body measurement logging for weight, body fat, muscle mass, and visceral fat
-- Dedicated body composition dashboard and charts
-- Quick body-entry modal from the dashboard
-- JSON and CSV export support for body data
+- Dedicated body-composition dashboard and charts
+- Quick body entry from the dashboard
+- JSON and CSV export support
+- Body data import/export from Settings
 
-### UX and app systems
+### Dashboard and UX
+- Refreshed top dashboard cards with more useful "right now" metrics
+- Quick actions for cardio and body entry
+- Weekly and monthly summary cards generated locally
 - Notifications drawer with unread badge handling
 - Profile modal with custom avatar and display name
-- Global settings drawer for goals, rest timer duration, and notification preferences
-- Full backup export/import flow
-- Protected “clear all data” action with explicit text confirmation
+- Settings drawer with goals, rest timer, notification preferences, import/export, and destructive-action confirmation
+- "Clear all data" requires typing `TAK`
 
-### PWA and deployment foundations
-- `manifest.json` support
-- App icon support via `apple-touch-icon`
-- Service worker registration from `app.js`
-- Static-file structure suitable for GitHub Pages deployment
+### Exercise Encyclopedia
+- The old guide section is now presented as an exercise encyclopedia
+- Wrapped category chips instead of awkward sideways scrolling
+- Denser detail layout with less wasted space
+- Decorative low-value "Technika Mistrzowska" block removed
 
-## Tech stack
+### PWA
+- Installable manifest via `manifest.webmanifest`
+- Dedicated service worker in `sw-pwa.js`
+- Offline fallback page
+- Install banner and topbar install/update action
+- Waiting-update banner for new versions
+- iOS install guidance fallback
+- Storage-persistence request to reduce accidental browser eviction
+
+## Tech Stack
 
 - HTML5
 - CSS3
@@ -50,38 +62,48 @@ The app is designed to work without a backend. It focuses on fast interaction, a
 - Google Fonts / Material Symbols
 - Local browser storage
 
-## Project structure
+## Project Structure
 
 ```text
 kinetic-engine/
-├── index.html
-├── manifest.json
-├── style.css
-├── icon-192.png
-├── icon-512.png
-├── sw.js
-└── js/
-    ├── data.js
-    ├── utils.js
-    ├── guide.js
-    ├── training.js
-    ├── cardio.js
-    ├── body.js
-    ├── dashboard.js
-    ├── ui.js
-    └── app.js
+|-- index.html
+|-- manifest.webmanifest
+|-- manifest.json
+|-- offline.html
+|-- style.css
+|-- icon-192.png
+|-- icon-512.png
+|-- sw-pwa.js
+|-- sw.js
+`-- js/
+    |-- data.js
+    |-- utils.js
+    |-- guide.js
+    |-- training.js
+    |-- cardio.js
+    |-- body.js
+    |-- dashboard.js
+    |-- ui.js
+    |-- pwa.js
+    `-- app.js
 ```
 
-## Getting started
+### Notes on PWA Files
 
-### Run locally
+- `manifest.webmanifest` is the active manifest linked from `index.html`
+- `sw-pwa.js` is the active service worker registered by the app
+- `manifest.json` remains in the repo as a compatibility copy and should stay aligned
+- `sw.js` is now legacy and should be removed once the new PWA flow is fully smoke-tested
 
-Because this is a static app, the simplest way to run it locally is to open `index.html` in a browser. For better PWA and service worker behavior, use a local static server.
+## Getting Started
 
-Examples:
+### Run Locally
+
+Because this is a static app, you can open `index.html` directly, but PWA behavior is best tested through a local static server.
+
+Example:
 
 ```bash
-# Python 3
 python -m http.server 8000
 ```
 
@@ -94,49 +116,42 @@ http://localhost:8000
 ### Deploy with GitHub Pages
 
 1. Push the project to a GitHub repository.
-2. Open the repository settings.
+2. Open repository settings.
 3. Go to **Pages**.
 4. Set **Source** to **Deploy from a branch**.
 5. Select the `main` branch and the `/(root)` folder.
 6. Save and wait for deployment.
 
-For a repository named `kinetic-engine` under the `migutto` account, the site URL is expected to be:
+Relative paths are already in place, which makes the current app shell safer for GitHub Pages and similar static hosting setups.
 
-```text
-https://migutto.github.io/kinetic-engine/
-```
+## Data and Persistence
 
-## Data model and persistence
+The app stores data locally in the browser:
 
-The application stores user data locally in the browser. That includes workouts, cardio entries, body measurements, profile data, notifications, and settings. Since storage is local-first, backup/export features are important for portability and recovery.
+- workouts
+- cardio entries
+- body measurements
+- profile data
+- notifications
+- settings
 
-## Notes
+Because the product is local-first, import/export and backup flows are part of the core experience rather than optional extras.
 
-- This project is front-end only.
-- Some PWA behavior depends on correct `manifest.json` and `sw.js` configuration.
-- If you are publishing to GitHub Pages, prefer relative file paths in the app shell.
-- The UI currently presents itself as `v3.0`, while some export payloads already use `3.1`; aligning those version markers would improve consistency.
+## Known Gaps
 
-## Suggested screenshots
+- Custom training plans are not implemented yet; the current model is still built around the existing weekly plan structure.
+- Cloud sync and account-based storage do not exist yet.
+- Full English/i18n support is still pending.
+- The legacy `sw.js` file is still in the repo and should be removed after broader browser testing.
+- The UI-visible app version and export schema version should be aligned.
 
-You can later add screenshots like this:
+## Near-Term Roadmap
 
-```md
-## Screenshots
-
-![Dashboard](./docs/screenshots/dashboard.png)
-![Training](./docs/screenshots/training.png)
-![Cardio](./docs/screenshots/cardio.png)
-![Body](./docs/screenshots/body.png)
-```
-
-## Roadmap ideas
-
-- Refine service worker caching and offline validation
-- Unify visible app version with export schema version
-- Add stronger form validation and edge-case handling
-- Improve mobile responsiveness
-- Add optional cloud sync or authenticated backup layer
+- Build a real custom plan system with default-plan selection
+- Add cloud save/sync architecture
+- Add scheduled weekly/month-end summary flows and notifications
+- Finish PWA smoke-testing on desktop Chrome, Android, and iOS Safari
+- Prepare the app for English/i18n
 
 ## License
 

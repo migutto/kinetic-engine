@@ -286,8 +286,8 @@ function saveSetting(key, val) {
 const TAB_TITLES = {
   dashboard: 'Mój Dashboard',
   training:  'Plan Treningowy',
-  cardio:    'Cardio — Spacery',
-  guide:     'Poradnik Ćwiczeń',
+  cardio:    'Cardio i Aktywność',
+  guide:     'Encyklopedia Ćwiczeń',
   sylwetka:  'Sylwetka & Kompozycja Ciała'
 };
 

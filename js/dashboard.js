@@ -5,36 +5,59 @@
 // ═══════════════════════════════════════════════════════════════
 
 function renderDashboard() {
-  const data  = getData();
-  const today = fmtDate(new Date());
-  const wDates = getWeekDates(getMondayOfWeek(new Date()));
-
-  const totalWorkouts = Object.values(data.workouts).filter(w => w.completed).length;
-  const totalCardio   = data.cardio.length;
-  const totalSteps    = data.cardio.reduce((s, c) => s + (c.steps || 0), 0);
-  const avgCal        = totalCardio > 0
-    ? Math.round(data.cardio.reduce((s, c) => s + (c.calories || 0), 0) / totalCardio)
-    : 0;
+  const data       = getData();
+  const today      = fmtDate(new Date());
+  const thisMonday = getMondayOfWeek(new Date());
+  const wDates     = getWeekDates(thisMonday);
+  const settings   = getSettings();
+  const weekCardio = data.cardio.filter(c => c.date >= thisMonday && c.date <= addDays(thisMonday, 6));
+  const weekDone   = ['A', 'B', 'C'].filter(t => data.workouts[wDates[t]]?.completed).length;
+  const weekDist   = weekCardio.reduce((s, c) => s + (c.distKm || (c.steps || 0) * 0.73 / 1000), 0);
+  const todaySteps = data.cardio.filter(c => c.date === today).reduce((s, c) => s + (c.steps || 0), 0);
+  const todayGoal  = settings.stepGoal || 8000;
+  const todayPct   = Math.min(999, Math.round((todaySteps / todayGoal) * 100));
+  const todayStepsLabel = todaySteps > 1000 ? (todaySteps / 1000).toFixed(1) + 'k' : todaySteps;
+  const latestMeasurement = data.measurements?.length ? data.measurements[data.measurements.length - 1] : null;
+  const latestWeight = latestMeasurement ? Number(latestMeasurement.weight || 0).toFixed(1) : '—';
+  const latestBodyMeta = latestMeasurement
+    ? `${formatDatePL(latestMeasurement.date)}${latestMeasurement.fatPct ? ` · Tłuszcz ${latestMeasurement.fatPct}%` : ''}`
+    : 'Dodaj pierwszy pomiar sylwetki.';
 
   renderBodyBanner();
 
   // ── 4 stat-karty ──
   document.getElementById('dash-stats').innerHTML = `
-    <div class="stat-card fade-up">
+    <div class="stat-card is-clickable fade-up" onclick="switchTab('training')">
       <div class="stat-icon" style="background:rgba(137,172,255,.12)"><span class="material-symbols-outlined" style="color:var(--p)">fitness_center</span></div>
-      <div><div class="stat-label">Łącznie Treningi</div><div class="stat-val">${totalWorkouts}</div></div>
+      <div class="stat-card-body">
+        <div class="stat-label">Tydzień treningowy</div>
+        <div class="stat-val">${weekDone}<span style="font-size:15px;"> / 3</span></div>
+        <div class="stat-meta">${weekDone === 3 ? 'Plan bazowy jest domknięty w tym tygodniu.' : `${3 - weekDone} dni do zamknięcia bazowego planu.`}</div>
+      </div>
     </div>
-    <div class="stat-card fade-up" style="animation-delay:.06s">
+    <div class="stat-card is-clickable fade-up" style="animation-delay:.06s" onclick="switchTab('cardio')">
       <div class="stat-icon" style="background:rgba(166,140,255,.12)"><span class="material-symbols-outlined" style="color:var(--s)">directions_walk</span></div>
-      <div><div class="stat-label">Sesje Cardio</div><div class="stat-val">${totalCardio}</div></div>
+      <div class="stat-card-body">
+        <div class="stat-label">Cardio w tygodniu</div>
+        <div class="stat-val">${weekDist.toFixed(1)}<span style="font-size:15px;"> km</span></div>
+        <div class="stat-meta">${weekCardio.length} sesji · średnio ${weekCardio.length ? (weekDist / weekCardio.length).toFixed(1) : '0.0'} km</div>
+      </div>
     </div>
-    <div class="stat-card fade-up" style="animation-delay:.12s">
+    <div class="stat-card is-clickable fade-up" style="animation-delay:.12s" onclick="switchTab('cardio')">
       <div class="stat-icon" style="background:rgba(243,255,202,.1)"><span class="material-symbols-outlined" style="color:var(--t)">footprint</span></div>
-      <div><div class="stat-label">Łączne Kroki</div><div class="stat-val">${totalSteps > 1000 ? (totalSteps / 1000).toFixed(1) + 'k' : totalSteps}</div></div>
+      <div class="stat-card-body">
+        <div class="stat-label">Kroki dzisiaj</div>
+        <div class="stat-val">${todayStepsLabel}</div>
+        <div class="stat-meta">${todayPct}% celu dziennego · ${todayGoal.toLocaleString()} kroków</div>
+      </div>
     </div>
-    <div class="stat-card fade-up" style="animation-delay:.18s">
-      <div class="stat-icon" style="background:rgba(255,113,108,.1)"><span class="material-symbols-outlined" style="color:var(--er)">local_fire_department</span></div>
-      <div><div class="stat-label">Śr. Kcal / Spacer</div><div class="stat-val">${avgCal}</div></div>
+    <div class="stat-card is-clickable fade-up" style="animation-delay:.18s" onclick="switchTab('sylwetka')">
+      <div class="stat-icon" style="background:rgba(255,113,108,.1)"><span class="material-symbols-outlined" style="color:var(--er)">monitor_weight</span></div>
+      <div class="stat-card-body">
+        <div class="stat-label">Ostatni pomiar</div>
+        <div class="stat-val">${latestWeight}${latestMeasurement ? '<span style="font-size:15px;"> kg</span>' : ''}</div>
+        <div class="stat-meta">${latestBodyMeta}</div>
+      </div>
     </div>`;
 
   // ── Karta "Dzisiaj" ──
@@ -170,9 +193,204 @@ function renderDashboard() {
       <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${miniColors[t]};box-shadow:0 0 8px ${miniColors[t]}40;"></div></div>
     </div>`;
   }).join('');
+
+  renderDashboardSummaries(data, today, thisMonday);
 }
 
 // ── BANER SYLWETKI (Dashboard) ──────────────────────────────────
+function renderDashboardSummaries(data, today, weekStart) {
+  const weekEnd = addDays(weekStart, 6);
+  const prevWeekStart = addDays(weekStart, -7);
+  const prevWeekEnd = addDays(weekEnd, -7);
+  const monthRange = getMonthRange(today);
+  const prevMonthRange = getShiftedMonthRange(today, -1);
+
+  const weekSummary = buildPeriodSummary(data, weekStart, weekEnd);
+  const prevWeekSummary = buildPeriodSummary(data, prevWeekStart, prevWeekEnd);
+  const monthSummary = buildPeriodSummary(data, monthRange.start, monthRange.end);
+  const prevMonthSummary = buildPeriodSummary(data, prevMonthRange.start, prevMonthRange.end);
+
+  const weekEl = document.getElementById('dash-week-summary');
+  const monthEl = document.getElementById('dash-month-summary');
+  if (weekEl) {
+    weekEl.innerHTML = buildSummaryCardMarkup({
+      title: 'Podsumowanie tygodnia',
+      rangeLabel: formatSummaryRange(weekStart, weekEnd),
+      status: weekEnd > today ? 'W toku' : 'Domknięte',
+      summary: weekSummary,
+      previousSummary: prevWeekSummary,
+      compareLabel: 'tygodnia'
+    });
+  }
+  if (monthEl) {
+    monthEl.innerHTML = buildSummaryCardMarkup({
+      title: 'Podsumowanie miesiąca',
+      rangeLabel: getMonthLabelPL(today),
+      status: monthRange.end > today ? 'W toku' : 'Domknięte',
+      summary: monthSummary,
+      previousSummary: prevMonthSummary,
+      compareLabel: 'miesiąca'
+    });
+  }
+}
+
+function buildPeriodSummary(data, startDate, endDate) {
+  const completedWorkouts = Object.entries(data.workouts)
+    .filter(([date, workout]) => date >= startDate && date <= endDate && workout.completed);
+  const cardioEntries = data.cardio.filter(entry => entry.date >= startDate && entry.date <= endDate);
+  const measurements = [...(data.measurements || [])].sort((a, b) => a.date.localeCompare(b.date));
+  const periodMeasurements = measurements.filter(entry => entry.date >= startDate && entry.date <= endDate);
+  const baselineMeasurement = measurements.filter(entry => entry.date < startDate).slice(-1)[0] || null;
+  const startMeasurement = periodMeasurements[0] || baselineMeasurement || null;
+  const endMeasurement = periodMeasurements.length
+    ? periodMeasurements[periodMeasurements.length - 1]
+    : (measurements.filter(entry => entry.date <= endDate).slice(-1)[0] || null);
+
+  let weightDelta = null;
+  let fatDelta = null;
+  if (startMeasurement && endMeasurement && startMeasurement.id !== endMeasurement.id) {
+    weightDelta = +((endMeasurement.weight || 0) - (startMeasurement.weight || 0)).toFixed(1);
+    if (startMeasurement.fatPct != null && endMeasurement.fatPct != null) {
+      fatDelta = +((endMeasurement.fatPct || 0) - (startMeasurement.fatPct || 0)).toFixed(1);
+    }
+  }
+
+  return {
+    workoutCount: completedWorkouts.length,
+    doneSets: completedWorkouts.reduce((sum, [, workout]) => sum + countDoneSets(workout), 0),
+    cardioSessions: cardioEntries.length,
+    cardioDistance: cardioEntries.reduce((sum, entry) => sum + (entry.distKm || (entry.steps || 0) * 0.73 / 1000), 0),
+    steps: cardioEntries.reduce((sum, entry) => sum + (entry.steps || 0), 0),
+    calories: cardioEntries.reduce((sum, entry) => sum + (entry.calories || 0), 0),
+    measurementCount: periodMeasurements.length,
+    latestMeasurement: periodMeasurements.length ? periodMeasurements[periodMeasurements.length - 1] : null,
+    weightDelta,
+    fatDelta
+  };
+}
+
+function buildSummaryCardMarkup({ title, rangeLabel, status, summary, previousSummary, compareLabel }) {
+  return `
+    <div class="summary-card-head">
+      <div>
+        <div class="lex" style="font-weight:800;font-size:14px;">${title}</div>
+        <div class="summary-card-range">${rangeLabel}</div>
+      </div>
+      <span class="badge ${status === 'W toku' ? 'bdg-p' : 'bdg-t'}">${status}</span>
+    </div>
+    <div class="summary-list">
+      ${buildSummaryMetricRow('Trening', `${summary.workoutCount}`, `${summary.doneSets} zal. serii`)}
+      ${buildSummaryMetricRow('Cardio', `${summary.cardioDistance.toFixed(1)} km`, `${summary.cardioSessions} sesji`)}
+      ${buildSummaryMetricRow('Kroki / kcal', formatCompactSteps(summary.steps), `${summary.calories} kcal`)}
+      ${buildSummaryMetricRow('Sylwetka', formatBodyDelta(summary), formatBodyMeta(summary))}
+    </div>
+    <div class="summary-footer">${buildSummaryComparison(summary, previousSummary, compareLabel, status)}</div>`;
+}
+
+function buildSummaryMetricRow(label, value, meta) {
+  return `<div class="summary-row">
+    <div style="min-width:0;">
+      <div class="summary-row-label">${label}</div>
+      <div class="summary-row-meta">${meta}</div>
+    </div>
+    <div class="summary-row-value">${value}</div>
+  </div>`;
+}
+
+function buildSummaryComparison(current, previous, compareLabel, status) {
+  if (!current.workoutCount && !current.cardioSessions && !current.measurementCount) {
+    return 'Brak nowych wpisów w tym okresie. Karta będzie aktualizować się lokalnie po każdym logu.';
+  }
+
+  const diffs = [];
+  const workoutDiff = current.workoutCount - previous.workoutCount;
+  const cardioDiff = +(current.cardioDistance - previous.cardioDistance).toFixed(1);
+  const stepDiff = current.steps - previous.steps;
+
+  if (workoutDiff) diffs.push(`treningi ${formatSignedNumber(workoutDiff)}`);
+  if (Math.abs(cardioDiff) >= 0.1) diffs.push(`cardio ${formatSignedNumber(cardioDiff, 1)} km`);
+  if (Math.abs(stepDiff) >= 100) diffs.push(`kroki ${formatSignedCompactNumber(stepDiff)}`);
+
+  if (!diffs.length) {
+    return status === 'W toku'
+      ? `Na ten moment tempo jest bardzo podobne do poprzedniego ${compareLabel}.`
+      : `Finalnie okres wypadł bardzo podobnie do poprzedniego ${compareLabel}.`;
+  }
+
+  return status === 'W toku'
+    ? `Na ten moment vs poprzedni ${compareLabel}: ${diffs.join(' · ')}.`
+    : `Vs poprzedni ${compareLabel}: ${diffs.join(' · ')}.`;
+}
+
+function formatBodyDelta(summary) {
+  if (!summary.measurementCount) return '—';
+  if (summary.weightDelta === null) {
+    return summary.latestMeasurement ? `${Number(summary.latestMeasurement.weight || 0).toFixed(1)} kg` : '—';
+  }
+  return `${summary.weightDelta > 0 ? '+' : ''}${summary.weightDelta} kg`;
+}
+
+function formatBodyMeta(summary) {
+  if (!summary.measurementCount) return 'Brak nowych pomiarów';
+  const suffix = summary.measurementCount === 1 ? '' : summary.measurementCount < 5 ? 'y' : 'ów';
+  if (summary.fatDelta === null) return `${summary.measurementCount} pomiar${suffix}`;
+  return `${summary.measurementCount} pomiar${suffix} · ${summary.fatDelta > 0 ? '+' : ''}${summary.fatDelta}% tł.`;
+}
+
+function countDoneSets(workout) {
+  if (!workout?.sets) return 0;
+  return Object.values(workout.sets).reduce((sum, sets) => sum + sets.filter(set => set.done).length, 0);
+}
+
+function formatCompactSteps(value) {
+  if (!value) return '0';
+  return value >= 1000 ? (value / 1000).toFixed(1) + 'k' : String(value);
+}
+
+function formatSignedCompactNumber(value) {
+  const abs = Math.abs(value);
+  const sign = value > 0 ? '+' : '-';
+  if (abs >= 1000) return sign + (abs / 1000).toFixed(1) + 'k';
+  return sign + abs;
+}
+
+function formatSignedNumber(value, digits = 0) {
+  const rounded = digits ? value.toFixed(digits) : String(value);
+  return `${value > 0 ? '+' : ''}${rounded}`;
+}
+
+function getMonthRange(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return {
+    start: fmtDate(new Date(d.getFullYear(), d.getMonth(), 1)),
+    end: fmtDate(new Date(d.getFullYear(), d.getMonth() + 1, 0))
+  };
+}
+
+function getShiftedMonthRange(dateStr, offset) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return {
+    start: fmtDate(new Date(d.getFullYear(), d.getMonth() + offset, 1)),
+    end: fmtDate(new Date(d.getFullYear(), d.getMonth() + offset + 1, 0))
+  };
+}
+
+function getMonthLabelPL(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  const months = ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec', 'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'];
+  return `${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function formatSummaryRange(startDate, endDate) {
+  const start = new Date(startDate + 'T00:00:00');
+  const end = new Date(endDate + 'T00:00:00');
+  const months = ['Sty', 'Lut', 'Mar', 'Kwi', 'Maj', 'Cze', 'Lip', 'Sie', 'Wrz', 'Paź', 'Lis', 'Gru'];
+  if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
+    return `${start.getDate()}-${end.getDate()} ${months[end.getMonth()]} ${end.getFullYear()}`;
+  }
+  return `${start.getDate()} ${months[start.getMonth()]} - ${end.getDate()} ${months[end.getMonth()]} ${end.getFullYear()}`;
+}
+
 function renderBodyBanner() {
   const el = document.getElementById('dash-body-banner');
   if (!el) return;

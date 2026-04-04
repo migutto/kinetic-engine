@@ -102,58 +102,47 @@ function renderGuideDetail(id) {
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
         <span class="badge bdg-p" style="font-size:8px;">${PLAN[t].name}</span>
         <span style="font-size:10px;color:var(--osd);">${PLAN[t].subtitle}</span>
-      </div>`).join('') || '<div style="font-size:11px;color:var(--osd);">Wariant stosowany w planie.</div>';
+      </div>`).join('') || '<div style="font-size:11px;color:var(--osd);">To ćwiczenie nie jest jeszcze przypięte do bazowego planu.</div>';
 
   document.getElementById('guide-detail').innerHTML = `
-    <div class="fade-up" style="padding:28px;max-width:800px;">
-
-      <!-- Hero -->
-      <div style="background:linear-gradient(135deg,#0d1d3a,#091c3a);border:1px solid rgba(137,172,255,.1);border-radius:18px;padding:28px;margin-bottom:22px;display:flex;gap:20px;align-items:center;">
-        <div style="font-size:60px;line-height:1;filter:drop-shadow(0 0 20px rgba(137,172,255,.3));">${ex.icon}</div>
-        <div style="flex:1;">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-            <span class="material-symbols-outlined" style="color:var(--t);font-size:16px;">bolt</span>
-            <span style="font-family:'Lexend';font-size:9px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--t);">Technika Mistrzowska</span>
+    <div class="guide-detail-shell fade-up">
+      <div class="guide-hero">
+        <div class="guide-hero-icon">${ex.icon}</div>
+        <div class="guide-hero-copy">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+            <span class="badge bdg-s" style="font-size:9px;padding:5px 12px;">${ex.cat}</span>
+            <span style="font-size:10px;color:var(--osd);text-transform:capitalize;">${ex.level.replace('sredni', 'Średni')}</span>
           </div>
-          <div class="lex" style="font-size:30px;font-weight:900;line-height:1.15;margin-bottom:8px;
-            background:var(--g1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">${ex.name}</div>
-          <p style="color:var(--osd);font-size:13px;line-height:1.65;">${ex.desc}</p>
+          <div class="lex" style="font-size:32px;font-weight:900;line-height:1.1;margin-bottom:10px;background:var(--g1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">${ex.name}</div>
+          <p style="color:var(--osd);font-size:13px;line-height:1.75;">${ex.desc}</p>
         </div>
-        <div style="text-align:center;flex-shrink:0;">
-          <span class="badge bdg-s" style="font-size:10px;padding:5px 12px;">${ex.cat}</span>
-          <div style="margin-top:14px;">
-            <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--osd);margin-bottom:7px;">Trudność</div>
-            <div style="display:flex;gap:5px;">${diffDots}</div>
-          </div>
+        <div class="guide-hero-score">
+          <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--osd);margin-bottom:8px;">Trudność</div>
+          <div style="display:flex;gap:5px;">${diffDots}</div>
         </div>
       </div>
 
-      <!-- Treść: kroki + korzyści -->
-      <div style="display:grid;grid-template-columns:1fr 250px;gap:20px;">
-
-        <!-- Kroki -->
+      <div class="guide-detail-grid">
         <div>
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
             <div style="width:3px;height:22px;background:var(--g1);border-radius:2px;box-shadow:0 0 10px rgba(137,172,255,.4);"></div>
-            <div class="lex" style="font-weight:800;font-size:17px;">Jak Wykonać</div>
+            <div class="lex" style="font-weight:800;font-size:17px;">Jak wykonać</div>
           </div>
           <div style="display:flex;flex-direction:column;gap:18px;">
             ${stepsHTML}
           </div>
         </div>
 
-        <!-- Korzyści + W planie -->
-        <div>
-          <div class="lex" style="font-weight:800;font-size:16px;margin-bottom:14px;">Korzyści</div>
-          <div style="background:linear-gradient(180deg,rgba(9,19,40,.9),rgba(6,14,32,.9));border:1px solid rgba(255,255,255,.05);border-radius:14px;padding:18px;margin-bottom:12px;">
+        <div class="guide-side-stack">
+          <div class="guide-info-card">
+            <div class="lex" style="font-weight:800;font-size:16px;margin-bottom:14px;">Korzyści</div>
             ${benefitsHTML}
           </div>
-          <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:14px;padding:14px;">
-            <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--osd);margin-bottom:8px;">W Planie Treningowym</div>
+          <div class="guide-info-card guide-info-card-secondary">
+            <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--osd);margin-bottom:8px;">W planie treningowym</div>
             ${inPlanHTML}
           </div>
         </div>
-
       </div>
     </div>`;
 }
