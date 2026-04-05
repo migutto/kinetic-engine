@@ -671,14 +671,74 @@
 <div class="overlay" id="profile-overlay" onclick="if(event.target===this)closeModal('profile')">
   <div class="modal profile-modal" style="max-width:760px;">
     <button class="modal-close" onclick="closeModal('profile')"><span class="material-symbols-outlined" style="font-size:18px;">close</span></button>
-    <div style="text-align:center;margin-bottom:24px;">
+    <div class="profile-hero">
       <div class="profile-avatar-wrap" id="profile-avatar-display">💪<div style="position:absolute;inset:-3px;border-radius:50%;background:var(--g1);z-index:-1;opacity:.25;"></div></div>
+      <div class="profile-hero-copy">
       <div class="modal-title" id="profile-display-name">Mój Profil</div>
-      <div style="font-size:11px;color:var(--osd);">Pro Athlete · The Kinetic Engine</div>
+      <div class="profile-hero-sub" id="profile-hero-sub">Twoje cele, aktywny plan i szybki snapshot postepu.</div>
+      <div class="profile-chip-row">
+        <span class="badge bdg-p" id="profile-goal-chip">Recomp</span>
+        <span class="badge bdg-s" id="profile-plan-chip">Plan bazowy</span>
+      </div>
+      </div>
     </div>
-    <div style="margin-bottom:18px;"><label class="form-label" style="margin-bottom:7px;">Nazwa</label><input class="inp" type="text" id="profile-name-inp" placeholder="Twoje imię..." oninput="previewName(this.value)"></div>
-    <div style="margin-bottom:22px;"><label class="form-label" style="margin-bottom:10px;">Avatar</label><div class="avatar-picker" id="avatar-picker"></div></div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:22px;" id="profile-stats-grid"></div>
+    <div class="profile-layout">
+      <div class="profile-main-col">
+        <div class="profile-section">
+          <div class="drawer-section-label">Tozsamosc</div>
+          <div style="margin-bottom:14px;"><label class="form-label" style="margin-bottom:7px;">Nazwa</label><input class="inp" type="text" id="profile-name-inp" placeholder="Twoje imie..." oninput="previewName(this.value)"></div>
+          <div class="profile-form-grid">
+            <div>
+              <label class="form-label" style="margin-bottom:7px;">Cel glowny</label>
+              <select class="inp" id="profile-goal-inp" onchange="refreshProfilePreview()">
+                <option value="recomp">Recomp</option>
+                <option value="fat-loss">Redukcja</option>
+                <option value="muscle">Masa</option>
+                <option value="strength">Sila</option>
+                <option value="conditioning">Kondycja</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label" style="margin-bottom:7px;">Cel krokow / dzien</label>
+              <input class="inp" type="number" id="profile-step-goal-inp" min="1000" step="500" placeholder="8000">
+            </div>
+          </div>
+          <div style="margin-top:14px;"><label class="form-label" style="margin-bottom:7px;">Obecny fokus</label><textarea class="inp profile-note-input" id="profile-focus-inp" placeholder="Np. regularnosc, wiecej cardio, spokojniejszy progres..." oninput="refreshProfilePreview()"></textarea></div>
+          <div style="margin-top:18px;"><label class="form-label" style="margin-bottom:10px;">Avatar</label><div class="avatar-picker" id="avatar-picker"></div></div>
+        </div>
+        <div class="profile-section">
+          <div class="drawer-section-label">Cele tygodniowe</div>
+          <div class="profile-goals-grid">
+            <div class="profile-goal-card">
+              <div class="profile-goal-label">Treningi</div>
+              <input class="inp profile-goal-input" type="number" id="profile-workout-goal-inp" min="1" max="14" placeholder="3">
+            </div>
+            <div class="profile-goal-card">
+              <div class="profile-goal-label">Cardio km</div>
+              <input class="inp profile-goal-input" type="number" id="profile-cardio-goal-inp" min="0" step="0.5" placeholder="10">
+            </div>
+            <div class="profile-goal-card">
+              <div class="profile-goal-label">Aktywny plan</div>
+              <div class="profile-goal-static" id="profile-plan-static">Plan bazowy</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="profile-side-col">
+        <div class="profile-panel">
+          <div class="profile-panel-title">Snapshot</div>
+          <div class="profile-snapshot-grid" id="profile-stats-grid"></div>
+        </div>
+        <div class="profile-panel">
+          <div class="profile-panel-title">Lacznie</div>
+          <div class="profile-snapshot-grid profile-snapshot-grid-compact" id="profile-totals-grid"></div>
+        </div>
+        <div class="profile-panel">
+          <div class="profile-panel-title">Aktywny plan</div>
+          <div id="profile-plan-summary"></div>
+        </div>
+      </div>
+    </div>
     <button class="btn-p" style="width:100%;padding:14px;" onclick="saveProfile()">Zapisz Profil</button>
   </div>
 </div>

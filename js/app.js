@@ -7,8 +7,12 @@ document.addEventListener('DOMContentLoaded', () => {
   state.currentWeekMonday = getMondayOfWeek(new Date());
 
   const p = getProfile();
-  document.getElementById('sidebar-name').textContent = p.name || 'M\u00F3j Profil';
-  document.getElementById('sidebar-avatar').textContent = p.avatar || '\uD83D\uDCAA';
+  if (typeof updateSidebarProfileSummary === 'function') {
+    updateSidebarProfileSummary(p);
+  } else {
+    document.getElementById('sidebar-name').textContent = p.name || 'Moj Profil';
+    document.getElementById('sidebar-avatar').textContent = p.avatar || '\uD83D\uDCAA';
+  }
 
   updateNotifBadge();
 
