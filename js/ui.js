@@ -325,6 +325,268 @@ function saveProfile() {
   closeModal('profile');
 }
 
+const PROFILE_GOAL_LABELS_V2 = {
+  recomp: 'Recomp',
+  'fat-loss': 'Redukcja',
+  muscle: 'Masa',
+  strength: 'Sila',
+  conditioning: 'Kondycja'
+};
+
+function getProfileGoalLabelV2(goal) {
+  return PROFILE_GOAL_LABELS_V2[goal] || PROFILE_GOAL_LABELS_V2.recomp;
+}
+
+function getProfileAvatarFallbackV2() {
+  return '\uD83D\uDCAA';
+}
+
+function getProfileProgressPctV2(value, goal) {
+  const normalizedGoal = Number(goal || 0);
+  if (normalizedGoal <= 0) return 0;
+  return Math.max(0, Math.min(100, (Number(value || 0) / normalizedGoal) * 100));
+}
+
+function formatProfileStepsLabelV2(value) {
+  const normalizedValue = Number(value || 0);
+  return normalizedValue >= 1000 ? `${(normalizedValue / 1000).toFixed(1)}k` : String(normalizedValue);
+}
+
+function buildProfileSnapshotCardV2({ icon, tint, textColor, value, label, target, meta, progressPct = null, progressColor = textColor }) {
+  const progressMarkup = Number.isFinite(progressPct)
+    ? `<div class="profile-progress"><div class="profile-progress-fill" style="width:${Math.max(0, Math.min(100, progressPct)).toFixed(0)}%;background:${progressColor};color:${progressColor};"></div></div>`
+    : '';
+
+  return `
+    <div class="profile-stat">
+      <div class="profile-stat-top">
+        <div class="profile-stat-icon" style="background:${tint};color:${textColor};">
+          <span class="material-symbols-outlined">${icon}</span>
+        </div>
+        <div class="profile-stat-head">
+          <div class="profile-stat-val" style="color:${textColor};">${value}</div>
+          <div class="profile-stat-lbl">${label}</div>
+          ${target ? `<div class="profile-stat-target">${target}</div>` : ''}
+        </div>
+      </div>
+      <div class="profile-stat-meta">${meta}</div>
+      ${progressMarkup}
+    </div>`;
+}
+
+function updateSidebarProfileSummary(profile = getProfile()) {
+  const nameEl = document.getElementById('sidebar-name');
+  const avatarEl = document.getElementById('sidebar-avatar');
+  const metaEl = document.getElementById('sidebar-profile-meta');
+
+  if (nameEl) nameEl.textContent = profile.name || 'Moj Profil';
+  if (avatarEl) avatarEl.textContent = profile.avatar || getProfileAvatarFallbackV2();
+  if (metaEl) metaEl.textContent = getProfileGoalLabelV2(profile.primaryGoal);
+}
+
+function refreshProfilePreview() {
+  const name = document.getElementById('profile-name-inp')?.value.trim() || 'Moj Profil';
+  const goal = document.getElementById('profile-goal-inp')?.value || 'recomp';
+  const focus = document.getElementById('profile-focus-inp')?.value.trim() || '';
+  const activePlan = getActiveTrainingPlan();
+  const today = fmtDate(new Date());
+  const monday = getMondayOfWeek(today);
+  const nextPlannedDay = getWeekSchedule(monday, activePlan).find(day => day.date >= today) || null;
+  const fallbackCopy = focus || `Cel: ${getProfileGoalLabelV2(goal)}. Plan: ${activePlan.name}.${nextPlannedDay ? ` Nastepny dzien: ${nextPlannedDay.name} - ${formatDatePL(nextPlannedDay.date)}.` : ''}`;
+
+  const displayName = document.getElementById('profile-display-name');
+  const heroSub = document.getElementById('profile-hero-sub');
+  const goalChip = document.getElementById('profile-goal-chip');
+  const planChip = document.getElementById('profile-plan-chip');
+
+  if (displayName) displayName.textContent = name;
+  if (heroSub) heroSub.textContent = fallbackCopy;
+  if (goalChip) goalChip.textContent = getProfileGoalLabelV2(goal);
+  if (planChip) planChip.textContent = activePlan.name;
+}
+
+function openProfile() {
+  const data = getData();
+  const p = data.profile;
+  const settings = getSettings();
+  const today = fmtDate(new Date());
+  const monday = getMondayOfWeek(today);
+  const activePlan = getActiveTrainingPlan();
+  const orderedDays = getOrderedPlanDays(activePlan);
+  const weekSchedule = getWeekSchedule(monday, activePlan);
+  const weekDone = weekSchedule.filter(day => data.workouts[day.date]?.completed).length;
+  const weekCardio = data.cardio.filter(entry => entry.date >= monday && entry.date <= addDays(monday, 6));
+  const weekDist = globalThis.KECore?.sumCardioDistance
+    ? globalThis.KECore.sumCardioDistance(weekCardio)
+    : weekCardio.reduce((sum, entry) => sum + (entry.distKm || (entry.steps || 0) * 0.73 / 1000), 0);
+  const todaySteps = data.cardio.filter(entry => entry.date === today).reduce((sum, entry) => sum + (entry.steps || 0), 0);
+  const totalWorkouts = Object.values(data.workouts).filter(w => w.completed).length;
+  const totalCardio = data.cardio.length;
+  const totalDist = data.cardio.reduce((sum, entry) => sum + (entry.distKm || (entry.steps || 0) * 0.73 / 1000), 0);
+  const latestMeasurement = data.measurements?.length ? data.measurements[data.measurements.length - 1] : null;
+  const nextPlannedDay = weekSchedule.find(day => day.date >= today && !data.workouts[day.date]?.completed)
+    || weekSchedule.find(day => day.date >= today)
+    || null;
+  const workoutGoal = Math.max(1, parseInt(String(p.weeklyWorkoutGoal ?? orderedDays.length ?? 3), 10) || 3);
+  const cardioGoal = Math.max(0, parseFloat(p.weeklyCardioGoalKm ?? 10) || 0);
+  const stepGoal = Math.max(1000, parseInt(settings.stepGoal || 8000, 10) || 8000);
+  const workoutPct = getProfileProgressPctV2(weekDone, workoutGoal);
+  const cardioPct = cardioGoal > 0 ? getProfileProgressPctV2(weekDist, cardioGoal) : null;
+  const stepPct = getProfileProgressPctV2(todaySteps, stepGoal);
+  const latestMeasurementValue = latestMeasurement ? `${Number(latestMeasurement.weight || 0).toFixed(1)}<span style="font-size:14px;"> kg</span>` : '&mdash;';
+  const latestMeasurementMeta = latestMeasurement
+    ? `${formatDatePL(latestMeasurement.date)}${latestMeasurement.fatPct != null ? ` - tluszcz ${latestMeasurement.fatPct}%` : ''}`
+    : 'Dodaj pierwszy pomiar';
+  const planDayChips = orderedDays.length
+    ? `<div class="profile-plan-days">${orderedDays.map(day => `
+        <div class="profile-plan-day-chip">
+          <span class="badge bdg-p">${getTrainingWeekdayLabel(day.weekday, true)}</span>
+          <span>${day.name}</span>
+        </div>`).join('')}</div>`
+    : '<div class="profile-plan-empty">Brak dni w aktywnym planie.</div>';
+
+  const ni = document.getElementById('profile-name-inp');
+  const goalInp = document.getElementById('profile-goal-inp');
+  const focusInp = document.getElementById('profile-focus-inp');
+  const workoutGoalInp = document.getElementById('profile-workout-goal-inp');
+  const cardioGoalInp = document.getElementById('profile-cardio-goal-inp');
+  const stepGoalInp = document.getElementById('profile-step-goal-inp');
+
+  if (ni) ni.value = p.name || '';
+  if (goalInp) goalInp.value = p.primaryGoal || 'recomp';
+  if (focusInp) focusInp.value = p.focusNote || '';
+  if (workoutGoalInp) workoutGoalInp.value = workoutGoal;
+  if (cardioGoalInp) cardioGoalInp.value = cardioGoal || 0;
+  if (stepGoalInp) stepGoalInp.value = stepGoal;
+
+  document.getElementById('profile-avatar-display').firstChild.textContent = p.avatar || getProfileAvatarFallbackV2();
+  document.getElementById('avatar-picker').innerHTML = AVATARS.map(a =>
+    `<div class="av-opt ${p.avatar === a ? 'selected' : ''}" onclick="selectAvatar('${a}')">${a}</div>`
+  ).join('');
+
+  refreshProfilePreview();
+
+  const statsGrid = document.getElementById('profile-stats-grid');
+  if (statsGrid) {
+    statsGrid.innerHTML = [
+      buildProfileSnapshotCardV2({
+        icon: 'fitness_center',
+        tint: 'rgba(137,172,255,.10)',
+        textColor: 'var(--p)',
+        value: `${weekDone}<span style="font-size:14px;"> / ${workoutGoal}</span>`,
+        label: 'Tydzien treningowy',
+        target: `${workoutGoal} treningi / tydzien`,
+        meta: `${orderedDays.length} dni w aktywnym planie`,
+        progressPct: workoutPct
+      }),
+      buildProfileSnapshotCardV2({
+        icon: 'directions_walk',
+        tint: 'rgba(166,140,255,.14)',
+        textColor: 'var(--s)',
+        value: `${weekDist.toFixed(1)}<span style="font-size:14px;"> km</span>`,
+        label: 'Cardio',
+        target: cardioGoal > 0 ? `${cardioGoal.toFixed(1)} km / tydzien` : 'Ustaw tygodniowy cel cardio',
+        meta: `${weekCardio.length} sesji w tym tygodniu`,
+        progressPct: cardioPct,
+        progressColor: 'var(--s)'
+      }),
+      buildProfileSnapshotCardV2({
+        icon: 'footprint',
+        tint: 'rgba(243,255,202,.10)',
+        textColor: 'var(--t)',
+        value: formatProfileStepsLabelV2(todaySteps),
+        label: 'Kroki dzisiaj',
+        target: `${stepGoal.toLocaleString()} krokow`,
+        meta: todaySteps >= stepGoal ? 'Cel dzienny zrobiony.' : `${Math.max(stepGoal - todaySteps, 0).toLocaleString()} krokow do celu`,
+        progressPct: stepPct,
+        progressColor: 'var(--t)'
+      }),
+      buildProfileSnapshotCardV2({
+        icon: 'monitor_weight',
+        tint: 'rgba(255,113,108,.10)',
+        textColor: 'var(--er)',
+        value: latestMeasurementValue,
+        label: 'Ostatni pomiar',
+        target: latestMeasurement ? 'Masa ciala' : 'Dodaj pierwszy wpis',
+        meta: latestMeasurementMeta
+      })
+    ].join('');
+  }
+
+  const totalsGrid = document.getElementById('profile-totals-grid');
+  if (totalsGrid) {
+    totalsGrid.innerHTML = `
+      <div class="profile-stat">
+        <div class="profile-stat-lbl">Treningi lacznie</div>
+        <div class="profile-stat-val" style="color:var(--p);">${totalWorkouts}</div>
+        <div class="profile-stat-meta">Ukonczone wpisy silowe</div>
+      </div>
+      <div class="profile-stat">
+        <div class="profile-stat-lbl">Cardio lacznie</div>
+        <div class="profile-stat-val" style="color:var(--s);">${totalCardio}</div>
+        <div class="profile-stat-meta">Wszystkie zapisane sesje</div>
+      </div>
+      <div class="profile-stat">
+        <div class="profile-stat-lbl">Dystans lacznie</div>
+        <div class="profile-stat-val" style="color:var(--t);">${totalDist.toFixed(1)}</div>
+        <div class="profile-stat-meta">Kilometry zapisane w cardio</div>
+      </div>`;
+  }
+
+  const planStatic = document.getElementById('profile-plan-static');
+  if (planStatic) planStatic.textContent = activePlan.name;
+
+  const planSummary = document.getElementById('profile-plan-summary');
+  if (planSummary) {
+    planSummary.innerHTML = `
+      <div class="profile-plan-card">
+        <div class="profile-plan-kicker">Aktywny plan</div>
+        <div class="profile-plan-name">${activePlan.name}</div>
+        <div class="profile-plan-meta">
+          ${orderedDays.length} dni treningowych - cel ${workoutGoal} treningow tygodniowo
+          <br>
+          ${nextPlannedDay ? `Nastepny dzien: ${nextPlannedDay.name} - ${formatDatePL(nextPlannedDay.date)}` : 'Brak zaplanowanego dnia w tym tygodniu.'}
+        </div>
+        ${planDayChips}
+        <button class="btn-g" style="width:100%;" onclick="closeModal('profile');switchTab('training')">Przejdz do treningu</button>
+      </div>`;
+  }
+
+  openModal('profile');
+}
+
+function selectAvatar(a) {
+  document.querySelectorAll('.av-opt').forEach(el => el.classList.remove('selected'));
+  event.target.classList.add('selected');
+  document.getElementById('profile-avatar-display').firstChild.textContent = a;
+  refreshProfilePreview();
+}
+
+function previewName(val) {
+  document.getElementById('profile-display-name').textContent = val || 'Moj Profil';
+  refreshProfilePreview();
+}
+
+function saveProfile() {
+  const data = getData();
+  const settings = getSettings();
+  const name = document.getElementById('profile-name-inp').value.trim() || 'Moj Profil';
+  const selectedAv = document.querySelector('.av-opt.selected');
+  const avatar = selectedAv ? selectedAv.textContent : getProfileAvatarFallbackV2();
+  const primaryGoal = document.getElementById('profile-goal-inp').value || 'recomp';
+  const focusNote = document.getElementById('profile-focus-inp').value.trim();
+  const weeklyWorkoutGoal = Math.max(1, parseInt(document.getElementById('profile-workout-goal-inp').value, 10) || 3);
+  const weeklyCardioGoalKm = Math.max(0, parseFloat(document.getElementById('profile-cardio-goal-inp').value) || 0);
+  const stepGoal = Math.max(1000, parseInt(document.getElementById('profile-step-goal-inp').value, 10) || 8000);
+
+  data.profile = { name, avatar, primaryGoal, focusNote, weeklyWorkoutGoal, weeklyCardioGoalKm };
+  data.settings = { ...settings, stepGoal };
+  saveData(data);
+  updateSidebarProfileSummary(data.profile);
+  showToast('Profil zapisany!', 'person', 'var(--p)');
+  closeModal('profile');
+}
+
 function openCheckin() {
   const data = getData(); const today = fmtDate(new Date());
   const weekSchedule = getWeekSchedule(getMondayOfWeek(new Date()));
