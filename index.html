@@ -69,7 +69,7 @@
         <div class="uavatar" id="sidebar-avatar">💪</div>
         <div>
           <div class="uname" id="sidebar-name">Mój Profil</div>
-          <div class="ulevel">Pro Athlete</div>
+          <div class="ulevel" id="sidebar-profile-meta">Profil i cele</div>
         </div>
         <span class="material-symbols-outlined" style="font-size:16px;color:var(--osd);margin-left:auto;">chevron_right</span>
       </div>
@@ -669,7 +669,7 @@
 
 <!-- Profile -->
 <div class="overlay" id="profile-overlay" onclick="if(event.target===this)closeModal('profile')">
-  <div class="modal" style="max-width:500px;">
+  <div class="modal profile-modal" style="max-width:760px;">
     <button class="modal-close" onclick="closeModal('profile')"><span class="material-symbols-outlined" style="font-size:18px;">close</span></button>
     <div style="text-align:center;margin-bottom:24px;">
       <div class="profile-avatar-wrap" id="profile-avatar-display">💪<div style="position:absolute;inset:-3px;border-radius:50%;background:var(--g1);z-index:-1;opacity:.25;"></div></div>

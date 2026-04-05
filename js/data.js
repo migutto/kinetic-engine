@@ -271,11 +271,24 @@ function getData() {
   const d = loadData();
   if (!d.workouts)      d.workouts      = {};
   if (!d.cardio)        d.cardio        = [];
-  if (!d.profile)       d.profile       = { name: 'Mój Profil', avatar: '💪' };
+  if (!d.profile)       d.profile       = {
+    name: 'Moj Profil',
+    avatar: '💪',
+    primaryGoal: 'recomp',
+    focusNote: '',
+    weeklyWorkoutGoal: 3,
+    weeklyCardioGoalKm: 10
+  };
   if (!d.settings)      d.settings      = { stepGoal: 8000, calGoal: 2500, restDuration: 90, notifTraining: true, notifSteps: true };
   if (!d.notifications) d.notifications = [];
   if (!d.measurements)  d.measurements  = [];
   if (!d.bodyHeight)    d.bodyHeight    = 178;
+  if (!d.profile.name) d.profile.name = 'Moj Profil';
+  if (!d.profile.avatar) d.profile.avatar = '💪';
+  if (!d.profile.primaryGoal) d.profile.primaryGoal = 'recomp';
+  if (!('focusNote' in d.profile)) d.profile.focusNote = '';
+  if (d.profile.weeklyWorkoutGoal == null) d.profile.weeklyWorkoutGoal = 3;
+  if (d.profile.weeklyCardioGoalKm == null) d.profile.weeklyCardioGoalKm = 10;
   ensureTrainingPlans(d);
   syncActiveTrainingPlan(d);
   return d;
