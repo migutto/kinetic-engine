@@ -1,6 +1,6 @@
 {
   "name": "kinetic-engine",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "private": true,
   "scripts": {
     "test": "node --test --experimental-test-isolation=none"

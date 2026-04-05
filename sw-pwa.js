@@ -1,4 +1,4 @@
-const SW_VERSION = 'v1.0.2';
+const SW_VERSION = 'v1.0.3';
 const APP_SHELL_CACHE = `ke-app-shell-${SW_VERSION}`;
 const RUNTIME_CACHE = `ke-runtime-${SW_VERSION}`;
 const OFFLINE_FALLBACK_PATH = 'offline.html';
