@@ -678,7 +678,7 @@ function openPlanDayBuilder(dayType) {
   });
 
   renderCBExercises();
-  document.getElementById('cb-quick-list').innerHTML = GUIDE_DATA.map(g =>
+  document.getElementById('cb-quick-list').innerHTML = getGuideData().map(g =>
     `<span class="cb-quick-chip" onclick="addCBExerciseFromGuide('${g.id}')">${g.icon} ${g.name.split(' ').slice(0, 2).join(' ')}</span>`
   ).join('');
   openModal('custom-builder');
@@ -716,7 +716,7 @@ function openCustomBuilder(editDate) {
   });
 
   renderCBExercises();
-  document.getElementById('cb-quick-list').innerHTML = GUIDE_DATA.map(g =>
+  document.getElementById('cb-quick-list').innerHTML = getGuideData().map(g =>
     `<span class="cb-quick-chip" onclick="addCBExerciseFromGuide('${g.id}')">${g.icon} ${g.name.split(' ').slice(0, 2).join(' ')}</span>`
   ).join('');
   openModal('custom-builder');
@@ -764,7 +764,7 @@ function addCBExercise() {
 }
 
 function addCBExerciseFromGuide(guideId) {
-  const g = GUIDE_DATA.find(x => x.id === guideId);
+  const g = getGuideData().find(x => x.id === guideId);
   if (!g) return;
   cbExercises.push({ n: g.name, sets: 3, reps: '8–12', weight: g.cat !== 'brzuch', icon: g.icon });
   renderCBExercises();

@@ -243,6 +243,27 @@ const GUIDE_CATS = [
   { id: 'ramiona', label: 'Ramiona' },
 ];
 
+const GUIDE_CATEGORY_LABELS = {
+  all: 'Wszystkie',
+  klatka: 'Klatka',
+  plecy: 'Plecy',
+  nogi: 'Nogi',
+  brzuch: 'Brzuch',
+  biceps: 'Biceps',
+  ramiona: 'Ramiona',
+  inne: 'Inne'
+};
+
+const GUIDE_CATEGORY_ICONS = {
+  klatka: '🏋️',
+  plecy: '🧲',
+  nogi: '🦵',
+  brzuch: '🧠',
+  biceps: '💪',
+  ramiona: '🏋️',
+  inne: '📚'
+};
+
 const AVATARS = ['💪','🏋️','🧗','⚡','🦾','🔥','🏆','👊','🐺','🦁'];
 
 // ── STAN APLIKACJI ──────────────────────────────────────────────
@@ -271,6 +292,7 @@ function getData() {
   const d = loadData();
   if (!d.workouts)      d.workouts      = {};
   if (!d.cardio)        d.cardio        = [];
+  if (!d.guideImports)  d.guideImports  = [];
   if (!d.profile)       d.profile       = {
     name: 'Moj Profil',
     avatar: '💪',
@@ -289,6 +311,8 @@ function getData() {
   if (!('focusNote' in d.profile)) d.profile.focusNote = '';
   if (d.profile.weeklyWorkoutGoal == null) d.profile.weeklyWorkoutGoal = 3;
   if (d.profile.weeklyCardioGoalKm == null) d.profile.weeklyCardioGoalKm = 10;
+  if (!Array.isArray(d.guideImports)) d.guideImports = [];
+  if (d.guideImportMeta && typeof d.guideImportMeta !== 'object') d.guideImportMeta = null;
   ensureTrainingPlans(d);
   syncActiveTrainingPlan(d);
   return d;
@@ -296,6 +320,219 @@ function getData() {
 
 function getProfile()  { return getData().profile; }
 function getSettings() { return getData().settings; }
+
+function stripGuideHtml(value) {
+  return String(value || '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, '\'')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function normalizeGuideStringList(values) {
+  return [...new Set((Array.isArray(values) ? values : [])
+    .map(value => {
+      if (!value) return '';
+      if (typeof value === 'string') return stripGuideHtml(value);
+      if (typeof value.name === 'string') return stripGuideHtml(value.name);
+      if (typeof value.name_en === 'string') return stripGuideHtml(value.name_en);
+      return '';
+    })
+    .filter(Boolean))];
+}
+
+function slugifyGuideValue(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80);
+}
+
+function inferGuideCategory(rawCategory, primaryMuscles = [], secondaryMuscles = []) {
+  const haystack = [rawCategory, ...primaryMuscles, ...secondaryMuscles].join(' ').toLowerCase();
+
+  if (/(chest|pector)/.test(haystack)) return 'klatka';
+  if (/(back|lat|trap|rhomboid|spine|erector)/.test(haystack)) return 'plecy';
+  if (/(leg|quad|hamstring|glute|calf|thigh)/.test(haystack)) return 'nogi';
+  if (/(ab|core|oblique|rectus|transverse)/.test(haystack)) return 'brzuch';
+  if (/(biceps)/.test(haystack)) return 'biceps';
+  if (/(shoulder|deltoid|tricep|triceps|arm|forearm)/.test(haystack)) return 'ramiona';
+  return 'inne';
+}
+
+function normalizeGuideSteps(rawSteps, fallbackName, fallbackDesc) {
+  const normalizedSteps = (Array.isArray(rawSteps) ? rawSteps : [])
+    .map((step, index) => {
+      if (typeof step === 'string') {
+        const text = stripGuideHtml(step);
+        if (!text) return null;
+        return { t: `Krok ${index + 1}`, d: text };
+      }
+
+      const title = stripGuideHtml(step?.t || step?.title || `Krok ${index + 1}`);
+      const desc = stripGuideHtml(step?.d || step?.description || '');
+      if (!title && !desc) return null;
+
+      return {
+        t: title || `Krok ${index + 1}`,
+        d: desc || title || `Wykonaj cwiczenie ${fallbackName}.`,
+        tip: step?.tip && step.tip.text ? {
+          type: step.tip.type === 'warn' ? 'warn' : 'info',
+          text: stripGuideHtml(step.tip.text)
+        } : null
+      };
+    })
+    .filter(Boolean);
+
+  if (normalizedSteps.length) return normalizedSteps;
+
+  return [
+    { t: 'Ustawienie', d: fallbackDesc || `Przygotuj pozycje startowa do cwiczenia ${fallbackName}.` },
+    { t: 'Ruch', d: `Wykonaj kontrolowany ruch w cwiczeniu ${fallbackName}.` },
+    { t: 'Powrot', d: 'Wroc do pozycji startowej z pelna kontrola.' }
+  ];
+}
+
+function normalizeGuideBenefits(rawBenefits, primaryMuscles = [], secondaryMuscles = [], equipment = []) {
+  if (Array.isArray(rawBenefits) && rawBenefits.length) {
+    return rawBenefits.slice(0, 3).map((benefit, index) => ({
+      icon: benefit?.icon || ['fitness_center', 'accessibility_new', 'monitoring'][index] || 'fitness_center',
+      color: benefit?.color || ['var(--p)', 'var(--s)', 'var(--t)'][index] || 'var(--p)',
+      t: stripGuideHtml(benefit?.t || benefit?.title || `Korzysc ${index + 1}`),
+      d: stripGuideHtml(benefit?.d || benefit?.description || '')
+    }));
+  }
+
+  const cards = [];
+
+  if (primaryMuscles[0]) {
+    cards.push({ icon: 'fitness_center', color: 'var(--p)', t: primaryMuscles[0], d: 'Glowna grupa miesniowa zaangazowana w tym ruchu.' });
+  }
+
+  if (secondaryMuscles[0]) {
+    cards.push({ icon: 'accessibility_new', color: 'var(--s)', t: secondaryMuscles[0], d: 'Dodatkowa grupa wspierajaca ruch lub stabilizacje.' });
+  }
+
+  if (equipment[0]) {
+    cards.push({ icon: 'monitoring', color: 'var(--t)', t: equipment[0], d: 'Podstawowy sprzet potrzebny do wykonania cwiczenia.' });
+  }
+
+  while (cards.length < 3) {
+    cards.push({
+      icon: ['fitness_center', 'accessibility_new', 'monitoring'][cards.length],
+      color: ['var(--p)', 'var(--s)', 'var(--t)'][cards.length],
+      t: ['Technika', 'Kontrola', 'Progres'][cards.length],
+      d: [
+        'Skup sie na pelnym zakresie ruchu i stabilnej pozycji.',
+        'Prowadz kazde powtorzenie spokojnie i bez szarpania.',
+        'Dodawaj trudnosc dopiero po opanowaniu techniki.'
+      ][cards.length]
+    });
+  }
+
+  return cards.slice(0, 3);
+}
+
+function normalizeGuideExercise(rawExercise, index = 0) {
+  const name = stripGuideHtml(rawExercise?.name);
+  if (!name) return null;
+
+  const primaryMuscles = normalizeGuideStringList(rawExercise?.primaryMuscles || rawExercise?.muscles);
+  const secondaryMuscles = normalizeGuideStringList(rawExercise?.secondaryMuscles || rawExercise?.musclesSecondary);
+  const equipment = normalizeGuideStringList(rawExercise?.equipment);
+  const cat = rawExercise?.cat || inferGuideCategory(rawExercise?.category, primaryMuscles, secondaryMuscles);
+  const desc = stripGuideHtml(rawExercise?.desc || rawExercise?.description || '');
+  const level = rawExercise?.level || 'sredni';
+  const diff = Math.max(1, Math.min(3, Number(rawExercise?.diff) || (level === 'podstawowy' ? 1 : level === 'zaawansowany' ? 3 : 2)));
+  const normalizedId = rawExercise?.id || `${rawExercise?.source || 'guide'}-${slugifyGuideValue(name) || `exercise-${index}`}`;
+
+  return {
+    id: normalizedId,
+    name,
+    cat,
+    level,
+    icon: rawExercise?.icon || GUIDE_CATEGORY_ICONS[cat] || GUIDE_CATEGORY_ICONS.inne,
+    desc: desc || `Cwiczenie ${name} zaimportowane do encyklopedii.`,
+    steps: normalizeGuideSteps(rawExercise?.steps, name, desc),
+    benefits: normalizeGuideBenefits(rawExercise?.benefits, primaryMuscles, secondaryMuscles, equipment),
+    diff,
+    aliases: normalizeGuideStringList(rawExercise?.aliases),
+    primaryMuscles,
+    secondaryMuscles,
+    equipment,
+    images: normalizeGuideStringList(rawExercise?.images),
+    video: stripGuideHtml(rawExercise?.video || ''),
+    source: rawExercise?.source || 'local',
+    sourceId: rawExercise?.sourceId ?? null
+  };
+}
+
+function mergeGuideExercises(baseExercises, importedExercises) {
+  const merged = [];
+  const seen = new Set();
+
+  [...baseExercises, ...importedExercises].forEach((exercise, index) => {
+    const normalized = normalizeGuideExercise(exercise, index);
+    if (!normalized) return;
+
+    const dedupeKey = slugifyGuideValue(normalized.name) || normalized.id;
+    if (seen.has(dedupeKey)) return;
+
+    seen.add(dedupeKey);
+    merged.push(normalized);
+  });
+
+  return merged;
+}
+
+function getGuideData() {
+  const data = getData();
+  return mergeGuideExercises(GUIDE_DATA, data.guideImports || []);
+}
+
+function getGuideCategories() {
+  const available = new Set(getGuideData().map(exercise => exercise.cat).filter(Boolean));
+  const orderedBase = GUIDE_CATS.filter(category => category.id === 'all' || available.has(category.id));
+  const dynamic = [...available]
+    .filter(categoryId => !orderedBase.some(category => category.id === categoryId))
+    .sort((left, right) => (GUIDE_CATEGORY_LABELS[left] || left).localeCompare(GUIDE_CATEGORY_LABELS[right] || right))
+    .map(categoryId => ({
+      id: categoryId,
+      label: GUIDE_CATEGORY_LABELS[categoryId] || (categoryId.charAt(0).toUpperCase() + categoryId.slice(1))
+    }));
+
+  return [orderedBase[0], ...orderedBase.slice(1), ...dynamic].filter(Boolean);
+}
+
+function getGuideImportMeta() {
+  return getData().guideImportMeta || null;
+}
+
+function saveGuideImports(importedExercises, meta = {}) {
+  const data = getData();
+  data.guideImports = mergeGuideExercises([], Array.isArray(importedExercises) ? importedExercises : []);
+  data.guideImportMeta = {
+    source: meta.source || 'custom',
+    importedAt: meta.importedAt || new Date().toISOString(),
+    importedCount: data.guideImports.length,
+    totalCount: mergeGuideExercises(GUIDE_DATA, data.guideImports).length
+  };
+  saveData(data);
+  return data.guideImports;
+}
+
+function clearGuideImports() {
+  const data = getData();
+  data.guideImports = [];
+  data.guideImportMeta = null;
+  saveData(data);
+}
 
 function clonePlanDays(days) {
   return JSON.parse(JSON.stringify(days || {}));

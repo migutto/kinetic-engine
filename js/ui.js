@@ -102,6 +102,7 @@ function openSettings() {
   // Wyczyść pole potwierdzenia
   const ci = document.getElementById('clear-confirm-inp');
   if (ci) ci.value = '';
+  refreshGuideImportStatus();
   openDrawer('settings');
 }
 
@@ -119,6 +120,177 @@ function clearAllData() {
 }
 
 // ── PROFIL ──────────────────────────────────────────────────────
+const WGER_IMPORT_ENDPOINT = 'https://wger.de/api/v2/exerciseinfo/?limit=200&language=2';
+let wgerImportInFlight = false;
+
+function buildGuideImportStatusText() {
+  const meta = typeof getGuideImportMeta === 'function' ? getGuideImportMeta() : null;
+  const totalExercises = typeof getGuideData === 'function' ? getGuideData().length : 0;
+  if (!meta) return `Biblioteka lokalna: ${totalExercises} cwiczen. Import z wger jeszcze nie byl wykonany.`;
+
+  const importDate = meta.importedAt ? new Date(meta.importedAt).toLocaleString('pl-PL', {
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit'
+  }) : 'brak daty';
+
+  return `Biblioteka: ${meta.totalCount || totalExercises} cwiczen. Z wger dodano ${meta.importedCount || 0} rekordow (${importDate}).`;
+}
+
+function refreshGuideImportStatus() {
+  const statusEl = document.getElementById('guide-import-status');
+  const resetBtn = document.getElementById('guide-import-reset-btn');
+  const meta = typeof getGuideImportMeta === 'function' ? getGuideImportMeta() : null;
+
+  if (statusEl) statusEl.textContent = buildGuideImportStatusText();
+  if (resetBtn) resetBtn.disabled = !meta;
+}
+
+function pickWgerField(entry, ...keys) {
+  for (const key of keys) {
+    const value = entry?.[key];
+    if (value != null && value !== '') return value;
+  }
+  return '';
+}
+
+function pickWgerTranslatedField(entry, key) {
+  const directValue = pickWgerField(entry, key);
+  if (directValue) return directValue;
+
+  if (Array.isArray(entry?.translations)) {
+    const translated = entry.translations
+      .map(item => pickWgerField(item || {}, key))
+      .find(Boolean);
+    if (translated) return translated;
+  }
+
+  return pickWgerField(entry?.exercise_base || {}, key);
+}
+
+function mapWgerLevel(entry, equipment) {
+  const explicitLevel = stripGuideHtml(pickWgerField(entry, 'level', 'difficulty')).toLowerCase();
+  if (/(beginner|basic|easy)/.test(explicitLevel)) return 'podstawowy';
+  if (/(advanced|expert|hard)/.test(explicitLevel)) return 'zaawansowany';
+  if (equipment.length >= 3) return 'zaawansowany';
+  if (equipment.length <= 1) return 'podstawowy';
+  return 'sredni';
+}
+
+function mapWgerExerciseToGuide(entry, index) {
+  const name = stripGuideHtml(pickWgerTranslatedField(entry, 'name') || pickWgerField(entry, 'exercise_name'));
+  if (!name) return null;
+
+  const categoryValue = typeof entry?.category === 'string'
+    ? entry.category
+    : pickWgerField(entry?.category || {}, 'name', 'name_en');
+  const primaryMuscles = normalizeGuideStringList(entry?.muscles);
+  const secondaryMuscles = normalizeGuideStringList(entry?.muscles_secondary || entry?.musclesSecondary);
+  const equipment = normalizeGuideStringList(entry?.equipment);
+  const description = stripGuideHtml(pickWgerTranslatedField(entry, 'description') || pickWgerField(entry, 'notes', 'comment'));
+  const imageUrls = [...new Set((Array.isArray(entry?.images) ? entry.images : [])
+    .map(image => typeof image === 'string' ? image : pickWgerField(image || {}, 'image', 'url'))
+    .filter(Boolean))];
+  const videoUrl = (Array.isArray(entry?.videos) ? entry.videos : [])
+    .map(video => typeof video === 'string' ? video : pickWgerField(video || {}, 'video', 'url'))
+    .find(Boolean) || '';
+  const aliases = normalizeGuideStringList([
+    ...(Array.isArray(entry?.aliases) ? entry.aliases : []),
+    ...(Array.isArray(entry?.variations) ? entry.variations.map(variation => typeof variation === 'string' ? variation : pickWgerField(variation || {}, 'name')) : [])
+  ]);
+  const level = mapWgerLevel(entry, equipment);
+  const category = inferGuideCategory(categoryValue, primaryMuscles, secondaryMuscles);
+  const fallbackDesc = description || `${name}. Glownie pracuja: ${(primaryMuscles[0] || secondaryMuscles[0] || 'rozne grupy miesniowe')}.`;
+
+  return normalizeGuideExercise({
+    id: `wger-${pickWgerField(entry, 'id') || `${slugifyGuideValue(name)}-${index}`}`,
+    source: 'wger',
+    sourceId: pickWgerField(entry, 'id') || null,
+    name,
+    cat: category,
+    level,
+    icon: GUIDE_CATEGORY_ICONS[category] || GUIDE_CATEGORY_ICONS.inne,
+    desc: fallbackDesc,
+    aliases,
+    primaryMuscles,
+    secondaryMuscles,
+    equipment,
+    images: imageUrls,
+    video: videoUrl
+  }, index);
+}
+
+async function importGuideFromWger() {
+  if (wgerImportInFlight) return;
+
+  wgerImportInFlight = true;
+  const importBtn = document.getElementById('guide-import-wger-btn');
+  const originalLabel = importBtn ? importBtn.innerHTML : '';
+
+  try {
+    if (importBtn) {
+      importBtn.disabled = true;
+      importBtn.innerHTML = '<span style="display:flex;align-items:center;justify-content:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:15px;">sync</span>Pobieranie...</span>';
+    }
+
+    showToast('Pobieram baze cwiczen z wger...', 'sync', 'var(--p)');
+
+    let url = WGER_IMPORT_ENDPOINT;
+    let page = 0;
+    const imported = [];
+
+    while (url && page < 6) {
+      const response = await fetch(url, { headers: { Accept: 'application/json' } });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      const payload = await response.json();
+      const results = Array.isArray(payload?.results) ? payload.results : [];
+      results.forEach((entry, index) => {
+        const mapped = mapWgerExerciseToGuide(entry, imported.length + index);
+        if (mapped) imported.push(mapped);
+      });
+
+      url = payload?.next || null;
+      page += 1;
+    }
+
+    if (!imported.length) throw new Error('EMPTY_IMPORT');
+
+    saveGuideImports(imported, {
+      source: 'wger',
+      importedAt: new Date().toISOString()
+    });
+
+    refreshGuideImportStatus();
+    if (state.currentTab === 'guide') renderGuide();
+    showToast(`Zaimportowano ${imported.length} cwiczen z wger`, 'check_circle', 'var(--s)');
+  } catch (error) {
+    console.error('wger import failed', error);
+    showToast('Import z wger nie udal sie. Sprawdz polaczenie lub CORS API.', 'error', 'var(--er)');
+  } finally {
+    if (importBtn) {
+      importBtn.disabled = false;
+      importBtn.innerHTML = originalLabel;
+    }
+    wgerImportInFlight = false;
+  }
+}
+
+function resetGuideImport() {
+  if (!getGuideImportMeta()) {
+    showToast('Nie ma aktywnego importu do wyczyszczenia.', 'info', 'var(--osd)');
+    return;
+  }
+
+  if (!confirm('Usunac wszystkie cwiczenia zaimportowane z wger i wrocic do lokalnej biblioteki?')) return;
+
+  clearGuideImports();
+  refreshGuideImportStatus();
+  if (state.currentTab === 'guide') renderGuide();
+  showToast('Przywrocono lokalna biblioteke cwiczen.', 'delete', 'var(--er)');
+}
+
 function openProfile() {
   const data = getData(); const p = data.profile;
   const ni = document.getElementById('profile-name-inp');
@@ -664,11 +836,14 @@ function importFullBackup(input) {
       if (json.measurements) { const map = {}; current.measurements.forEach(m => map[m.date] = m); json.measurements.forEach(m => map[m.date] = m); current.measurements = Object.values(map).sort((a, b) => a.date.localeCompare(b.date)); }
       if (Array.isArray(json.trainingPlans)) current.trainingPlans = json.trainingPlans;
       if (json.activeTrainingPlanId) current.activeTrainingPlanId = json.activeTrainingPlanId;
+      if (Array.isArray(json.guideImports)) current.guideImports = json.guideImports;
+      if (json.guideImportMeta) current.guideImportMeta = json.guideImportMeta;
       if (json.profile)    current.profile    = json.profile;
       if (json.settings)   Object.assign(current.settings, json.settings);
       if (json.bodyHeight) current.bodyHeight = json.bodyHeight;
       saveData(current); input.value = '';
       if (typeof updateSidebarProfileSummary === 'function') updateSidebarProfileSummary(current.profile);
+      if (typeof refreshGuideImportStatus === 'function') refreshGuideImportStatus();
       showToast('Backup zaimportowany!', 'cloud_upload', 'var(--t)');
       switchTab(state.currentTab);
     } catch { showToast('Błąd importu — sprawdź plik', 'error', 'var(--er)'); }

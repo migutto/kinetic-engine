@@ -4,8 +4,15 @@
 // ═══════════════════════════════════════════════════════════════
 
 function renderGuide() {
+  const categories = getGuideCategories();
+  const guideData = getGuideData();
+  if (!categories.some(category => category.id === state.guideFilter)) state.guideFilter = 'all';
+  if (state.guideSelected && !guideData.some(exercise => exercise.id === state.guideSelected)) {
+    state.guideSelected = guideData[0]?.id || null;
+  }
+
   // Kategorie (chipy)
-  document.getElementById('guide-cats').innerHTML = GUIDE_CATS.map(c =>
+  document.getElementById('guide-cats').innerHTML = categories.map(c =>
     `<button class="chip ${state.guideFilter === c.id ? 'active' : ''}" onclick="setGuideCat('${c.id}')">${c.label}</button>`
   ).join('');
 
@@ -24,9 +31,9 @@ function filterGuide(q) {
 }
 
 function renderGuideList(q = '') {
-  const filtered = GUIDE_DATA.filter(e =>
+  const filtered = getGuideData().filter(e =>
     (state.guideFilter === 'all' || e.cat === state.guideFilter) &&
-    (!q || e.name.toLowerCase().includes(q) || e.cat.includes(q))
+    (!q || e.name.toLowerCase().includes(q) || e.cat.includes(q) || (Array.isArray(e.aliases) && e.aliases.some(alias => alias.toLowerCase().includes(q))))
   );
 
   document.getElementById('guide-list').innerHTML = filtered.length
@@ -52,7 +59,7 @@ function selectGuideEx(id) {
 }
 
 function renderGuideDetail(id) {
-  const ex = GUIDE_DATA.find(e => e.id === id);
+  const ex = getGuideData().find(e => e.id === id);
   if (!ex) return;
 
   // Kropki trudności
