@@ -6,7 +6,7 @@
 // ── PLAN TRENINGOWY ─────────────────────────────────────────────
 const PLAN = {
   A: {
-    name: 'Dzień A', subtitle: 'Klatka + Plecy', color: 'var(--p)',
+    name: 'Dzień A', subtitle: 'Klatka + Plecy', color: 'var(--p)', weekday: 0,
     exercises: [
       { n: 'Pompki na podwyższeniu',             sets: 3, reps: '6–12',   weight: false, icon: '🤸' },
       { n: 'Wiosłowanie jednorącz z podparciem', sets: 3, reps: '8–15',   weight: true,  note: '/strona', icon: '💪' },
@@ -18,7 +18,7 @@ const PLAN = {
     ]
   },
   B: {
-    name: 'Dzień B', subtitle: 'Nogi + Brzuch', color: 'var(--s)',
+    name: 'Dzień B', subtitle: 'Nogi + Brzuch', color: 'var(--s)', weekday: 2,
     exercises: [
       { n: 'Split squat z podparciem',          sets: 3, reps: '8–12',  weight: false, note: '/noga',   icon: '🦵' },
       { n: 'Wyciskanie hantla jednorącz',        sets: 3, reps: '8–12',  weight: true,  note: '/strona', icon: '💪' },
@@ -30,7 +30,7 @@ const PLAN = {
     ]
   },
   C: {
-    name: 'Dzień C', subtitle: 'Barki + Ramiona', color: 'var(--td)',
+    name: 'Dzień C', subtitle: 'Barki + Ramiona', color: 'var(--td)', weekday: 4,
     exercises: [
       { n: 'Pompki na niższym podwyższeniu',     sets: 3, reps: '6–12',   weight: false, icon: '🤸' },
       { n: 'Step-up',                            sets: 3, reps: '8–12',   weight: false, note: '/noga', icon: '🦵' },
@@ -45,6 +45,8 @@ const PLAN = {
 
 const BASE_TRAINING_PLAN_ID = 'base-default';
 const BASE_PLAN_DAYS = clonePlanDays(PLAN);
+const TRAINING_DAY_COLOR_SEQUENCE = ['var(--p)', 'var(--s)', 'var(--td)', 'var(--p)', 'var(--s)', 'var(--td)', 'var(--p)'];
+const TRAINING_WEEKDAY_SEQUENCE = [0, 2, 4, 1, 3, 5, 6];
 
 // ── PORADNIK ĆWICZEŃ ────────────────────────────────────────────
 const GUIDE_DATA = [
@@ -286,11 +288,15 @@ function clonePlanDays(days) {
   return JSON.parse(JSON.stringify(days || {}));
 }
 
-function normalizePlanDay(day, fallbackType) {
+function normalizePlanDay(day, fallbackType, fallbackIndex = 0) {
+  const parsedWeekday = Number(day?.weekday);
+  const fallbackWeekday = { A: 0, B: 2, C: 4 }[fallbackType] ?? (TRAINING_WEEKDAY_SEQUENCE[fallbackIndex] ?? Math.min(fallbackIndex, 6));
+
   return {
     name: day?.name || `Dzien ${fallbackType}`,
     subtitle: day?.subtitle || '',
-    color: day?.color || 'var(--p)',
+    color: day?.color || TRAINING_DAY_COLOR_SEQUENCE[fallbackIndex % TRAINING_DAY_COLOR_SEQUENCE.length],
+    weekday: Number.isInteger(parsedWeekday) && parsedWeekday >= 0 && parsedWeekday <= 6 ? parsedWeekday : fallbackWeekday,
     exercises: Array.isArray(day?.exercises) ? clonePlanDays(day.exercises) : []
   };
 }
@@ -306,11 +312,25 @@ function createBaseTrainingPlan() {
 }
 
 function normalizeTrainingPlan(plan, index = 0) {
-  const normalizedDays = {
-    A: normalizePlanDay(plan?.days?.A || plan?.A || BASE_PLAN_DAYS.A, 'A'),
-    B: normalizePlanDay(plan?.days?.B || plan?.B || BASE_PLAN_DAYS.B, 'B'),
-    C: normalizePlanDay(plan?.days?.C || plan?.C || BASE_PLAN_DAYS.C, 'C')
-  };
+  const rawDays = plan?.days && typeof plan.days === 'object'
+    ? plan.days
+    : {
+        A: plan?.A || BASE_PLAN_DAYS.A,
+        B: plan?.B || BASE_PLAN_DAYS.B,
+        C: plan?.C || BASE_PLAN_DAYS.C
+      };
+  const normalizedDays = {};
+  const sourceEntries = Object.entries(rawDays);
+
+  if (!sourceEntries.length) {
+    Object.entries(BASE_PLAN_DAYS).forEach(([dayId, day], dayIndex) => {
+      normalizedDays[dayId] = normalizePlanDay(day, dayId, dayIndex);
+    });
+  } else {
+    sourceEntries.forEach(([dayId, day], dayIndex) => {
+      normalizedDays[dayId] = normalizePlanDay(day, dayId, dayIndex);
+    });
+  }
 
   return {
     id: plan?.id || `plan-${Date.now()}-${index}`,
@@ -366,6 +386,34 @@ function getActiveTrainingPlan() {
   return data.trainingPlans.find(plan => plan.id === data.activeTrainingPlanId) || data.trainingPlans[0];
 }
 
+function getOrderedPlanDays(plan = getActiveTrainingPlan()) {
+  return Object.entries(plan?.days || {})
+    .map(([dayId, day], index) => ({
+      id: dayId,
+      ...normalizePlanDay(day, dayId, index)
+    }))
+    .sort((a, b) => a.weekday - b.weekday || a.name.localeCompare(b.name));
+}
+
+function getNextAvailableTrainingWeekday(plan = getActiveTrainingPlan()) {
+  const usedWeekdays = new Set(getOrderedPlanDays(plan).map(day => day.weekday));
+  return TRAINING_WEEKDAY_SEQUENCE.find(weekday => !usedWeekdays.has(weekday)) ?? null;
+}
+
+function canUseTrainingPlanWeekday(planId, dayId, weekday) {
+  const data = getData();
+  const plan = data.trainingPlans.find(item => item.id === planId);
+  const normalizedWeekday = Number(weekday);
+
+  if (!plan || !Number.isInteger(normalizedWeekday) || normalizedWeekday < 0 || normalizedWeekday > 6) {
+    return false;
+  }
+
+  return !Object.entries(plan.days || {}).some(([entryId, day]) =>
+    entryId !== dayId && Number(day?.weekday) === normalizedWeekday
+  );
+}
+
 function setActiveTrainingPlan(planId) {
   const data = getData();
   if (!data.trainingPlans.some(plan => plan.id === planId)) return false;
@@ -390,6 +438,30 @@ function createTrainingPlanCopy(name, sourcePlanId = getActiveTrainingPlanId()) 
   data.activeTrainingPlanId = nextPlan.id;
   saveData(data);
   return nextPlan;
+}
+
+function createTrainingPlanDay(planId) {
+  const data = getData();
+  const plan = data.trainingPlans.find(item => item.id === planId);
+  if (!plan || plan.isSystem) return null;
+
+  const nextWeekday = getNextAvailableTrainingWeekday(plan);
+  if (nextWeekday == null) return null;
+
+  const dayIndex = Object.keys(plan.days || {}).length;
+  let dayId = `day-${Date.now()}`;
+  while (plan.days?.[dayId]) dayId = `day-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
+  plan.days[dayId] = normalizePlanDay({
+    name: `Dzien ${dayIndex + 1}`,
+    subtitle: '',
+    color: TRAINING_DAY_COLOR_SEQUENCE[dayIndex % TRAINING_DAY_COLOR_SEQUENCE.length],
+    weekday: nextWeekday,
+    exercises: []
+  }, dayId, dayIndex);
+
+  saveData(data);
+  return { id: dayId, ...plan.days[dayId] };
 }
 
 function renameTrainingPlan(planId, nextName) {
@@ -419,10 +491,22 @@ function deleteTrainingPlan(planId) {
   return true;
 }
 
+function deleteTrainingPlanDay(planId, dayId) {
+  const data = getData();
+  const plan = data.trainingPlans.find(item => item.id === planId);
+  if (!plan || plan.isSystem || !plan.days?.[dayId]) return false;
+  if (Object.keys(plan.days).length <= 1) return false;
+
+  delete plan.days[dayId];
+  saveData(data);
+  return true;
+}
+
 function updateTrainingPlanDay(planId, dayType, patch) {
   const data = getData();
   const plan = data.trainingPlans.find(item => item.id === planId);
   if (!plan || plan.isSystem || !plan.days?.[dayType]) return false;
+  if (patch?.weekday != null && !canUseTrainingPlanWeekday(planId, dayType, patch.weekday)) return false;
 
   plan.days[dayType] = {
     ...plan.days[dayType],

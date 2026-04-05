@@ -21,6 +21,7 @@ function renderTrainingPlanControls() {
   const select = document.getElementById('training-plan-select');
   const renameBtn = document.getElementById('rename-plan-btn');
   const deleteBtn = document.getElementById('delete-plan-btn');
+  const addDayBtn = document.getElementById('add-plan-day-btn');
 
   if (select) {
     select.innerHTML = getTrainingPlans().map(plan =>
@@ -30,13 +31,22 @@ function renderTrainingPlanControls() {
 
   if (renameBtn) renameBtn.disabled = activePlan.isSystem;
   if (deleteBtn) deleteBtn.disabled = activePlan.isSystem;
+  if (addDayBtn) addDayBtn.disabled = activePlan.isSystem || getNextAvailableTrainingWeekday(activePlan) == null;
+}
+
+function refreshTrainingLinkedViews() {
+  renderTraining();
+  if (state.currentTab === 'dashboard') renderDashboard();
+  if (state.currentTab === 'guide') renderGuide();
 }
 
 function changeActiveTrainingPlan(planId) {
   if (!setActiveTrainingPlan(planId)) return;
-  renderTraining();
-  if (state.currentTab === 'dashboard') renderDashboard();
-  if (state.currentTab === 'guide') renderGuide();
+  const activePlan = getActiveTrainingPlan();
+  const firstDay = getOrderedPlanDays(activePlan)[0];
+  state.activeDayType = firstDay?.id || null;
+  state.activeDayDate = firstDay ? getWeekDates(state.currentWeekMonday, activePlan)[firstDay.id] : null;
+  refreshTrainingLinkedViews();
 }
 
 function createTrainingPlan() {
@@ -47,10 +57,12 @@ function createTrainingPlan() {
   if (!name) return;
 
   createTrainingPlanCopy(name, sourcePlan.id);
+  const activePlan = getActiveTrainingPlan();
+  const firstDay = getOrderedPlanDays(activePlan)[0];
+  state.activeDayType = firstDay?.id || null;
+  state.activeDayDate = firstDay ? getWeekDates(state.currentWeekMonday, activePlan)[firstDay.id] : null;
   showToast('Nowy plan jest gotowy do edycji.', 'check_circle', 'var(--s)');
-  renderTraining();
-  if (state.currentTab === 'dashboard') renderDashboard();
-  if (state.currentTab === 'guide') renderGuide();
+  refreshTrainingLinkedViews();
 }
 
 function renameCurrentTrainingPlan() {
@@ -66,9 +78,7 @@ function renameCurrentTrainingPlan() {
   if (!renameTrainingPlan(activePlan.id, nextName)) return;
 
   showToast('Nazwa planu zostala zapisana.', 'edit', 'var(--s)');
-  renderTraining();
-  if (state.currentTab === 'dashboard') renderDashboard();
-  if (state.currentTab === 'guide') renderGuide();
+  refreshTrainingLinkedViews();
 }
 
 function deleteCurrentTrainingPlan() {
@@ -82,19 +92,74 @@ function deleteCurrentTrainingPlan() {
 
   if (!deleteTrainingPlan(activePlan.id)) return;
 
+  const fallbackPlan = getActiveTrainingPlan();
+  const firstDay = getOrderedPlanDays(fallbackPlan)[0];
+  state.activeDayType = firstDay?.id || null;
+  state.activeDayDate = firstDay ? getWeekDates(state.currentWeekMonday, fallbackPlan)[firstDay.id] : null;
   showToast('Plan zostal usuniety.', 'delete', 'var(--er)');
-  renderTraining();
-  if (state.currentTab === 'dashboard') renderDashboard();
-  if (state.currentTab === 'guide') renderGuide();
+  refreshTrainingLinkedViews();
+}
+
+function addDayToCurrentPlan() {
+  const activePlan = getActiveTrainingPlan();
+  if (activePlan.isSystem) {
+    showToast('Najpierw utworz kopie planu bazowego.', 'info', 'var(--osd)');
+    return;
+  }
+
+  const nextDay = createTrainingPlanDay(activePlan.id);
+  if (!nextDay) {
+    showToast('Plan ma juz komplet 7 dni tygodnia.', 'info', 'var(--osd)');
+    return;
+  }
+
+  state.activeDayType = nextDay.id;
+  state.activeDayDate = getWeekDates(state.currentWeekMonday, getActiveTrainingPlan())[nextDay.id];
+  refreshTrainingLinkedViews();
+  openPlanDayBuilder(nextDay.id);
+}
+
+function deleteCurrentPlanDay() {
+  const activePlan = getActiveTrainingPlan();
+  if (!state.activeDayType || state.activeDayType === 'custom' || activePlan.isSystem) {
+    return;
+  }
+
+  const orderedDays = getOrderedPlanDays(activePlan);
+  if (orderedDays.length <= 1) {
+    showToast('Plan musi miec przynajmniej jeden dzien.', 'info', 'var(--osd)');
+    return;
+  }
+
+  const currentDay = PLAN[state.activeDayType];
+  if (!confirm(`Usunac dzien "${currentDay?.name || state.activeDayType}" z planu?`)) return;
+
+  if (!deleteTrainingPlanDay(activePlan.id, state.activeDayType)) {
+    showToast('Nie udalo sie usunac dnia planu.', 'error', 'var(--er)');
+    return;
+  }
+
+  const remainingDays = getOrderedPlanDays();
+  const nextDay = remainingDays[0] || null;
+  state.activeDayType = nextDay?.id || null;
+  state.activeDayDate = nextDay ? getWeekDates(state.currentWeekMonday)[nextDay.id] : null;
+  showToast('Dzien planu zostal usuniety.', 'delete', 'var(--er)');
+  refreshTrainingLinkedViews();
 }
 
 // ── RENDER KAFELKÓW ─────────────────────────────────────────────
 function renderTraining() {
   const data    = getData();
-  const wDates  = getWeekDates(state.currentWeekMonday);
   const monday  = state.currentWeekMonday;
+  const weekSchedule = getWeekSchedule(monday);
+  const wDates  = getWeekDates(monday);
   const mon     = new Date(monday + 'T00:00:00');
   const weekNum = getISOWeekNumber(mon);
+
+  if (state.activeDayType && state.activeDayType !== 'custom' && !wDates[state.activeDayType]) {
+    state.activeDayType = null;
+    state.activeDayDate = null;
+  }
 
   document.getElementById('week-label').textContent      = 'Tydzień ' + weekNum;
   document.getElementById('week-dates-label').textContent = getWeekLabel(monday);
@@ -104,28 +169,27 @@ function renderTraining() {
   const customDates = getCustomDatesInWeek(monday);
   const allDates    = [...Object.values(wDates), ...customDates];
   const completed   = allDates.filter(d => data.workouts[d]?.completed).length;
-  const total       = 3 + customDates.length;
-  document.getElementById('week-prog-fill').style.width = Math.round(completed / total * 100) + '%';
+  const total       = weekSchedule.length + customDates.length;
+  document.getElementById('week-prog-fill').style.width = (total ? Math.round(completed / total * 100) : 0) + '%';
   document.getElementById('week-prog-txt').textContent   = completed + '/' + total + ' dni';
 
-  // Kafelki A/B/C
+  // Kafelki dni planu
   const tilesEl = document.getElementById('day-tiles');
-  const stripes  = { A: 'stripe-A', B: 'stripe-B', C: 'stripe-C' };
-  const colors   = { A: 'var(--p)', B: 'var(--s)', C: 'var(--td)' };
-
-  tilesEl.innerHTML = ['A', 'B', 'C'].map(type => {
-    const date   = wDates[type];
+  tilesEl.innerHTML = weekSchedule.map(day => {
+    const type   = day.id;
+    const date   = day.date;
     const wd     = data.workouts[date];
     const done   = wd?.completed;
     const today  = date === fmtDate(new Date());
     const plan   = PLAN[type];
     const doneSets  = wd?.sets ? Object.values(wd.sets).reduce((s, sets) => s + sets.filter(x => x.done).length, 0) : 0;
     const totalSets = plan.exercises.reduce((s, e) => s + e.sets, 0);
-    const pct       = done ? 100 : Math.round(doneSets / totalSets * 100);
+    const pct       = done ? 100 : (totalSets > 0 ? Math.round(doneSets / totalSets * 100) : 0);
     const isActive  = state.activeDayType === type;
+    const accent    = plan.color || 'var(--p)';
 
     return `<div class="day-tile ${isActive ? 'active-tile' : ''} ${done ? 'completed-tile' : ''}" onclick="selectDay('${type}')">
-      <div class="tile-stripe ${stripes[type]}"></div>
+      <div class="tile-stripe" style="background:${accent};box-shadow:0 0 18px ${accent};"></div>
       <div style="padding:16px 18px 14px;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
           <div>
@@ -133,7 +197,7 @@ function renderTraining() {
               <span style="width:5px;height:5px;border-radius:50%;background:var(--p);box-shadow:0 0 8px var(--p);display:inline-block;"></span>DZISIAJ</div>` : ''}
             <div class="lex" style="font-size:18px;font-weight:900;">${plan.name}</div>
             <div style="font-size:10px;color:var(--osd);margin-top:2px;">${plan.subtitle}</div>
-            <div style="font-size:10px;color:var(--osd);margin-top:3px;">${formatDatePL(date)}</div>
+            <div style="font-size:10px;color:var(--osd);margin-top:3px;">${getTrainingWeekdayLabel(plan.weekday, true)} · ${formatDatePL(date)}</div>
           </div>
           ${done ? '<span class="material-symbols-outlined" style="color:var(--t);font-size:22px;">check_circle</span>' : ''}
         </div>
@@ -141,7 +205,7 @@ function renderTraining() {
           <span>${plan.exercises.length} ćwiczeń · ${totalSets} serii</span>
           <span style="color:${pct === 100 ? 'var(--t)' : 'var(--osd)'};">${pct}%</span>
         </div>
-        <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${colors[type]};"></div></div>
+        <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${accent};"></div></div>
       </div>
     </div>`;
   }).join('');
@@ -247,7 +311,7 @@ function deleteCustomDay(date) {
   delete data.workouts[date];
   saveData(data);
   if (state.activeDayDate === date) { state.activeDayType = null; state.activeDayDate = null; }
-  renderTraining();
+  refreshTrainingLinkedViews();
   showToast('Trening usunięty', 'delete', 'var(--er)');
 }
 
@@ -280,15 +344,17 @@ function renderWorkoutDetail() {
   const wd        = data.workouts[date] || { type: state.activeDayType, sets: {}, completed: false };
   if (!wd.sets) wd.sets = {};
   const exercises   = getPlanExercises(state.activeDayType, date);
-  const accentColor = isCustom ? 'var(--s)' : 'var(--p)';
-  const titleName   = isCustom ? (wd.name || 'Własny Trening') : (PLAN[state.activeDayType]?.name || '');
+  const planDay     = !isCustom ? PLAN[state.activeDayType] : null;
+  const accentColor = isCustom ? 'var(--s)' : (planDay?.color || 'var(--p)');
+  const titleName   = isCustom ? (wd.name || 'Własny Trening') : (planDay?.name || '');
   const subtitle    = isCustom
     ? `${exercises.length} ćwiczeń niestandardowych`
-    : (PLAN[state.activeDayType]?.subtitle || '');
+    : (planDay?.subtitle || '');
   const scheduledDate = !isCustom ? getWeekDates(state.currentWeekMonday)[state.activeDayType] : date;
   const isOffSchedule = !isCustom && date !== scheduledDate;
   const activePlan = getActiveTrainingPlan();
   const canEditPlanDay = !isCustom && !activePlan.isSystem;
+  const canDeletePlanDay = canEditPlanDay && getOrderedPlanDays(activePlan).length > 1;
 
   let html = `<div class="fade-up">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;padding-top:4px;">
@@ -301,6 +367,7 @@ function renderWorkoutDetail() {
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px;">
           <div style="font-size:11px;color:var(--osd);">${formatDatePL(date)}</div>
+          ${!isCustom ? `<span class="badge bdg-p">${getTrainingWeekdayLabel(planDay?.weekday)}</span>` : ''}
           ${!isCustom ? `<span class="badge ${isOffSchedule ? 'bdg-s' : 'bdg-p'}">${isOffSchedule ? 'Poza harmonogramem' : 'Data z harmonogramu'}</span>` : ''}
         </div>
         ${!isCustom ? `<div class="training-date-tools">
@@ -317,6 +384,8 @@ function renderWorkoutDetail() {
           <span style="display:flex;align-items:center;gap:5px;"><span class="material-symbols-outlined" style="font-size:13px;">edit</span>Edytuj</span></button>` : ''}
         ${canEditPlanDay ? `<button class="btn-s" style="padding:8px 14px;font-size:9px;" onclick="openPlanDayBuilder('${state.activeDayType}')">
           <span style="display:flex;align-items:center;gap:5px;"><span class="material-symbols-outlined" style="font-size:13px;">tune</span>Edytuj dzien planu</span></button>` : ''}
+        ${canDeletePlanDay ? `<button class="btn-s" style="padding:8px 14px;font-size:9px;" onclick="deleteCurrentPlanDay()">
+          <span style="display:flex;align-items:center;gap:5px;"><span class="material-symbols-outlined" style="font-size:13px;">delete</span>Usun dzien</span></button>` : ''}
         <button class="btn-p" onclick="completeDayGeneric('${date}')" ${wd.completed ? 'disabled style="opacity:.4;cursor:default;"' : ''}>
           <span style="display:flex;align-items:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:15px;">task_alt</span>Zakończ Trening</span>
         </button>
@@ -496,7 +565,7 @@ function completeDayGeneric(date) {
   addNotification('🏆 Trening ukończony!', `${name} — ${formatDatePL(date)}`, 'emoji_events', data);
   showToast('Trening ukończony! 🏆', 'task_alt', 'var(--t)');
   saveData(data);
-  renderTraining();
+  refreshTrainingLinkedViews();
 }
 function completeDay(type, date) { completeDayGeneric(date); }
 
@@ -504,7 +573,7 @@ function uncompleteDay(date) {
   const data = getData();
   if (data.workouts[date]) data.workouts[date].completed = false;
   saveData(data);
-  renderTraining();
+  refreshTrainingLinkedViews();
 }
 
 // ── HISTORIA ĆWICZEŃ ────────────────────────────────────────────
@@ -547,7 +616,7 @@ function getCustomDatesInWeek(monday) {
     .sort();
 }
 
-function syncCustomBuilderUI({ mode, title, description, saveLabel, showDateField, nameLabel, namePlaceholder, subtitleValue = '' }) {
+function syncCustomBuilderUI({ mode, title, description, saveLabel, showDateField, showWeekdayField, nameLabel, namePlaceholder, subtitleValue = '', weekdayValue = 0 }) {
   const overlay = document.getElementById('custom-builder-overlay');
   const titleEl = overlay?.querySelector('.modal-title');
   const descEl = overlay?.querySelector('p');
@@ -555,7 +624,9 @@ function syncCustomBuilderUI({ mode, title, description, saveLabel, showDateFiel
   const cbDate = document.getElementById('cb-date');
   const cbName = document.getElementById('cb-name');
   const cbSubtitle = document.getElementById('cb-subtitle');
+  const cbWeekday = document.getElementById('cb-weekday');
   const dateWrap = cbDate?.parentElement;
+  const weekdayWrap = document.getElementById('cb-weekday-wrap');
   const nameLabelEl = cbName?.previousElementSibling;
 
   cbContext.mode = mode;
@@ -565,9 +636,11 @@ function syncCustomBuilderUI({ mode, title, description, saveLabel, showDateFiel
     saveButton.innerHTML = `<span style="display:flex;align-items:center;justify-content:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:16px;">save</span>${saveLabel}</span>`;
   }
   if (dateWrap) dateWrap.style.display = showDateField ? 'block' : 'none';
+  if (weekdayWrap) weekdayWrap.style.display = showWeekdayField ? 'block' : 'none';
   if (nameLabelEl) nameLabelEl.textContent = nameLabel;
   if (cbName) cbName.placeholder = namePlaceholder;
   if (cbSubtitle) cbSubtitle.value = subtitleValue;
+  if (cbWeekday) cbWeekday.value = String(weekdayValue);
 }
 
 function openPlanDayBuilder(dayType) {
@@ -580,6 +653,7 @@ function openPlanDayBuilder(dayType) {
   const cbName = document.getElementById('cb-name');
   const cbDate = document.getElementById('cb-date');
   const cbSubtitle = document.getElementById('cb-subtitle');
+  const cbWeekday = document.getElementById('cb-weekday');
   const dayPlan = activePlan.days?.[dayType];
 
   cbContext = { mode: 'plan-day', editDate: null, dayType, planId: activePlan.id };
@@ -588,16 +662,19 @@ function openPlanDayBuilder(dayType) {
   if (cbDate) cbDate.value = fmtDate(new Date());
   if (cbName) cbName.value = dayPlan?.name || `Dzien ${dayType}`;
   if (cbSubtitle) cbSubtitle.value = dayPlan?.subtitle || '';
+  if (cbWeekday) cbWeekday.value = String(dayPlan?.weekday ?? 0);
 
   syncCustomBuilderUI({
     mode: 'plan-day',
-    title: `${activePlan.name} · dzien ${dayType}`,
+    title: `${activePlan.name} · ${dayPlan?.name || `Dzien ${dayType}`}`,
     description: 'Edytujesz dzien aktywnego planu. Zmiany od razu wejda do harmonogramu i dashboardu.',
     saveLabel: 'Zapisz dzien planu',
     showDateField: false,
+    showWeekdayField: true,
     nameLabel: 'Nazwa dnia',
     namePlaceholder: `np. Dzien ${dayType}`,
-    subtitleValue: dayPlan?.subtitle || ''
+    subtitleValue: dayPlan?.subtitle || '',
+    weekdayValue: dayPlan?.weekday ?? 0
   });
 
   renderCBExercises();
@@ -633,6 +710,7 @@ function openCustomBuilder(editDate) {
     description: 'Stworz dowolny zestaw cwiczen na wybrany dzien.',
     saveLabel: 'Zapisz Trening',
     showDateField: true,
+    showWeekdayField: false,
     nameLabel: 'Nazwa treningu',
     namePlaceholder: 'np. Klatka + Triceps'
   });
@@ -701,6 +779,7 @@ function removeCBExercise(i) {
 function saveCustomWorkout() {
   const date = document.getElementById('cb-date').value;
   const subtitle = document.getElementById('cb-subtitle')?.value.trim() || '';
+  const weekday = parseInt(document.getElementById('cb-weekday')?.value || '0', 10);
   const name = document.getElementById('cb-name').value.trim() || 'Własny Trening';
   if (cbContext.mode === 'workout' && !date) { showToast('Wybierz datę treningu', 'error', 'var(--er)'); return; }
 
@@ -720,9 +799,18 @@ function saveCustomWorkout() {
 
   if (cbContext.mode === 'plan-day') {
     const planId = cbContext.planId || getActiveTrainingPlan().id;
+    if (!Number.isInteger(weekday) || weekday < 0 || weekday > 6) {
+      showToast('Wybierz dzien tygodnia', 'error', 'var(--er)');
+      return;
+    }
+    if (!canUseTrainingPlanWeekday(planId, cbContext.dayType, weekday)) {
+      showToast('Ten dzien tygodnia jest juz zajety w planie.', 'warning', 'var(--er)');
+      return;
+    }
     if (!updateTrainingPlanDay(planId, cbContext.dayType, {
       name,
       subtitle,
+      weekday,
       exercises: validEx
     })) {
       showToast('Nie udalo sie zapisac dnia planu', 'error', 'var(--er)');
@@ -730,10 +818,10 @@ function saveCustomWorkout() {
     }
 
     closeModal('custom-builder');
-    showToast(`Dzien ${cbContext.dayType} zapisany!`, 'check_circle', 'var(--s)');
-    renderTraining();
-    if (state.currentTab === 'dashboard') renderDashboard();
-    if (state.currentTab === 'guide') renderGuide();
+    state.activeDayType = cbContext.dayType;
+    state.activeDayDate = getWeekDates(state.currentWeekMonday)[cbContext.dayType];
+    showToast('Dzien planu zapisany!', 'check_circle', 'var(--s)');
+    refreshTrainingLinkedViews();
     return;
   }
 
@@ -751,7 +839,7 @@ function saveCustomWorkout() {
   showToast(`"${name}" zapisany!`, 'check_circle', 'var(--s)');
   state.activeDayType = 'custom';
   state.activeDayDate = date;
-  renderTraining();
+  refreshTrainingLinkedViews();
 }
 
 // ── KALKULATOR 1RM ──────────────────────────────────────────────

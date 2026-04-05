@@ -7,6 +7,7 @@
   }
 })(typeof globalThis !== 'undefined' ? globalThis : this, function() {
   const CARDIO_STEP_LENGTH_M = 0.73;
+  const TRAINING_WEEKDAY_SEQUENCE = [0, 2, 4, 1, 3, 5, 6];
 
   function toNumber(value) {
     const parsed = Number(value);
@@ -72,6 +73,44 @@
       heartRate: toNumber(heartRate),
       distKm: +toNumber(distKm).toFixed(2),
     };
+  }
+
+  function normalizeTrainingWeekday(weekday, fallbackIndex = 0) {
+    const parsed = Number(weekday);
+    if (Number.isInteger(parsed) && parsed >= 0 && parsed <= 6) {
+      return parsed;
+    }
+
+    return TRAINING_WEEKDAY_SEQUENCE[fallbackIndex] ?? Math.min(Math.max(fallbackIndex, 0), 6);
+  }
+
+  function sortTrainingPlanDays(daysById) {
+    return Object.entries(daysById || {})
+      .map(([id, day], index) => ({
+        id,
+        ...day,
+        weekday: normalizeTrainingWeekday(day?.weekday, index),
+      }))
+      .sort((a, b) => a.weekday - b.weekday || String(a.name || a.id).localeCompare(String(b.name || b.id)));
+  }
+
+  function buildTrainingWeekSchedule(daysById, mondayDate) {
+    const monday = new Date(`${mondayDate}T00:00:00`);
+
+    return sortTrainingPlanDays(daysById).map(day => {
+      const scheduledDate = new Date(monday);
+      scheduledDate.setDate(scheduledDate.getDate() + day.weekday);
+
+      return {
+        ...day,
+        date: toDateString(scheduledDate),
+      };
+    });
+  }
+
+  function findNextAvailableTrainingWeekday(daysById) {
+    const usedWeekdays = new Set(sortTrainingPlanDays(daysById).map(day => day.weekday));
+    return TRAINING_WEEKDAY_SEQUENCE.find(weekday => !usedWeekdays.has(weekday)) ?? null;
   }
 
   function countDoneSets(workout) {
@@ -146,13 +185,18 @@
 
   return {
     CARDIO_STEP_LENGTH_M,
+    TRAINING_WEEKDAY_SEQUENCE,
     buildPeriodSummary,
+    buildTrainingWeekSchedule,
     computeCardioMetrics,
     countDoneSets,
     createCardioEntry,
+    findNextAvailableTrainingWeekday,
     getEntryDistanceKm,
     getMonthRange,
     getShiftedMonthRange,
+    normalizeTrainingWeekday,
+    sortTrainingPlanDays,
     sumCardioDistance,
   };
 });

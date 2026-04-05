@@ -1,6 +1,6 @@
 ﻿# The Kinetic Engine
 
-**The Kinetic Engine** is a local-first training journal built as a static front-end app. It combines workout logging, cardio tracking, body-composition monitoring, dashboards, notifications, backup tools, and a stronger installable PWA layer in one project.
+**The Kinetic Engine** is a local-first training journal built as a static front-end app. It combines workout logging, cardio tracking, body-composition monitoring, dashboards, notifications, backup tools, and an installable PWA layer in one project.
 
 ## Overview
 
@@ -61,6 +61,7 @@ The app is intentionally backend-free today. It is designed to feel fast, person
 - Chart.js
 - Google Fonts / Material Symbols
 - Local browser storage
+- Node test runner for lightweight logic tests
 
 ## Project Structure
 
@@ -74,17 +75,20 @@ kinetic-engine/
 |-- icon-192.png
 |-- icon-512.png
 |-- sw-pwa.js
+|-- tests/
+|   `-- core.test.js
 `-- js/
-    |-- data.js
-    |-- utils.js
-    |-- guide.js
-    |-- training.js
-    |-- cardio.js
+    |-- app.js
     |-- body.js
+    |-- cardio.js
+    |-- core.js
     |-- dashboard.js
-    |-- ui.js
+    |-- data.js
+    |-- guide.js
     |-- pwa.js
-    `-- app.js
+    |-- training.js
+    |-- ui.js
+    `-- utils.js
 ```
 
 ### Notes on PWA Files
@@ -149,6 +153,7 @@ Because the product is local-first, import/export and backup flows are part of t
 ## Known Gaps
 
 - Custom training plans are not implemented yet; the current model is still built around the existing weekly plan structure.
+- Real smoke-testing of install/update/offline behavior on target browsers and devices is still pending.
 - Cloud sync and account-based storage do not exist yet.
 - Full English/i18n support is still pending.
 - The UI-visible app version and export schema version should be aligned.
@@ -156,9 +161,9 @@ Because the product is local-first, import/export and backup flows are part of t
 ## Near-Term Roadmap
 
 - Build a real custom plan system with default-plan selection
-- Add cloud save/sync architecture
-- Add scheduled weekly/month-end summary flows and notifications
 - Finish PWA smoke-testing on desktop Chrome, Android, and iOS Safari
+- Add scheduled weekly/month-end summary flows and notifications
+- Add cloud save/sync architecture
 - Prepare the app for English/i18n
 
 ## License

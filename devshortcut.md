@@ -1,26 +1,26 @@
 ﻿# Dev Shortcut
 
-Ten plik to prosty skrot zmian w aplikacji.
-Jest napisany zwyklym jezykiem, bez technicznego zargonu.
+To jest prosty, aktualny skrot zmian w aplikacji.
+Piszemy tu zwyklym jezykiem, bez technicznego zargonu.
 
-## 2026-04-04 - Lepsze PWA
+## 2026-04-04 - PWA: instalacja, offline i aktualizacje
 
 ### Dodano
 
-- Mozna teraz zainstalowac aplikacje jak prawdziwa apke.
-- Aplikacja pokazuje, gdy jest gotowa nowa wersja.
-- Pojawil sie ekran awaryjny offline, gdy chwilowo nie ma internetu.
+- Aplikacje mozna teraz latwiej zainstalowac jak normalne narzedzie na telefonie lub komputerze.
+- Aplikacja pokazuje, gdy czeka nowa wersja.
+- Pojawil sie ekran offline, gdy chwilowo nie ma internetu.
 - W gornej belce jest przycisk do instalacji albo aktualizacji.
 
 ### Poprawiono
 
 - Aplikacja lepiej zapisuje potrzebne pliki do pracy offline.
 - Ikony i skroty po instalacji dzialaja pewniej.
-- Przegladarka dostaje prosbe, zeby rzadziej czyscila lokalne dane aplikacji sama z siebie.
+- Przegladarka dostaje prosbe, zeby rzadziej sama czyscila lokalne dane aplikacji.
 
 ---
 
-## 2026-04-04 - Sprzatanie starego PWA
+## 2026-04-04 - Porzadki po starym PWA
 
 ### Poprawiono
 
@@ -42,7 +42,7 @@ Jest napisany zwyklym jezykiem, bez technicznego zargonu.
   - ile bylo cardio
   - ile bylo krokow i kalorii
   - czy zmienila sie sylwetka, jesli byly wpisane pomiary
-- Karty porownuja tez obecny tydzien i miesiac do poprzedniego.
+- Karty porownuja obecny tydzien i miesiac do poprzedniego.
 
 ### Poprawiono
 
@@ -50,7 +50,7 @@ Jest napisany zwyklym jezykiem, bez technicznego zargonu.
 
 ---
 
-## 2026-04-04 - Quick wins i wygoda uzywania
+## 2026-04-04 - Szybkie usprawnienia i wygodniejsze logowanie
 
 ### Dodano
 
@@ -60,7 +60,7 @@ Jest napisany zwyklym jezykiem, bez technicznego zargonu.
 
 ### Poprawiono
 
-- W cardio dystans nie jest juz opcjonalny. Teraz to on jest podstawa do liczenia tempa i predkosci.
+- W cardio dystans nie jest juz opcjonalny. To on jest podstawa do liczenia tempa i predkosci.
 - Zmieniono czesc nazw i tekstow, zeby byly bardziej naturalne.
 - "Poradnik" zostal przemianowany na "Encyklopedie cwiczen".
 - W encyklopedii poprawiono uklad kart cwiczen i usunieto zbedne ozdobniki.
@@ -69,13 +69,13 @@ Jest napisany zwyklym jezykiem, bez technicznego zargonu.
 
 ---
 
-## 2026-04-04 - Stabilnosc i telefon
+## 2026-04-04 - Stabilnosc i male ekrany
 
 ### Poprawiono
 
 - Naprawiono blad z zapisem powiadomien, przez ktory swieza notyfikacja mogla zostac nadpisana.
-- Dashboard, Cardio i kilka innych widokow lepiej dopasowuja sie teraz do malych ekranow.
-- Aplikacja lepiej nadaje sie do uzywania jak PWA na telefonie.
+- Dashboard, Cardio i kilka innych widokow lepiej dopasowuja sie teraz do mniejszych ekranow.
+- Aplikacja lepiej nadaje sie do uzywania jako PWA na telefonie.
 
 ---
 

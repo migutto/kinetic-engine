@@ -199,6 +199,9 @@
             <button class="btn-s" id="delete-plan-btn" style="padding:7px 12px;font-size:9px;" onclick="deleteCurrentTrainingPlan()">
               <span style="display:flex;align-items:center;gap:4px;"><span class="material-symbols-outlined" style="font-size:14px;">delete</span>Usuń</span>
             </button>
+            <button class="btn-s" id="add-plan-day-btn" style="padding:7px 12px;font-size:9px;" onclick="addDayToCurrentPlan()">
+              <span style="display:flex;align-items:center;gap:4px;"><span class="material-symbols-outlined" style="font-size:14px;">calendar_add_on</span>Dodaj dzień</span>
+            </button>
             <button class="btn-s" style="padding:7px 12px;font-size:9px;" onclick="openModal('orm')">
               <span style="display:flex;align-items:center;gap:4px;"><span class="material-symbols-outlined" style="font-size:14px;">exercise</span>1RM</span>
             </button>
@@ -550,6 +553,18 @@
     <div style="margin-bottom:14px;">
       <label class="form-label">Podtytuł / opis dnia</label>
       <input class="inp" type="text" id="cb-subtitle" placeholder="np. Klatka + Plecy">
+    </div>
+    <div style="margin-bottom:14px;display:none;" id="cb-weekday-wrap">
+      <label class="form-label">Dzień tygodnia</label>
+      <select class="inp" id="cb-weekday">
+        <option value="0">Poniedziałek</option>
+        <option value="1">Wtorek</option>
+        <option value="2">Środa</option>
+        <option value="3">Czwartek</option>
+        <option value="4">Piątek</option>
+        <option value="5">Sobota</option>
+        <option value="6">Niedziela</option>
+      </select>
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
       <div class="form-label">Ćwiczenia</div>

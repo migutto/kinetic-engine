@@ -96,12 +96,12 @@ function renderGuideDetail(id) {
     </div>`).join('');
 
   // W planie
-  const inPlanHTML = ['A', 'B', 'C']
-    .filter(t => PLAN[t].exercises.some(e => e.n.toLowerCase().includes(ex.name.split(' ')[0].toLowerCase())))
-    .map(t => `
+  const inPlanHTML = getOrderedPlanDays()
+    .filter(day => day.exercises.some(e => e.n.toLowerCase().includes(ex.name.split(' ')[0].toLowerCase())))
+    .map(day => `
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-        <span class="badge bdg-p" style="font-size:8px;">${PLAN[t].name}</span>
-        <span style="font-size:10px;color:var(--osd);">${PLAN[t].subtitle}</span>
+        <span class="badge bdg-p" style="font-size:8px;">${day.name}</span>
+        <span style="font-size:10px;color:var(--osd);">${day.subtitle}</span>
     </div>`).join('') || '<div style="font-size:11px;color:var(--osd);">To cwiczenie nie jest jeszcze przypiete do aktywnego planu.</div>';
 
   document.getElementById('guide-detail').innerHTML = `

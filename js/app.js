@@ -48,13 +48,13 @@ document.addEventListener('DOMContentLoaded', () => {
 function _seedDemoData(data) {
   const mon = getMondayOfWeek(new Date());
   const prevMon = addDays(mon, -7);
-  const prevDates = getWeekDates(prevMon);
+  const prevSchedule = getWeekSchedule(prevMon, getActiveTrainingPlan());
 
-  ['A', 'B', 'C'].forEach(t => {
-    const date = prevDates[t];
+  prevSchedule.forEach(day => {
+    const date = day.date;
     const sets = {};
 
-    PLAN[t].exercises.forEach(ex => {
+    day.exercises.forEach(ex => {
       const repTarget = String(ex.reps).split(/\u2013|-/)[1] || 8;
       sets[ex.n] = Array(ex.sets).fill(null).map(() => ({
         reps: String(parseInt(repTarget) - Math.floor(Math.random() * 2)),
@@ -63,7 +63,7 @@ function _seedDemoData(data) {
       }));
     });
 
-    data.workouts[date] = { type: t, sets, completed: true };
+    data.workouts[date] = { type: day.id, sets, completed: true };
   });
 
   for (let i = 0; i < 6; i++) {

@@ -8,11 +8,13 @@ function renderDashboard() {
   const data       = getData();
   const today      = fmtDate(new Date());
   const thisMonday = getMondayOfWeek(new Date());
-  const wDates     = getWeekDates(thisMonday);
   const settings   = getSettings();
   const activePlan = getActiveTrainingPlan();
+  const weekSchedule = getWeekSchedule(thisMonday, activePlan);
+  const wDates     = getWeekDates(thisMonday, activePlan);
   const weekCardio = data.cardio.filter(c => c.date >= thisMonday && c.date <= addDays(thisMonday, 6));
-  const weekDone   = ['A', 'B', 'C'].filter(t => data.workouts[wDates[t]]?.completed).length;
+  const weekDone   = weekSchedule.filter(day => data.workouts[day.date]?.completed).length;
+  const weekTarget = weekSchedule.length;
   const weekDist   = globalThis.KECore?.sumCardioDistance
     ? globalThis.KECore.sumCardioDistance(weekCardio)
     : weekCardio.reduce((s, c) => s + (c.distKm || (c.steps || 0) * 0.73 / 1000), 0);
@@ -34,8 +36,8 @@ function renderDashboard() {
       <div class="stat-icon" style="background:rgba(137,172,255,.12)"><span class="material-symbols-outlined" style="color:var(--p)">fitness_center</span></div>
       <div class="stat-card-body">
         <div class="stat-label">Tydzień treningowy</div>
-        <div class="stat-val">${weekDone}<span style="font-size:15px;"> / 3</span></div>
-        <div class="stat-meta">${weekDone === 3 ? `${activePlan.name} jest domkniety w tym tygodniu.` : `${3 - weekDone} dni do zamkniecia planu ${activePlan.name}.`}</div>
+        <div class="stat-val">${weekDone}<span style="font-size:15px;"> / ${weekTarget || 0}</span></div>
+        <div class="stat-meta">${weekTarget === 0 ? 'Dodaj dni do aktywnego planu treningowego.' : (weekDone === weekTarget ? `${activePlan.name} jest domkniety w tym tygodniu.` : `${weekTarget - weekDone} dni do zamkniecia planu ${activePlan.name}.`)}</div>
       </div>
     </div>
     <div class="stat-card is-clickable fade-up" style="animation-delay:.06s" onclick="switchTab('cardio')">
@@ -64,12 +66,11 @@ function renderDashboard() {
     </div>`;
 
   // ── Karta "Dzisiaj" ──
-  let todayType = null;
-  for (const [t, d] of Object.entries(wDates)) { if (d === today) todayType = t; }
+  const todayEntry = weekSchedule.find(day => day.date === today) || null;
   const todayEl = document.getElementById('dash-today-content');
 
-  if (todayType) {
-    const plan = PLAN[todayType];
+  if (todayEntry) {
+    const plan = todayEntry;
     const wd   = data.workouts[today];
     todayEl.innerHTML = `
       <div class="lex" style="font-size:28px;font-weight:900;margin-bottom:4px;">${plan.name}</div>
@@ -77,43 +78,43 @@ function renderDashboard() {
       <div style="font-size:11px;color:var(--osd);margin-bottom:12px;">${plan.exercises.length} ćwiczeń · ${plan.exercises.reduce((s, e) => s + e.sets, 0)} serii</div>
       ${wd?.completed ? '<span class="badge bdg-t" style="margin-bottom:12px;gap:5px;"><span class="material-symbols-outlined" style="font-size:12px;">check_circle</span> Ukończony</span><br>' : ''}
       <button class="btn-p" style="width:100%;margin-top:8px;padding:14px;"
-        onclick="switchTab('training');setTimeout(()=>selectDay('${todayType}'),80)">
+        onclick="switchTab('training');setTimeout(()=>selectDay('${todayEntry.id}'),80)">
         ${wd?.completed ? '📋 Podgląd treningu' : '🔥 Rozpocznij Trening'}
       </button>`;
   } else {
-    const nextType = ['A', 'B', 'C'].find(t => wDates[t] > today);
-    todayEl.innerHTML = nextType
+    const nextEntry = weekSchedule.find(day => day.date > today);
+    todayEl.innerHTML = nextEntry
       ? `<div style="color:var(--osd);font-size:13px;margin-bottom:14px;">💤 Dzień odpoczynku — regenerujesz się!</div>
          <div style="font-size:10px;color:var(--osd);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Następny trening</div>
-         <div class="lex" style="font-size:20px;font-weight:800;">${PLAN[nextType].name}</div>
-         <div style="font-size:11px;color:var(--osd);margin-top:4px;">${formatDatePL(wDates[nextType])}</div>`
+         <div class="lex" style="font-size:20px;font-weight:800;">${nextEntry.name}</div>
+         <div style="font-size:11px;color:var(--osd);margin-top:4px;">${formatDatePL(nextEntry.date)}</div>`
       : `<div style="font-size:16px;margin-bottom:8px;">🎉 Tydzień ukończony!</div>
          <div style="font-size:13px;color:var(--osd);">Świetna robota. Odpoczywaj i wróć w przyszłym tygodniu.</div>`;
   }
 
   // ── Harmonogram tygodnia ──
   const mon    = getMondayOfWeek(new Date());
-  const wdates = getWeekDates(mon);
+  const schedule = getWeekSchedule(mon, activePlan);
   document.getElementById('dash-week-label').textContent = getWeekLabel(mon);
-  const schColors = { A: 'var(--p)', B: 'var(--s)', C: 'var(--td)' };
-  document.getElementById('dash-schedule').innerHTML = ['A', 'B', 'C'].map(t => {
-    const d    = wdates[t];
+  document.getElementById('dash-schedule').innerHTML = schedule.map(day => {
+    const d    = day.date;
     const wd   = data.workouts[d];
     const done = wd?.completed;
     const isTd = d === today;
-    return `<div onclick="switchTab('training');setTimeout(()=>selectDay('${t}'),80)"
+    const accent = day.color || 'var(--p)';
+    return `<div onclick="switchTab('training');setTimeout(()=>selectDay('${day.id}'),80)"
       style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;margin-bottom:7px;cursor:pointer;
       background:${isTd ? 'rgba(137,172,255,.07)' : 'rgba(255,255,255,.025)'};
       border:1px solid ${isTd ? 'rgba(137,172,255,.2)' : 'rgba(255,255,255,.04)'};transition:all .2s;"
       onmouseover="this.style.background='rgba(137,172,255,.07)'"
       onmouseout="this.style.background='${isTd ? 'rgba(137,172,255,.07)' : 'rgba(255,255,255,.025)'}'">
       <div style="text-align:center;min-width:38px;">
-        <div class="lex" style="font-size:18px;font-weight:900;color:${isTd ? schColors[t] : 'var(--os)'};">${new Date(d + 'T00:00:00').getDate()}</div>
+        <div class="lex" style="font-size:18px;font-weight:900;color:${isTd ? accent : 'var(--os)'};">${new Date(d + 'T00:00:00').getDate()}</div>
         <div style="font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--osd);">${['Nd','Pn','Wt','Śr','Cz','Pt','Sb'][new Date(d + 'T00:00:00').getDay()]}</div>
       </div>
       <div style="flex:1;">
-        <div style="font-weight:700;font-size:13px;">${PLAN[t].name}</div>
-        <div style="font-size:10px;color:var(--osd);">${PLAN[t].subtitle}</div>
+        <div style="font-weight:700;font-size:13px;">${day.name}</div>
+        <div style="font-size:10px;color:var(--osd);">${day.subtitle}</div>
       </div>
       ${done
         ? '<span class="material-symbols-outlined" style="color:var(--t);font-size:20px;">check_circle</span>'
@@ -180,20 +181,20 @@ function renderDashboard() {
   });
 
   // ── Mini postęp tygodniowy ──
-  const miniColors = { A: 'var(--p)', B: 'var(--s)', C: 'var(--td)' };
-  document.getElementById('dash-week-mini').innerHTML = ['A', 'B', 'C'].map(t => {
-    const d     = wdates[t];
+  document.getElementById('dash-week-mini').innerHTML = schedule.map(day => {
+    const d     = day.date;
     const wd    = data.workouts[d];
     const done  = wd?.completed;
     const doneEx = wd?.sets ? Object.values(wd.sets).filter(sets => sets.some(s => s.done)).length : 0;
-    const totalEx = PLAN[t].exercises.length;
-    const pct   = done ? 100 : Math.round(doneEx / totalEx * 100);
+    const totalEx = day.exercises.length;
+    const pct   = done ? 100 : (totalEx > 0 ? Math.round(doneEx / totalEx * 100) : 0);
+    const accent = day.color || 'var(--p)';
     return `<div style="margin-bottom:12px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
-        <span style="font-size:12px;font-weight:700;">${PLAN[t].name}</span>
+        <span style="font-size:12px;font-weight:700;">${day.name}</span>
         <span style="font-size:10px;color:${pct === 100 ? 'var(--t)' : 'var(--osd)'};">${pct}%${pct === 100 ? ' ✓' : ''}</span>
       </div>
-      <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${miniColors[t]};box-shadow:0 0 8px ${miniColors[t]}40;"></div></div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${accent};"></div></div>
     </div>`;
   }).join('');
 

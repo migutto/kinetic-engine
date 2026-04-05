@@ -29,13 +29,28 @@ function addDays(dateStr, n) {
   return fmtDate(d);
 }
 
-/** Zwraca daty sesji A/B/C dla danego poniedziałku */
-function getWeekDates(monday) {
-  return {
-    A: monday,
-    B: addDays(monday, 2),
-    C: addDays(monday, 4)
-  };
+const TRAINING_WEEKDAY_SHORT_LABELS = ['Pn', 'Wt', 'Sr', 'Cz', 'Pt', 'Sb', 'Nd'];
+const TRAINING_WEEKDAY_LABELS = ['Poniedzialek', 'Wtorek', 'Sroda', 'Czwartek', 'Piatek', 'Sobota', 'Niedziela'];
+
+function getTrainingWeekdayLabel(weekday, short = false) {
+  const normalizedWeekday = Number(weekday);
+  const labels = short ? TRAINING_WEEKDAY_SHORT_LABELS : TRAINING_WEEKDAY_LABELS;
+  return labels[normalizedWeekday] || labels[0];
+}
+
+function getWeekSchedule(monday, plan = getActiveTrainingPlan()) {
+  return getOrderedPlanDays(plan).map(day => ({
+    ...day,
+    date: addDays(monday, day.weekday)
+  }));
+}
+
+/** Zwraca daty dni aktywnego planu dla danego poniedziałku */
+function getWeekDates(monday, plan = getActiveTrainingPlan()) {
+  return getWeekSchedule(monday, plan).reduce((acc, day) => {
+    acc[day.id] = day.date;
+    return acc;
+  }, {});
 }
 
 /** Formatuje datę po polsku: "Pn, 26 Maj" */
@@ -48,7 +63,7 @@ function formatDatePL(dateStr) {
 
 /** Zwraca label tygodnia: "26 Maj – 30 Maj 2025" */
 function getWeekLabel(monday) {
-  const fri = addDays(monday, 4);
+  const fri = addDays(monday, 6);
   const m0  = new Date(monday + 'T00:00:00');
   const m1  = new Date(fri    + 'T00:00:00');
   const months = ['Sty','Lut','Mar','Kwi','Maj','Cze','Lip','Sie','Wrz','Paź','Lis','Gru'];

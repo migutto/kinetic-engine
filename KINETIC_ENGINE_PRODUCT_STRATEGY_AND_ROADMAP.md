@@ -40,7 +40,7 @@ The following ideas are no longer open roadmap items because they are now presen
 These directions are underway, but not fully complete:
 
 - **PWA maturity**
-  The technical foundation is now much stronger, but real browser/device smoke testing and legacy-file cleanup are still pending.
+  The technical foundation and legacy cleanup are now in place, but real browser/device smoke testing and clear platform notes are still pending.
 
 - **Summary system**
   Weekly/monthly summary cards exist, but automatic end-of-period summary events and notifications do not.
@@ -90,8 +90,8 @@ The current plan model is still the clearest ceiling on the app. It limits how r
 Focus: make existing data feel more alive and more durable.
 
 ### Main goals
+- PWA smoke testing and platform notes
 - scheduled weekly/month-end summary flow
-- PWA smoke testing and cleanup
 - version consistency
 
 ### Why now
@@ -124,8 +124,8 @@ Focus: broaden usefulness once the core is stable.
 ## 5. Recommended Priority Order in Plain Language
 
 1. Finish the custom plan system.
-2. Finish the summary flow beyond static cards.
-3. Validate the new PWA flow on real devices and remove legacy leftovers.
+2. Validate the new PWA flow on real devices and document platform limits.
+3. Finish the summary flow beyond static cards.
 4. Add cloud save/sync.
 5. Add English/i18n.
 6. Explore WGER and smarter insight features.

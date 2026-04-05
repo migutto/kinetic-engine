@@ -75,20 +75,20 @@ Go beyond static summary cards and support end-of-period summary events.
 
 ---
 
-### P1.4 PWA smoke test and legacy cleanup
+### P1.4 PWA smoke test and platform validation
 **Goal**
-Finish the "ideal PWA" track with validation, not only implementation.
+Finish the installable PWA track with real platform validation, not only implementation.
 
 **Scope**
 - test install/update/offline on desktop Chrome
 - test install/update/offline on Android Chrome
 - test install guidance flow on iOS Safari
-- align versioning/update notes
+- review update messaging and version notes
 
 **Acceptance criteria**
 - Install/update flow is predictable on supported platforms
-- Legacy PWA files no longer create confusion
 - Offline behavior is documented and trustworthy
+- Platform-specific limitations are documented clearly
 
 ---
 
@@ -151,7 +151,7 @@ Finish the "ideal PWA" track with validation, not only implementation.
 ## Recommended Execution Order
 
 1. Custom training plan system
-2. PWA smoke test and legacy cleanup
+2. PWA smoke test and platform validation
 3. Scheduled summary flow
 4. Cloud save and sync architecture
 5. English / i18n foundation

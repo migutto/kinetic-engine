@@ -161,11 +161,11 @@ function saveProfile() {
 // ── CHECK-IN ────────────────────────────────────────────────────
 function openCheckin() {
   const data = getData(); const today = fmtDate(new Date());
-  const wDates = getWeekDates(getMondayOfWeek(new Date()));
-  document.getElementById('checkin-days').innerHTML = ['A', 'B', 'C'].map(type => {
-    const date = wDates[type]; const plan = PLAN[type];
+  const weekSchedule = getWeekSchedule(getMondayOfWeek(new Date()));
+  document.getElementById('checkin-days').innerHTML = weekSchedule.map(day => {
+    const date = day.date; const plan = day;
     const wd = data.workouts[date]; const done = wd?.completed; const isTodayDay = date === today;
-    return `<div class="checkin-day ${done ? 'done-day' : ''}" onclick="checkinDay('${type}','${date}')">
+    return `<div class="checkin-day ${done ? 'done-day' : ''}" onclick="checkinDay('${day.id}','${date}')">
       <div style="width:44px;height:44px;border-radius:12px;background:${done ? 'rgba(243,255,202,.1)' : 'rgba(255,255,255,.04)'};display:flex;align-items:center;justify-content:center;border:1px solid ${done ? 'rgba(243,255,202,.2)' : 'rgba(255,255,255,.06)'};">
         <span style="font-size:22px;">${done ? '✅' : '🏋️'}</span>
       </div>
@@ -174,7 +174,7 @@ function openCheckin() {
         <div style="font-size:11px;color:var(--osd);margin-top:2px;">${formatDatePL(date)}${isTodayDay ? ' · <span style="color:var(--p);">Dzisiaj</span>' : ''}</div>
         <div style="font-size:10px;color:var(--osd);margin-top:2px;">${plan.subtitle}</div>
       </div>
-      ${done ? '<span class="badge bdg-t">Ukończony</span>' : isTodayDay ? `<button class="btn-p" style="padding:8px 14px;font-size:9px;" onclick="event.stopPropagation();quickCheckin('${type}','${date}')">✓ Check-in</button>` : ''}
+      ${done ? '<span class="badge bdg-t">Ukończony</span>' : isTodayDay ? `<button class="btn-p" style="padding:8px 14px;font-size:9px;" onclick="event.stopPropagation();quickCheckin('${day.id}','${date}')">✓ Check-in</button>` : ''}
     </div>`;
   }).join('');
   openModal('checkin');

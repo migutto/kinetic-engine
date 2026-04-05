@@ -3,11 +3,15 @@ const assert = require('node:assert/strict');
 
 const {
   buildPeriodSummary,
+  buildTrainingWeekSchedule,
   computeCardioMetrics,
   countDoneSets,
   createCardioEntry,
+  findNextAvailableTrainingWeekday,
   getMonthRange,
   getShiftedMonthRange,
+  normalizeTrainingWeekday,
+  sortTrainingPlanDays,
   sumCardioDistance,
 } = require('../js/core.js');
 
@@ -108,4 +112,52 @@ test('getMonthRange and getShiftedMonthRange return stable month boundaries', ()
     start: '2026-03-01',
     end: '2026-03-31',
   });
+});
+
+test('sortTrainingPlanDays orders days by weekday and preserves ids', () => {
+  const sorted = sortTrainingPlanDays({
+    c: { name: 'Push', weekday: 4 },
+    a: { name: 'Legs', weekday: 0 },
+    b: { name: 'Pull', weekday: 2 },
+  });
+
+  assert.deepEqual(
+    sorted.map(day => ({ id: day.id, name: day.name, weekday: day.weekday })),
+    [
+      { id: 'a', name: 'Legs', weekday: 0 },
+      { id: 'b', name: 'Pull', weekday: 2 },
+      { id: 'c', name: 'Push', weekday: 4 },
+    ]
+  );
+});
+
+test('buildTrainingWeekSchedule maps custom days to calendar dates', () => {
+  const schedule = buildTrainingWeekSchedule({
+    day2: { name: 'Upper', weekday: 3 },
+    day1: { name: 'Lower', weekday: 1 },
+  }, '2026-04-06');
+
+  assert.deepEqual(
+    schedule.map(day => ({ id: day.id, date: day.date })),
+    [
+      { id: 'day1', date: '2026-04-07' },
+      { id: 'day2', date: '2026-04-09' },
+    ]
+  );
+});
+
+test('findNextAvailableTrainingWeekday returns first free slot from preferred sequence', () => {
+  const weekday = findNextAvailableTrainingWeekday({
+    A: { weekday: 0 },
+    B: { weekday: 2 },
+    C: { weekday: 4 },
+  });
+
+  assert.equal(weekday, 1);
+});
+
+test('normalizeTrainingWeekday falls back to a valid weekday when data is missing', () => {
+  assert.equal(normalizeTrainingWeekday(undefined, 0), 0);
+  assert.equal(normalizeTrainingWeekday(undefined, 3), 1);
+  assert.equal(normalizeTrainingWeekday(6, 2), 6);
 });
