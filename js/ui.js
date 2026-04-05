@@ -120,9 +120,8 @@ function clearAllData() {
 }
 
 // ── PROFIL ──────────────────────────────────────────────────────
-const WGER_IMPORT_ENDPOINT = 'https://wger.de/api/v2/exerciseinfo/?limit=200';
+const WGER_IMPORT_SNAPSHOT_PATH = 'data/wger-pl-snapshot.json';
 let wgerImportInFlight = false;
-const WGER_POLISH_TOKENS = new Set(['pl', 'pl-pl', 'polski', 'polish']);
 
 function buildGuideImportStatusText() {
   const meta = typeof getGuideImportMeta === 'function' ? getGuideImportMeta() : null;
@@ -136,7 +135,8 @@ function buildGuideImportStatusText() {
     minute: '2-digit'
   }) : 'brak daty';
 
-  return `Biblioteka: ${meta.totalCount || totalExercises} cwiczen. Z wger dodano ${meta.importedCount || 0} rekordow (${importDate}).`;
+  const sourceLabel = meta.source === 'wger-snapshot' ? 'snapshotu PL wger' : 'wger';
+  return `Biblioteka: ${meta.totalCount || totalExercises} cwiczen. Z ${sourceLabel} dodano ${meta.importedCount || 0} rekordow (${importDate}).`;
 }
 
 function refreshGuideImportStatus() {
@@ -146,135 +146,6 @@ function refreshGuideImportStatus() {
 
   if (statusEl) statusEl.textContent = buildGuideImportStatusText();
   if (resetBtn) resetBtn.disabled = !meta;
-}
-
-function pickWgerField(entry, ...keys) {
-  for (const key of keys) {
-    const value = entry?.[key];
-    if (value != null && value !== '') return value;
-  }
-  return '';
-}
-
-function normalizeWgerLanguageToken(value) {
-  return String(value || '').trim().toLowerCase();
-}
-
-function collectWgerLanguageTokens(entry) {
-  if (!entry) return [];
-
-  const languageObject = typeof entry.language === 'object' && entry.language ? entry.language : null;
-  const rawValues = [
-    entry.language,
-    entry.language_id,
-    entry.language_name,
-    entry.language_short,
-    entry.language_short_name,
-    entry.short_name,
-    entry.full_name,
-    entry.name,
-    entry.name_en,
-    entry.code,
-    entry.slug,
-    languageObject?.short_name,
-    languageObject?.full_name,
-    languageObject?.name,
-    languageObject?.name_en,
-    languageObject?.code,
-    languageObject?.slug
-  ];
-
-  return [...new Set(rawValues
-    .filter(value => value != null && value !== '')
-    .map(normalizeWgerLanguageToken)
-    .filter(Boolean))];
-}
-
-function isWgerPolishTranslation(entry) {
-  const tokens = collectWgerLanguageTokens(entry);
-  return tokens.some(token => WGER_POLISH_TOKENS.has(token));
-}
-
-function pickWgerPolishTranslation(entry) {
-  const translations = Array.isArray(entry?.translations) ? entry.translations : [];
-  return translations.find(isWgerPolishTranslation) || null;
-}
-
-function pickWgerTranslatedField(entry, key) {
-  const polishTranslation = pickWgerPolishTranslation(entry);
-  if (polishTranslation) {
-    const translatedValue = pickWgerField(polishTranslation, key);
-    if (translatedValue) return translatedValue;
-  }
-
-  if (isWgerPolishTranslation(entry)) {
-    const directValue = pickWgerField(entry, key);
-    if (directValue) return directValue;
-  }
-
-  if (polishTranslation?.language && typeof polishTranslation.language === 'object') {
-    const nestedValue = pickWgerField(polishTranslation.language, key);
-    if (nestedValue) return nestedValue;
-  }
-
-  return pickWgerField(entry?.exercise_base || {}, key);
-}
-
-function mapWgerLevel(entry, equipment) {
-  const explicitLevel = stripGuideHtml(pickWgerField(entry, 'level', 'difficulty')).toLowerCase();
-  if (/(beginner|basic|easy)/.test(explicitLevel)) return 'podstawowy';
-  if (/(advanced|expert|hard)/.test(explicitLevel)) return 'zaawansowany';
-  if (equipment.length >= 3) return 'zaawansowany';
-  if (equipment.length <= 1) return 'podstawowy';
-  return 'sredni';
-}
-
-function mapWgerExerciseToGuide(entry, index) {
-  const polishTranslation = pickWgerPolishTranslation(entry);
-  const isPolishEntry = isWgerPolishTranslation(entry);
-  if (!polishTranslation && !isPolishEntry) return null;
-
-  const name = stripGuideHtml(pickWgerTranslatedField(entry, 'name') || pickWgerField(polishTranslation || entry, 'exercise_name'));
-  if (!name) return null;
-
-  const categoryValue = typeof entry?.category === 'string'
-    ? entry.category
-    : pickWgerField(entry?.category || {}, 'name', 'name_en');
-  const primaryMuscles = normalizeGuideStringList(entry?.muscles);
-  const secondaryMuscles = normalizeGuideStringList(entry?.muscles_secondary || entry?.musclesSecondary);
-  const equipment = normalizeGuideStringList(entry?.equipment);
-  const description = stripGuideHtml(pickWgerTranslatedField(entry, 'description') || pickWgerField(entry, 'notes', 'comment'));
-  const imageUrls = [...new Set((Array.isArray(entry?.images) ? entry.images : [])
-    .map(image => typeof image === 'string' ? image : pickWgerField(image || {}, 'image', 'url'))
-    .filter(Boolean))];
-  const videoUrl = (Array.isArray(entry?.videos) ? entry.videos : [])
-    .map(video => typeof video === 'string' ? video : pickWgerField(video || {}, 'video', 'url'))
-    .find(Boolean) || '';
-  const aliases = normalizeGuideStringList([
-    ...(Array.isArray(polishTranslation?.aliases) ? polishTranslation.aliases : []),
-    ...(Array.isArray(entry?.aliases) ? entry.aliases : []),
-    ...(Array.isArray(entry?.variations) ? entry.variations.map(variation => typeof variation === 'string' ? variation : pickWgerTranslatedField(variation || {}, 'name') || pickWgerField(variation || {}, 'name')) : [])
-  ]);
-  const level = mapWgerLevel(entry, equipment);
-  const category = inferGuideCategory(categoryValue, primaryMuscles, secondaryMuscles);
-  const fallbackDesc = description || `${name}. Glownie pracuja: ${(primaryMuscles[0] || secondaryMuscles[0] || 'rozne grupy miesniowe')}.`;
-
-  return normalizeGuideExercise({
-    id: `wger-${pickWgerField(entry, 'id') || `${slugifyGuideValue(name)}-${index}`}`,
-    source: 'wger',
-    sourceId: pickWgerField(entry, 'id') || null,
-    name,
-    cat: category,
-    level,
-    icon: GUIDE_CATEGORY_ICONS[category] || GUIDE_CATEGORY_ICONS.inne,
-    desc: fallbackDesc,
-    aliases,
-    primaryMuscles,
-    secondaryMuscles,
-    equipment,
-    images: imageUrls,
-    video: videoUrl
-  }, index);
 }
 
 async function importGuideFromWger() {
@@ -290,40 +161,26 @@ async function importGuideFromWger() {
       importBtn.innerHTML = '<span style="display:flex;align-items:center;justify-content:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:15px;">sync</span>Pobieranie...</span>';
     }
 
-    showToast('Pobieram baze cwiczen z wger...', 'sync', 'var(--p)');
+    showToast('Laduje polski snapshot cwiczen...', 'sync', 'var(--p)');
 
-    let url = WGER_IMPORT_ENDPOINT;
-    let page = 0;
-    const imported = [];
+    const response = await fetch(WGER_IMPORT_SNAPSHOT_PATH, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-    while (url && page < 6) {
-      const response = await fetch(url, { headers: { Accept: 'application/json' } });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-      const payload = await response.json();
-      const results = Array.isArray(payload?.results) ? payload.results : [];
-      results.forEach((entry, index) => {
-        const mapped = mapWgerExerciseToGuide(entry, imported.length + index);
-        if (mapped) imported.push(mapped);
-      });
-
-      url = payload?.next || null;
-      page += 1;
-    }
-
+    const payload = await response.json();
+    const imported = Array.isArray(payload?.exercises) ? payload.exercises : [];
     if (!imported.length) throw new Error('EMPTY_IMPORT');
 
     saveGuideImports(imported, {
-      source: 'wger',
-      importedAt: new Date().toISOString()
+      source: 'wger-snapshot',
+      importedAt: payload?.generatedAt || new Date().toISOString()
     });
 
     refreshGuideImportStatus();
     if (state.currentTab === 'guide') renderGuide();
-    showToast(`Zaimportowano ${imported.length} cwiczen z wger`, 'check_circle', 'var(--s)');
+    showToast(`Zaimportowano ${imported.length} cwiczen PL`, 'check_circle', 'var(--s)');
   } catch (error) {
-    console.error('wger import failed', error);
-    showToast('Import z wger nie udal sie. Sprawdz polaczenie lub CORS API.', 'error', 'var(--er)');
+    console.error('wger snapshot import failed', error);
+    showToast('Import snapshotu PL nie udal sie.', 'error', 'var(--er)');
   } finally {
     if (importBtn) {
       importBtn.disabled = false;

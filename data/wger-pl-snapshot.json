@@ -1,0 +1,107 @@
+{
+  "source": "wger",
+  "language": "pl",
+  "generatedAt": "2026-04-05T21:50:27.862Z",
+  "count": 4,
+  "exercises": [
+    {
+      "id": "wger-46",
+      "source": "wger",
+      "sourceId": 46,
+      "name": "Wykroki ze sztangą",
+      "cat": "nogi",
+      "level": "podstawowy",
+      "icon": "??",
+      "desc": "Połóż sztangę z tyłu barków. Stań prosto, a następnie wykonaj krok do przodu. Krok powinien doprowadzić cię do pozycji, w taki sposób aby kolanem nogi zakrocznej dotknąć podłogi.(Dotknięcie ma być delikatne z pełna kontrolą) Następnie wstań i powtórz z drugą nogą. Pamiętaj o zachowaniu dobrej postawy.",
+      "aliases": [],
+      "primaryMuscles": [
+        "Quads"
+      ],
+      "secondaryMuscles": [
+        "Glutes"
+      ],
+      "equipment": [
+        "Barbell"
+      ],
+      "images": [],
+      "video": "https://wger.de/media/exercise-video/46/200d9889-322f-476a-a47b-f15a1a97934a.MOV",
+      "diff": 1
+    },
+    {
+      "id": "wger-73",
+      "source": "wger",
+      "sourceId": 73,
+      "name": "Wyciskanie leżąc",
+      "cat": "klatka",
+      "level": "sredni",
+      "icon": "???",
+      "desc": "Połóż się na ławce, sztanga powinna znajdować się bezpośrednio nad twoimi oczami, kolana są ugięte, nogi w lekkim rozkroku a stopy mocno oparte na podłodze. Skoncentruj się, oddychaj prawidłowo i chwyć drążek szerzej niż na szerokość barków. Opuść go powoli, aż na chwilę dotknie klatki piersiowej na wysokości sutków. Popchnij sztangę do góry. Jeśli trenujesz z dużymi ciężarami, wskazane jest posiadanie asekuranta, który pomoże Ci podnieść sztangę, jeśli nie jesteś w stanie samodzielnie unieść ciężaru. Dzięki szerokości chwytu możesz także kontrolować, która część klatki piersiowej jest bardziej trenowana: szeroki chwyt: zewnętrzne mięśnie klatki piersiowej wąski chwyt: wewnętrzne mięśnie klatki piersiowej i triceps",
+      "aliases": [],
+      "primaryMuscles": [
+        "Chest"
+      ],
+      "secondaryMuscles": [
+        "Shoulders",
+        "Triceps"
+      ],
+      "equipment": [
+        "Barbell",
+        "Bench"
+      ],
+      "images": [
+        "https://wger.de/media/exercise-images/192/Bench-press-1.png",
+        "https://wger.de/media/exercise-images/192/Bench-press-2.png"
+      ],
+      "video": "https://wger.de/media/exercise-video/73/2bdb390c-312c-4497-a722-5eed2c823e5a.MOV",
+      "diff": 2
+    },
+    {
+      "id": "wger-448",
+      "source": "wger",
+      "sourceId": 448,
+      "name": "Wiosłowanie sztangą Pendelay",
+      "cat": "plecy",
+      "level": "podstawowy",
+      "icon": "??",
+      "desc": "Ćwiczenie pleców ze sztangą w pozycji wyjściowej w pochyleniu, z plecami równolegle do podłoża. Sztanga leży na podłodze na wysokości klatki piersiowej. Aby wykonać ćwiczenie, chwyć sztangę nachwytem na szerokość barków i pociągnij ją w kierunku klatki piersiowej, nie zmieniając pozycji pochylonej i nie poruszając niczym poza ramionami.",
+      "aliases": [],
+      "primaryMuscles": [
+        "Lats",
+        "Trapezius"
+      ],
+      "secondaryMuscles": [
+        "Biceps",
+        "Triceps"
+      ],
+      "equipment": [
+        "Barbell"
+      ],
+      "images": [],
+      "video": "",
+      "diff": 1
+    },
+    {
+      "id": "wger-615",
+      "source": "wger",
+      "sourceId": 615,
+      "name": "Przysiad",
+      "cat": "nogi",
+      "level": "podstawowy",
+      "icon": "??",
+      "desc": "Umieść sztangę na stojaku tuż poniżej wysokości ramion. Zanurz się pod sztangą, aby umieścić ją za karkiem, na górnej części pleców, i chwyć sztangę dłońmi rozstawionymi szerzej niż na szerokość ramion. Unieś klatkę piersiową i ściśnij łopatki, aby utrzymać proste plecy przez cały ruch. Wstań, aby zdjąć sztangę ze stojaka i zrób krok do tyłu, a następnie rozstaw stopy nieco szerzej niż na szerokość ramion. Usiądź prosto w biodrach i utrzymuj proste plecy, a klatkę piersiową uniesioną, przysiadając tak, aby biodra znalazły się poniżej kolan. Od dołu przysiadu dociśnij stopy do podłoża i wypchnij biodra do przodu, aby powrócić do pozycji stojącej.",
+      "aliases": [],
+      "primaryMuscles": [
+        "Quads"
+      ],
+      "secondaryMuscles": [
+        "Glutes"
+      ],
+      "equipment": [
+        "Barbell"
+      ],
+      "images": [],
+      "video": "",
+      "diff": 1
+    }
+  ]
+}
