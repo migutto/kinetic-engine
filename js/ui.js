@@ -216,7 +216,7 @@ const _origOpenModal = window.openModal;
 // ── PEŁNY BACKUP ────────────────────────────────────────────────
 function exportFullBackup() {
   const data   = getData();
-  const backup = { version: '3.1', exportDate: new Date().toISOString(), ...data };
+  const backup = { version: '3.2', exportDate: new Date().toISOString(), ...data };
   const blob   = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob); a.download = 'kinetic_backup_' + fmtDate(new Date()) + '.json'; a.click();
@@ -234,6 +234,8 @@ function importFullBackup(input) {
       if (json.workouts) Object.assign(current.workouts, json.workouts);
       if (json.cardio) { const ids = new Set(current.cardio.map(c => c.id)); json.cardio.forEach(c => { if (!ids.has(c.id)) current.cardio.push(c); }); }
       if (json.measurements) { const map = {}; current.measurements.forEach(m => map[m.date] = m); json.measurements.forEach(m => map[m.date] = m); current.measurements = Object.values(map).sort((a, b) => a.date.localeCompare(b.date)); }
+      if (Array.isArray(json.trainingPlans)) current.trainingPlans = json.trainingPlans;
+      if (json.activeTrainingPlanId) current.activeTrainingPlanId = json.activeTrainingPlanId;
       if (json.profile)    current.profile    = json.profile;
       if (json.settings)   Object.assign(current.settings, json.settings);
       if (json.bodyHeight) current.bodyHeight = json.bodyHeight;

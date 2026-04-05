@@ -43,6 +43,9 @@ const PLAN = {
   }
 };
 
+const BASE_TRAINING_PLAN_ID = 'base-default';
+const BASE_PLAN_DAYS = clonePlanDays(PLAN);
+
 // ── PORADNIK ĆWICZEŃ ────────────────────────────────────────────
 const GUIDE_DATA = [
   { id: 'pompki-wyz', name: 'Pompki na Podwyższeniu', cat: 'klatka', level: 'podstawowy', icon: '🤸',
@@ -258,6 +261,7 @@ function loadData() {
 }
 
 function saveData(d) {
+  syncActiveTrainingPlan(d);
   localStorage.setItem('ke_data', JSON.stringify(d));
 }
 
@@ -270,11 +274,167 @@ function getData() {
   if (!d.notifications) d.notifications = [];
   if (!d.measurements)  d.measurements  = [];
   if (!d.bodyHeight)    d.bodyHeight    = 178;
+  ensureTrainingPlans(d);
+  syncActiveTrainingPlan(d);
   return d;
 }
 
 function getProfile()  { return getData().profile; }
 function getSettings() { return getData().settings; }
+
+function clonePlanDays(days) {
+  return JSON.parse(JSON.stringify(days || {}));
+}
+
+function normalizePlanDay(day, fallbackType) {
+  return {
+    name: day?.name || `Dzien ${fallbackType}`,
+    subtitle: day?.subtitle || '',
+    color: day?.color || 'var(--p)',
+    exercises: Array.isArray(day?.exercises) ? clonePlanDays(day.exercises) : []
+  };
+}
+
+function createBaseTrainingPlan() {
+  return {
+    id: BASE_TRAINING_PLAN_ID,
+    name: 'Plan bazowy',
+    description: 'Domyslny plan A/B/C',
+    isSystem: true,
+    days: clonePlanDays(BASE_PLAN_DAYS)
+  };
+}
+
+function normalizeTrainingPlan(plan, index = 0) {
+  const normalizedDays = {
+    A: normalizePlanDay(plan?.days?.A || plan?.A || BASE_PLAN_DAYS.A, 'A'),
+    B: normalizePlanDay(plan?.days?.B || plan?.B || BASE_PLAN_DAYS.B, 'B'),
+    C: normalizePlanDay(plan?.days?.C || plan?.C || BASE_PLAN_DAYS.C, 'C')
+  };
+
+  return {
+    id: plan?.id || `plan-${Date.now()}-${index}`,
+    name: plan?.name || `Plan ${index + 1}`,
+    description: plan?.description || '',
+    isSystem: plan?.id === BASE_TRAINING_PLAN_ID || !!plan?.isSystem,
+    days: normalizedDays
+  };
+}
+
+function ensureTrainingPlans(data) {
+  const rawPlans = Array.isArray(data.trainingPlans) ? data.trainingPlans : [];
+  const normalizedPlans = rawPlans.map((plan, index) => normalizeTrainingPlan(plan, index));
+  const basePlan = normalizedPlans.find(plan => plan.id === BASE_TRAINING_PLAN_ID);
+
+  if (basePlan) {
+    basePlan.isSystem = true;
+    basePlan.name = 'Plan bazowy';
+    basePlan.description = 'Domyslny plan A/B/C';
+    basePlan.days = clonePlanDays(BASE_PLAN_DAYS);
+  } else {
+    normalizedPlans.unshift(createBaseTrainingPlan());
+  }
+
+  data.trainingPlans = normalizedPlans;
+
+  const activeId = data.activeTrainingPlanId;
+  if (!activeId || !data.trainingPlans.some(plan => plan.id === activeId)) {
+    data.activeTrainingPlanId = BASE_TRAINING_PLAN_ID;
+  }
+}
+
+function syncActiveTrainingPlan(data) {
+  ensureTrainingPlans(data);
+  const activePlan = data.trainingPlans.find(plan => plan.id === data.activeTrainingPlanId) || data.trainingPlans[0];
+
+  Object.keys(PLAN).forEach(key => delete PLAN[key]);
+  Object.assign(PLAN, clonePlanDays(activePlan.days));
+
+  return activePlan;
+}
+
+function getTrainingPlans() {
+  return getData().trainingPlans;
+}
+
+function getActiveTrainingPlanId() {
+  return getData().activeTrainingPlanId;
+}
+
+function getActiveTrainingPlan() {
+  const data = getData();
+  return data.trainingPlans.find(plan => plan.id === data.activeTrainingPlanId) || data.trainingPlans[0];
+}
+
+function setActiveTrainingPlan(planId) {
+  const data = getData();
+  if (!data.trainingPlans.some(plan => plan.id === planId)) return false;
+  data.activeTrainingPlanId = planId;
+  saveData(data);
+  return true;
+}
+
+function createTrainingPlanCopy(name, sourcePlanId = getActiveTrainingPlanId()) {
+  const data = getData();
+  const sourcePlan = data.trainingPlans.find(plan => plan.id === sourcePlanId) || data.trainingPlans[0];
+  const trimmedName = (name || '').trim();
+  const nextPlan = {
+    id: `plan-${Date.now()}`,
+    name: trimmedName || `Plan ${data.trainingPlans.length}`,
+    description: '',
+    isSystem: false,
+    days: clonePlanDays(sourcePlan.days)
+  };
+
+  data.trainingPlans.push(nextPlan);
+  data.activeTrainingPlanId = nextPlan.id;
+  saveData(data);
+  return nextPlan;
+}
+
+function renameTrainingPlan(planId, nextName) {
+  const data = getData();
+  const plan = data.trainingPlans.find(item => item.id === planId);
+  if (!plan || plan.isSystem) return false;
+
+  const trimmedName = (nextName || '').trim();
+  if (!trimmedName) return false;
+
+  plan.name = trimmedName;
+  saveData(data);
+  return true;
+}
+
+function deleteTrainingPlan(planId) {
+  const data = getData();
+  const plan = data.trainingPlans.find(item => item.id === planId);
+  if (!plan || plan.isSystem) return false;
+
+  data.trainingPlans = data.trainingPlans.filter(item => item.id !== planId);
+  if (data.activeTrainingPlanId === planId) {
+    data.activeTrainingPlanId = BASE_TRAINING_PLAN_ID;
+  }
+
+  saveData(data);
+  return true;
+}
+
+function updateTrainingPlanDay(planId, dayType, patch) {
+  const data = getData();
+  const plan = data.trainingPlans.find(item => item.id === planId);
+  if (!plan || plan.isSystem || !plan.days?.[dayType]) return false;
+
+  plan.days[dayType] = {
+    ...plan.days[dayType],
+    ...patch,
+    exercises: Array.isArray(patch?.exercises)
+      ? clonePlanDays(patch.exercises)
+      : clonePlanDays(plan.days[dayType].exercises)
+  };
+
+  saveData(data);
+  return true;
+}
 
 function saveSetting(key, val) {
   const d = getData();

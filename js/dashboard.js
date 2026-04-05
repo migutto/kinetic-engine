@@ -10,6 +10,7 @@ function renderDashboard() {
   const thisMonday = getMondayOfWeek(new Date());
   const wDates     = getWeekDates(thisMonday);
   const settings   = getSettings();
+  const activePlan = getActiveTrainingPlan();
   const weekCardio = data.cardio.filter(c => c.date >= thisMonday && c.date <= addDays(thisMonday, 6));
   const weekDone   = ['A', 'B', 'C'].filter(t => data.workouts[wDates[t]]?.completed).length;
   const weekDist   = globalThis.KECore?.sumCardioDistance
@@ -34,7 +35,7 @@ function renderDashboard() {
       <div class="stat-card-body">
         <div class="stat-label">Tydzień treningowy</div>
         <div class="stat-val">${weekDone}<span style="font-size:15px;"> / 3</span></div>
-        <div class="stat-meta">${weekDone === 3 ? 'Plan bazowy jest domknięty w tym tygodniu.' : `${3 - weekDone} dni do zamknięcia bazowego planu.`}</div>
+        <div class="stat-meta">${weekDone === 3 ? `${activePlan.name} jest domkniety w tym tygodniu.` : `${3 - weekDone} dni do zamkniecia planu ${activePlan.name}.`}</div>
       </div>
     </div>
     <div class="stat-card is-clickable fade-up" style="animation-delay:.06s" onclick="switchTab('cardio')">

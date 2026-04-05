@@ -16,6 +16,78 @@ function goToCurrentWeek() {
   renderTraining();
 }
 
+function renderTrainingPlanControls() {
+  const activePlan = getActiveTrainingPlan();
+  const select = document.getElementById('training-plan-select');
+  const renameBtn = document.getElementById('rename-plan-btn');
+  const deleteBtn = document.getElementById('delete-plan-btn');
+
+  if (select) {
+    select.innerHTML = getTrainingPlans().map(plan =>
+      `<option value="${plan.id}" ${plan.id === activePlan.id ? 'selected' : ''}>${plan.name}${plan.isSystem ? ' · bazowy' : ''}</option>`
+    ).join('');
+  }
+
+  if (renameBtn) renameBtn.disabled = activePlan.isSystem;
+  if (deleteBtn) deleteBtn.disabled = activePlan.isSystem;
+}
+
+function changeActiveTrainingPlan(planId) {
+  if (!setActiveTrainingPlan(planId)) return;
+  renderTraining();
+  if (state.currentTab === 'dashboard') renderDashboard();
+  if (state.currentTab === 'guide') renderGuide();
+}
+
+function createTrainingPlan() {
+  const sourcePlan = getActiveTrainingPlan();
+  const suggestedName = sourcePlan.isSystem ? 'Moj plan' : `${sourcePlan.name} kopia`;
+  const name = prompt('Podaj nazwe nowego planu:', suggestedName);
+
+  if (!name) return;
+
+  createTrainingPlanCopy(name, sourcePlan.id);
+  showToast('Nowy plan jest gotowy do edycji.', 'check_circle', 'var(--s)');
+  renderTraining();
+  if (state.currentTab === 'dashboard') renderDashboard();
+  if (state.currentTab === 'guide') renderGuide();
+}
+
+function renameCurrentTrainingPlan() {
+  const activePlan = getActiveTrainingPlan();
+  if (activePlan.isSystem) {
+    showToast('Najpierw utworz kopie planu bazowego.', 'info', 'var(--osd)');
+    return;
+  }
+
+  const nextName = prompt('Nowa nazwa planu:', activePlan.name);
+  if (!nextName) return;
+
+  if (!renameTrainingPlan(activePlan.id, nextName)) return;
+
+  showToast('Nazwa planu zostala zapisana.', 'edit', 'var(--s)');
+  renderTraining();
+  if (state.currentTab === 'dashboard') renderDashboard();
+  if (state.currentTab === 'guide') renderGuide();
+}
+
+function deleteCurrentTrainingPlan() {
+  const activePlan = getActiveTrainingPlan();
+  if (activePlan.isSystem) {
+    showToast('Nie mozna usunac planu bazowego.', 'info', 'var(--osd)');
+    return;
+  }
+
+  if (!confirm(`Usunac plan "${activePlan.name}"?`)) return;
+
+  if (!deleteTrainingPlan(activePlan.id)) return;
+
+  showToast('Plan zostal usuniety.', 'delete', 'var(--er)');
+  renderTraining();
+  if (state.currentTab === 'dashboard') renderDashboard();
+  if (state.currentTab === 'guide') renderGuide();
+}
+
 // ── RENDER KAFELKÓW ─────────────────────────────────────────────
 function renderTraining() {
   const data    = getData();
@@ -26,6 +98,7 @@ function renderTraining() {
 
   document.getElementById('week-label').textContent      = 'Tydzień ' + weekNum;
   document.getElementById('week-dates-label').textContent = getWeekLabel(monday);
+  renderTrainingPlanControls();
 
   // Postęp tygodnia (A/B/C + własne)
   const customDates = getCustomDatesInWeek(monday);
@@ -214,6 +287,8 @@ function renderWorkoutDetail() {
     : (PLAN[state.activeDayType]?.subtitle || '');
   const scheduledDate = !isCustom ? getWeekDates(state.currentWeekMonday)[state.activeDayType] : date;
   const isOffSchedule = !isCustom && date !== scheduledDate;
+  const activePlan = getActiveTrainingPlan();
+  const canEditPlanDay = !isCustom && !activePlan.isSystem;
 
   let html = `<div class="fade-up">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;padding-top:4px;">
@@ -240,6 +315,8 @@ function renderWorkoutDetail() {
         ${wd.completed ? '<span class="badge bdg-t"><span class="material-symbols-outlined" style="font-size:12px;">check_circle</span> Ukończony</span>' : ''}
         ${isCustom ? `<button class="btn-s" style="padding:8px 14px;font-size:9px;" onclick="openCustomBuilder('${date}')">
           <span style="display:flex;align-items:center;gap:5px;"><span class="material-symbols-outlined" style="font-size:13px;">edit</span>Edytuj</span></button>` : ''}
+        ${canEditPlanDay ? `<button class="btn-s" style="padding:8px 14px;font-size:9px;" onclick="openPlanDayBuilder('${state.activeDayType}')">
+          <span style="display:flex;align-items:center;gap:5px;"><span class="material-symbols-outlined" style="font-size:13px;">tune</span>Edytuj dzien planu</span></button>` : ''}
         <button class="btn-p" onclick="completeDayGeneric('${date}')" ${wd.completed ? 'disabled style="opacity:.4;cursor:default;"' : ''}>
           <span style="display:flex;align-items:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:15px;">task_alt</span>Zakończ Trening</span>
         </button>
@@ -260,10 +337,16 @@ function renderWorkoutDetail() {
 
   // Brak ćwiczeń
   if (!exercises.length) {
+    const emptyStateAction = isCustom
+      ? `<button class="btn-s" style="padding:6px 12px;font-size:10px;margin-left:4px;" onclick="openCustomBuilder('${date}')">Dodaj cwiczenia</button>`
+      : (canEditPlanDay
+        ? `<button class="btn-s" style="padding:6px 12px;font-size:10px;margin-left:4px;" onclick="openPlanDayBuilder('${state.activeDayType}')">Skonfiguruj dzien planu</button>`
+        : '');
+
     html += `<div style="text-align:center;padding:40px;color:var(--osd);">
       <span class="material-symbols-outlined" style="font-size:40px;opacity:.3;display:block;margin-bottom:10px;">fitness_center</span>
-      Brak ćwiczeń —
-      <button class="btn-s" style="padding:6px 12px;font-size:10px;margin-left:4px;" onclick="openCustomBuilder('${date}')">Dodaj ćwiczenia</button>
+      ${isCustom ? 'Brak cwiczen w tym treningu.' : 'Ten dzien planu nie ma jeszcze cwiczen.'}
+      ${emptyStateAction}
     </div>`;
   } else {
     exercises.forEach((ex, idx) => {
@@ -453,6 +536,7 @@ function getProgressHint(history, todayMaxW) {
 
 // ── WŁASNY TRENING — BUILDER ────────────────────────────────────
 let cbExercises = [];
+let cbContext = { mode: 'workout', editDate: null, dayType: null, planId: null };
 
 function getCustomDatesInWeek(monday) {
   const data = getData();
@@ -463,20 +547,95 @@ function getCustomDatesInWeek(monday) {
     .sort();
 }
 
-function openCustomBuilder(editDate) {
-  cbExercises = [];
+function syncCustomBuilderUI({ mode, title, description, saveLabel, showDateField, nameLabel, namePlaceholder, subtitleValue = '' }) {
+  const overlay = document.getElementById('custom-builder-overlay');
+  const titleEl = overlay?.querySelector('.modal-title');
+  const descEl = overlay?.querySelector('p');
+  const saveButton = overlay?.querySelector('.btn-p');
   const cbDate = document.getElementById('cb-date');
   const cbName = document.getElementById('cb-name');
+  const cbSubtitle = document.getElementById('cb-subtitle');
+  const dateWrap = cbDate?.parentElement;
+  const nameLabelEl = cbName?.previousElementSibling;
+
+  cbContext.mode = mode;
+  if (titleEl) titleEl.textContent = title;
+  if (descEl) descEl.textContent = description;
+  if (saveButton) {
+    saveButton.innerHTML = `<span style="display:flex;align-items:center;justify-content:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:16px;">save</span>${saveLabel}</span>`;
+  }
+  if (dateWrap) dateWrap.style.display = showDateField ? 'block' : 'none';
+  if (nameLabelEl) nameLabelEl.textContent = nameLabel;
+  if (cbName) cbName.placeholder = namePlaceholder;
+  if (cbSubtitle) cbSubtitle.value = subtitleValue;
+}
+
+function openPlanDayBuilder(dayType) {
+  const activePlan = getActiveTrainingPlan();
+  if (activePlan.isSystem) {
+    showToast('Najpierw utworz kopie planu bazowego.', 'info', 'var(--osd)');
+    return;
+  }
+
+  const cbName = document.getElementById('cb-name');
+  const cbDate = document.getElementById('cb-date');
+  const cbSubtitle = document.getElementById('cb-subtitle');
+  const dayPlan = activePlan.days?.[dayType];
+
+  cbContext = { mode: 'plan-day', editDate: null, dayType, planId: activePlan.id };
+  cbExercises = dayPlan?.exercises ? JSON.parse(JSON.stringify(dayPlan.exercises)) : [];
+
+  if (cbDate) cbDate.value = fmtDate(new Date());
+  if (cbName) cbName.value = dayPlan?.name || `Dzien ${dayType}`;
+  if (cbSubtitle) cbSubtitle.value = dayPlan?.subtitle || '';
+
+  syncCustomBuilderUI({
+    mode: 'plan-day',
+    title: `${activePlan.name} · dzien ${dayType}`,
+    description: 'Edytujesz dzien aktywnego planu. Zmiany od razu wejda do harmonogramu i dashboardu.',
+    saveLabel: 'Zapisz dzien planu',
+    showDateField: false,
+    nameLabel: 'Nazwa dnia',
+    namePlaceholder: `np. Dzien ${dayType}`,
+    subtitleValue: dayPlan?.subtitle || ''
+  });
+
+  renderCBExercises();
+  document.getElementById('cb-quick-list').innerHTML = GUIDE_DATA.map(g =>
+    `<span class="cb-quick-chip" onclick="addCBExerciseFromGuide('${g.id}')">${g.icon} ${g.name.split(' ').slice(0, 2).join(' ')}</span>`
+  ).join('');
+  openModal('custom-builder');
+}
+
+function openCustomBuilder(editDate) {
+  const cbDate = document.getElementById('cb-date');
+  const cbName = document.getElementById('cb-name');
+  const cbSubtitle = document.getElementById('cb-subtitle');
+
+  cbContext = { mode: 'workout', editDate: editDate || null, dayType: null, planId: null };
+  cbExercises = [];
 
   if (editDate) {
     const wd = getData().workouts[editDate];
     cbDate.value = editDate;
     cbName.value = wd?.name || '';
+    if (cbSubtitle) cbSubtitle.value = '';
     cbExercises  = wd?.customExercises ? JSON.parse(JSON.stringify(wd.customExercises)) : [];
   } else {
     cbDate.value = fmtDate(new Date());
     cbName.value = '';
+    if (cbSubtitle) cbSubtitle.value = '';
   }
+
+  syncCustomBuilderUI({
+    mode: 'workout',
+    title: 'Własny Trening',
+    description: 'Stworz dowolny zestaw cwiczen na wybrany dzien.',
+    saveLabel: 'Zapisz Trening',
+    showDateField: true,
+    nameLabel: 'Nazwa treningu',
+    namePlaceholder: 'np. Klatka + Triceps'
+  });
 
   renderCBExercises();
   document.getElementById('cb-quick-list').innerHTML = GUIDE_DATA.map(g =>
@@ -541,8 +700,9 @@ function removeCBExercise(i) {
 
 function saveCustomWorkout() {
   const date = document.getElementById('cb-date').value;
+  const subtitle = document.getElementById('cb-subtitle')?.value.trim() || '';
   const name = document.getElementById('cb-name').value.trim() || 'Własny Trening';
-  if (!date) { showToast('Wybierz datę treningu', 'error', 'var(--er)'); return; }
+  if (cbContext.mode === 'workout' && !date) { showToast('Wybierz datę treningu', 'error', 'var(--er)'); return; }
 
   // Zbierz aktualne wartości z DOM
   document.querySelectorAll('.cb-ex-row').forEach((row, i) => {
@@ -557,6 +717,25 @@ function saveCustomWorkout() {
 
   const validEx = cbExercises.filter(e => e.n);
   if (!validEx.length) { showToast('Dodaj przynajmniej jedno ćwiczenie', 'error', 'var(--er)'); return; }
+
+  if (cbContext.mode === 'plan-day') {
+    const planId = cbContext.planId || getActiveTrainingPlan().id;
+    if (!updateTrainingPlanDay(planId, cbContext.dayType, {
+      name,
+      subtitle,
+      exercises: validEx
+    })) {
+      showToast('Nie udalo sie zapisac dnia planu', 'error', 'var(--er)');
+      return;
+    }
+
+    closeModal('custom-builder');
+    showToast(`Dzien ${cbContext.dayType} zapisany!`, 'check_circle', 'var(--s)');
+    renderTraining();
+    if (state.currentTab === 'dashboard') renderDashboard();
+    if (state.currentTab === 'guide') renderGuide();
+    return;
+  }
 
   const data     = getData();
   const existing = data.workouts[date];

@@ -189,6 +189,16 @@
           <div class="training-toolbar-actions" style="display:flex;align-items:center;gap:10px;">
             <div class="prog-bar" style="width:110px;"><div class="prog-fill" id="week-prog-fill"></div></div>
             <span id="week-prog-txt" style="font-size:11px;color:var(--osd);"></span>
+            <select class="inp" id="training-plan-select" style="width:170px;font-size:12px;height:36px;padding-right:32px;" onchange="changeActiveTrainingPlan(this.value)"></select>
+            <button class="btn-s" style="padding:7px 12px;font-size:9px;" onclick="createTrainingPlan()">
+              <span style="display:flex;align-items:center;gap:4px;"><span class="material-symbols-outlined" style="font-size:14px;">playlist_add</span>Nowy plan</span>
+            </button>
+            <button class="btn-s" id="rename-plan-btn" style="padding:7px 12px;font-size:9px;" onclick="renameCurrentTrainingPlan()">
+              <span style="display:flex;align-items:center;gap:4px;"><span class="material-symbols-outlined" style="font-size:14px;">edit</span>Nazwa</span>
+            </button>
+            <button class="btn-s" id="delete-plan-btn" style="padding:7px 12px;font-size:9px;" onclick="deleteCurrentTrainingPlan()">
+              <span style="display:flex;align-items:center;gap:4px;"><span class="material-symbols-outlined" style="font-size:14px;">delete</span>Usuń</span>
+            </button>
             <button class="btn-s" style="padding:7px 12px;font-size:9px;" onclick="openModal('orm')">
               <span style="display:flex;align-items:center;gap:4px;"><span class="material-symbols-outlined" style="font-size:14px;">exercise</span>1RM</span>
             </button>
@@ -536,6 +546,10 @@
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
       <div><label class="form-label">Data</label><input class="inp" type="date" id="cb-date" style="font-size:13px;"></div>
       <div><label class="form-label">Nazwa treningu</label><input class="inp" type="text" id="cb-name" placeholder="np. Klatka + Triceps"></div>
+    </div>
+    <div style="margin-bottom:14px;">
+      <label class="form-label">Podtytuł / opis dnia</label>
+      <input class="inp" type="text" id="cb-subtitle" placeholder="np. Klatka + Plecy">
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
       <div class="form-label">Ćwiczenia</div>

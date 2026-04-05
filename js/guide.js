@@ -102,7 +102,7 @@ function renderGuideDetail(id) {
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
         <span class="badge bdg-p" style="font-size:8px;">${PLAN[t].name}</span>
         <span style="font-size:10px;color:var(--osd);">${PLAN[t].subtitle}</span>
-      </div>`).join('') || '<div style="font-size:11px;color:var(--osd);">To ćwiczenie nie jest jeszcze przypięte do bazowego planu.</div>';
+    </div>`).join('') || '<div style="font-size:11px;color:var(--osd);">To cwiczenie nie jest jeszcze przypiete do aktywnego planu.</div>';
 
   document.getElementById('guide-detail').innerHTML = `
     <div class="guide-detail-shell fade-up">
