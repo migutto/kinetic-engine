@@ -120,8 +120,9 @@ function clearAllData() {
 }
 
 // ── PROFIL ──────────────────────────────────────────────────────
-const WGER_IMPORT_ENDPOINT = 'https://wger.de/api/v2/exerciseinfo/?limit=200&language=2';
+const WGER_IMPORT_ENDPOINT = 'https://wger.de/api/v2/exerciseinfo/?limit=200';
 let wgerImportInFlight = false;
+const WGER_POLISH_TOKENS = new Set(['pl', 'pl-pl', 'polski', 'polish']);
 
 function buildGuideImportStatusText() {
   const meta = typeof getGuideImportMeta === 'function' ? getGuideImportMeta() : null;
@@ -155,15 +156,65 @@ function pickWgerField(entry, ...keys) {
   return '';
 }
 
-function pickWgerTranslatedField(entry, key) {
-  const directValue = pickWgerField(entry, key);
-  if (directValue) return directValue;
+function normalizeWgerLanguageToken(value) {
+  return String(value || '').trim().toLowerCase();
+}
 
-  if (Array.isArray(entry?.translations)) {
-    const translated = entry.translations
-      .map(item => pickWgerField(item || {}, key))
-      .find(Boolean);
-    if (translated) return translated;
+function collectWgerLanguageTokens(entry) {
+  if (!entry) return [];
+
+  const languageObject = typeof entry.language === 'object' && entry.language ? entry.language : null;
+  const rawValues = [
+    entry.language,
+    entry.language_id,
+    entry.language_name,
+    entry.language_short,
+    entry.language_short_name,
+    entry.short_name,
+    entry.full_name,
+    entry.name,
+    entry.name_en,
+    entry.code,
+    entry.slug,
+    languageObject?.short_name,
+    languageObject?.full_name,
+    languageObject?.name,
+    languageObject?.name_en,
+    languageObject?.code,
+    languageObject?.slug
+  ];
+
+  return [...new Set(rawValues
+    .filter(value => value != null && value !== '')
+    .map(normalizeWgerLanguageToken)
+    .filter(Boolean))];
+}
+
+function isWgerPolishTranslation(entry) {
+  const tokens = collectWgerLanguageTokens(entry);
+  return tokens.some(token => WGER_POLISH_TOKENS.has(token));
+}
+
+function pickWgerPolishTranslation(entry) {
+  const translations = Array.isArray(entry?.translations) ? entry.translations : [];
+  return translations.find(isWgerPolishTranslation) || null;
+}
+
+function pickWgerTranslatedField(entry, key) {
+  const polishTranslation = pickWgerPolishTranslation(entry);
+  if (polishTranslation) {
+    const translatedValue = pickWgerField(polishTranslation, key);
+    if (translatedValue) return translatedValue;
+  }
+
+  if (isWgerPolishTranslation(entry)) {
+    const directValue = pickWgerField(entry, key);
+    if (directValue) return directValue;
+  }
+
+  if (polishTranslation?.language && typeof polishTranslation.language === 'object') {
+    const nestedValue = pickWgerField(polishTranslation.language, key);
+    if (nestedValue) return nestedValue;
   }
 
   return pickWgerField(entry?.exercise_base || {}, key);
@@ -179,7 +230,11 @@ function mapWgerLevel(entry, equipment) {
 }
 
 function mapWgerExerciseToGuide(entry, index) {
-  const name = stripGuideHtml(pickWgerTranslatedField(entry, 'name') || pickWgerField(entry, 'exercise_name'));
+  const polishTranslation = pickWgerPolishTranslation(entry);
+  const isPolishEntry = isWgerPolishTranslation(entry);
+  if (!polishTranslation && !isPolishEntry) return null;
+
+  const name = stripGuideHtml(pickWgerTranslatedField(entry, 'name') || pickWgerField(polishTranslation || entry, 'exercise_name'));
   if (!name) return null;
 
   const categoryValue = typeof entry?.category === 'string'
@@ -196,8 +251,9 @@ function mapWgerExerciseToGuide(entry, index) {
     .map(video => typeof video === 'string' ? video : pickWgerField(video || {}, 'video', 'url'))
     .find(Boolean) || '';
   const aliases = normalizeGuideStringList([
+    ...(Array.isArray(polishTranslation?.aliases) ? polishTranslation.aliases : []),
     ...(Array.isArray(entry?.aliases) ? entry.aliases : []),
-    ...(Array.isArray(entry?.variations) ? entry.variations.map(variation => typeof variation === 'string' ? variation : pickWgerField(variation || {}, 'name')) : [])
+    ...(Array.isArray(entry?.variations) ? entry.variations.map(variation => typeof variation === 'string' ? variation : pickWgerTranslatedField(variation || {}, 'name') || pickWgerField(variation || {}, 'name')) : [])
   ]);
   const level = mapWgerLevel(entry, equipment);
   const category = inferGuideCategory(categoryValue, primaryMuscles, secondaryMuscles);
