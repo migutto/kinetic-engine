@@ -378,7 +378,7 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
 .setting-row:hover { background: rgba(137,172,255,.04); }
 .setting-label { font-weight: 600; font-size: 13px; }
 .setting-sub { font-size: 11px; color: var(--osd); margin-top: 2px; }
-.settings-version-footer { margin-top: 18px; padding: 16px 4px 0; border-top: 1px solid rgba(255,255,255,.08); display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 10px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--osd); }
+.settings-version-footer { flex-shrink: 0; padding: 14px 24px 18px; border-top: 1px solid rgba(255,255,255,.08); display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 10px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--osd); background: linear-gradient(180deg, rgba(15,25,48,.92), rgba(9,19,40,.98)); box-shadow: 0 -10px 24px rgba(0,0,0,.16); }
 .settings-version-value { color: var(--txt); font-weight: 700; letter-spacing: 1.9px; }
 .toggle { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
 .toggle input { opacity: 0; width: 0; height: 0; }
