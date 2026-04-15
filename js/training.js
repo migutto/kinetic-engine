@@ -407,14 +407,14 @@ function renderWorkoutDetail() {
   // Brak ćwiczeń
   if (!exercises.length) {
     const emptyStateAction = isCustom
-      ? `<button class="btn-s" style="padding:6px 12px;font-size:10px;margin-left:4px;" onclick="openCustomBuilder('${date}')">Dodaj cwiczenia</button>`
+      ? `<button class="btn-s" style="padding:6px 12px;font-size:10px;margin-left:4px;" onclick="openCustomBuilder('${date}')">Dodaj ćwiczenia</button>`
       : (canEditPlanDay
-        ? `<button class="btn-s" style="padding:6px 12px;font-size:10px;margin-left:4px;" onclick="openPlanDayBuilder('${state.activeDayType}')">Skonfiguruj dzien planu</button>`
+        ? `<button class="btn-s" style="padding:6px 12px;font-size:10px;margin-left:4px;" onclick="openPlanDayBuilder('${state.activeDayType}')">Skonfiguruj dzień planu</button>`
         : '');
 
     html += `<div style="text-align:center;padding:40px;color:var(--osd);">
       <span class="material-symbols-outlined" style="font-size:40px;opacity:.3;display:block;margin-bottom:10px;">fitness_center</span>
-      ${isCustom ? 'Brak cwiczen w tym treningu.' : 'Ten dzien planu nie ma jeszcze cwiczen.'}
+      ${isCustom ? 'Brak ćwiczeń w tym treningu.' : 'Ten dzień planu nie ma jeszcze ćwiczeń.'}
       ${emptyStateAction}
     </div>`;
   } else {
@@ -707,7 +707,7 @@ function openCustomBuilder(editDate) {
   syncCustomBuilderUI({
     mode: 'workout',
     title: 'Własny Trening',
-    description: 'Stworz dowolny zestaw cwiczen na wybrany dzien.',
+    description: 'Stwórz dowolny zestaw ćwiczeń na wybrany dzień.',
     saveLabel: 'Zapisz Trening',
     showDateField: true,
     showWeekdayField: false,
@@ -763,10 +763,17 @@ function addCBExercise() {
   }, 50);
 }
 
+function guideExerciseUsesTrackedWeight(guideExercise) {
+  const equipment = Array.isArray(guideExercise?.equipment) ? guideExercise.equipment.join(' ').toLowerCase() : '';
+  if (/hantel|hantle|obciazenie|obciążenie|kettlebell|plecak/.test(equipment)) return true;
+  if (/masa ciala|masa ciała|guma|mata|sciana|ściana/.test(equipment)) return false;
+  return guideExercise?.cat !== 'core';
+}
+
 function addCBExerciseFromGuide(guideId) {
   const g = getGuideData().find(x => x.id === guideId);
   if (!g) return;
-  cbExercises.push({ n: g.name, sets: 3, reps: '8–12', weight: g.cat !== 'brzuch', icon: g.icon });
+  cbExercises.push({ n: g.name, sets: 3, reps: '8–12', weight: guideExerciseUsesTrackedWeight(g), icon: g.icon });
   renderCBExercises();
   showToast(g.name + ' dodane', 'check_circle', 'var(--s)');
 }

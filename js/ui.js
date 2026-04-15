@@ -126,7 +126,7 @@ let wgerImportInFlight = false;
 function buildGuideImportStatusText() {
   const meta = typeof getGuideImportMeta === 'function' ? getGuideImportMeta() : null;
   const totalExercises = typeof getGuideData === 'function' ? getGuideData().length : 0;
-  if (!meta) return `Biblioteka lokalna: ${totalExercises} cwiczen. Import z wger jeszcze nie byl wykonany.`;
+  if (!meta) return `Biblioteka lokalna: ${totalExercises} ćwiczeń. Import z wger jeszcze nie był wykonany.`;
 
   const importDate = meta.importedAt ? new Date(meta.importedAt).toLocaleString('pl-PL', {
     day: 'numeric',
@@ -136,7 +136,7 @@ function buildGuideImportStatusText() {
   }) : 'brak daty';
 
   const sourceLabel = meta.source === 'wger-snapshot' ? 'snapshotu PL wger' : 'wger';
-  return `Biblioteka: ${meta.totalCount || totalExercises} cwiczen. Z ${sourceLabel} dodano ${meta.importedCount || 0} rekordow (${importDate}).`;
+  return `Biblioteka: ${meta.totalCount || totalExercises} ćwiczeń. Z ${sourceLabel} dodano ${meta.importedCount || 0} rekordów (${importDate}).`;
 }
 
 function refreshGuideImportStatus() {
@@ -161,7 +161,7 @@ async function importGuideFromWger() {
       importBtn.innerHTML = '<span style="display:flex;align-items:center;justify-content:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:15px;">sync</span>Pobieranie...</span>';
     }
 
-    showToast('Laduje polski snapshot cwiczen...', 'sync', 'var(--p)');
+    showToast('Ładuję polski snapshot ćwiczeń...', 'sync', 'var(--p)');
 
     const response = await fetch(WGER_IMPORT_SNAPSHOT_PATH, { cache: 'no-store' });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -177,10 +177,10 @@ async function importGuideFromWger() {
 
     refreshGuideImportStatus();
     if (state.currentTab === 'guide') renderGuide();
-    showToast(`Zaimportowano ${imported.length} cwiczen PL`, 'check_circle', 'var(--s)');
+    showToast(`Zaimportowano ${imported.length} ćwiczeń PL`, 'check_circle', 'var(--s)');
   } catch (error) {
     console.error('wger snapshot import failed', error);
-    showToast('Import snapshotu PL nie udal sie.', 'error', 'var(--er)');
+    showToast('Import snapshotu PL nie udał się.', 'error', 'var(--er)');
   } finally {
     if (importBtn) {
       importBtn.disabled = false;
@@ -196,12 +196,12 @@ function resetGuideImport() {
     return;
   }
 
-  if (!confirm('Usunac wszystkie cwiczenia zaimportowane z wger i wrocic do lokalnej biblioteki?')) return;
+  if (!confirm('Usunąć wszystkie ćwiczenia zaimportowane z wger i wrócić do lokalnej biblioteki?')) return;
 
   clearGuideImports();
   refreshGuideImportStatus();
   if (state.currentTab === 'guide') renderGuide();
-  showToast('Przywrocono lokalna biblioteke cwiczen.', 'delete', 'var(--er)');
+  showToast('Przywrócono lokalną bibliotekę ćwiczeń.', 'delete', 'var(--er)');
 }
 
 function openProfile() {
