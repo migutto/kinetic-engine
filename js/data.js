@@ -644,6 +644,17 @@ const GUIDE_CATS = [
   { id: 'gym', label: 'Siłownia' },
 ];
 
+const GUIDE_BODY_CATS = [
+  { id: 'all', label: 'Wszystkie partie' },
+  { id: 'klatka', label: 'Klatka' },
+  { id: 'plecy', label: 'Plecy' },
+  { id: 'nogi', label: 'Nogi' },
+  { id: 'posladki', label: 'Pośladki' },
+  { id: 'barki', label: 'Barki' },
+  { id: 'ramiona', label: 'Ramiona' },
+  { id: 'core', label: 'Core' },
+];
+
 const GUIDE_CONTEXT_LABELS = {
   all: 'Wszystkie',
   home: 'Domowe',
@@ -686,6 +697,7 @@ const state = {
   activeDayType:     null,
   activeDayDate:     null,
   guideFilter:       'all',
+  guideBodyFilter:   'all',
   guideSelected:     null,
   charts:            {}
 };
@@ -854,6 +866,12 @@ function guideMatchesContext(exercise, contextFilter = 'all') {
   return contexts.includes(normalizedFilter);
 }
 
+function guideMatchesBodyCategory(exercise, bodyFilter = 'all') {
+  const normalizedFilter = normalizeGuideCategoryId(bodyFilter);
+  if (!normalizedFilter || normalizedFilter === 'all') return true;
+  return normalizeGuideCategoryId(exercise?.cat) === normalizedFilter;
+}
+
 function inferGuideCategory(rawCategory, primaryMuscles = [], secondaryMuscles = []) {
   const haystack = [rawCategory, ...primaryMuscles, ...secondaryMuscles].join(' ').toLowerCase();
 
@@ -973,7 +991,7 @@ function normalizeGuideExercise(rawExercise, index = 0) {
     equipment,
     contexts,
     images: normalizeGuideStringList(rawExercise?.images),
-    video: stripGuideHtml(rawExercise?.video || ''),
+    video: stripGuideHtml(rawExercise?.video || rawExercise?.youtube || rawExercise?.youtubeUrl || rawExercise?.videoUrl || rawExercise?.video_url || ''),
     source: rawExercise?.source || 'local',
     sourceId: rawExercise?.sourceId ?? null
   };
@@ -1011,6 +1029,25 @@ function getGuideCategories() {
   );
 
   return GUIDE_CATS.filter(category => category.id === 'all' || available.has(category.id));
+}
+
+function getGuideBodyCategories(contextFilter = 'all') {
+  const available = new Set(
+    getGuideData()
+      .filter(exercise => guideMatchesContext(exercise, contextFilter))
+      .map(exercise => normalizeGuideCategoryId(exercise.cat))
+      .filter(Boolean)
+  );
+  const orderedBase = GUIDE_BODY_CATS.filter(category => category.id === 'all' || available.has(category.id));
+  const dynamic = [...available]
+    .filter(categoryId => !orderedBase.some(category => category.id === categoryId))
+    .sort((left, right) => getGuideCategoryLabel(left).localeCompare(getGuideCategoryLabel(right)))
+    .map(categoryId => ({
+      id: categoryId,
+      label: getGuideCategoryLabel(categoryId)
+    }));
+
+  return [orderedBase[0], ...orderedBase.slice(1), ...dynamic].filter(Boolean);
 }
 
 function getGuideImportMeta() {

@@ -7,14 +7,30 @@ function renderGuide() {
   const categories = getGuideCategories();
   const guideData = getGuideData();
   if (!categories.some(category => category.id === state.guideFilter)) state.guideFilter = 'all';
+  const bodyCategories = typeof getGuideBodyCategories === 'function' ? getGuideBodyCategories(state.guideFilter) : [{ id: 'all', label: 'Wszystkie partie' }];
+  if (!bodyCategories.some(category => category.id === state.guideBodyFilter)) state.guideBodyFilter = 'all';
   if (state.guideSelected && !guideData.some(exercise => exercise.id === state.guideSelected)) {
     state.guideSelected = guideData[0]?.id || null;
   }
 
-  // Filtry kontekstu: wszystkie, domowe, siłownia
-  document.getElementById('guide-cats').innerHTML = categories.map(c =>
-    `<button class="chip ${state.guideFilter === c.id ? 'active' : ''}" onclick="setGuideCat('${c.id}')">${c.label}</button>`
-  ).join('');
+  // Filtry kontekstu i partii ciała są osobne, żeby użytkownik mógł zawężać bazę bez utraty orientacji.
+  document.getElementById('guide-cats').innerHTML = `
+    <div class="guide-filter-group">
+      <div class="guide-filter-label">Miejsce</div>
+      <div class="guide-filter-row">
+        ${categories.map(c =>
+          `<button class="chip ${state.guideFilter === c.id ? 'active' : ''}" onclick="setGuideCat('${c.id}')">${c.label}</button>`
+        ).join('')}
+      </div>
+    </div>
+    <div class="guide-filter-group">
+      <div class="guide-filter-label">Partia</div>
+      <div class="guide-filter-row">
+        ${bodyCategories.map(c =>
+          `<button class="chip chip-sub ${state.guideBodyFilter === c.id ? 'active' : ''}" onclick="setGuideBodyCat('${c.id}')">${c.label}</button>`
+        ).join('')}
+      </div>
+    </div>`;
 
   renderGuideList();
   if (state.guideSelected) renderGuideDetail(state.guideSelected);
@@ -22,6 +38,11 @@ function renderGuide() {
 
 function setGuideCat(cat) {
   state.guideFilter = cat;
+  renderGuide();
+}
+
+function setGuideBodyCat(cat) {
+  state.guideBodyFilter = cat;
   renderGuide();
 }
 
@@ -66,6 +87,82 @@ function getGuideSearchText(exercise) {
   ].join(' ');
 }
 
+function getGuideSearchQuery() {
+  return normalizeGuidePlanText(document.getElementById('guide-search')?.value || '');
+}
+
+function escapeGuideAttr(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function getGuideYouTubeSearchUrl(exercise) {
+  const alias = Array.isArray(exercise.aliases) && exercise.aliases[0] ? exercise.aliases[0] : '';
+  const query = [exercise.name, alias, 'technika ćwiczenia'].filter(Boolean).join(' ');
+  return `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+}
+
+function getGuideYouTubeVideoId(videoUrl) {
+  const url = String(videoUrl || '').trim();
+  if (!url) return '';
+
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.replace(/^www\./, '');
+    if (host === 'youtu.be') return parsed.pathname.split('/').filter(Boolean)[0] || '';
+    if (host.endsWith('youtube.com')) {
+      if (parsed.pathname.startsWith('/embed/')) return parsed.pathname.split('/').filter(Boolean)[1] || '';
+      if (parsed.pathname.startsWith('/shorts/')) return parsed.pathname.split('/').filter(Boolean)[1] || '';
+      return parsed.searchParams.get('v') || '';
+    }
+  } catch (error) {
+    return '';
+  }
+
+  return '';
+}
+
+function renderGuideVideoCard(exercise) {
+  const videoId = getGuideYouTubeVideoId(exercise.video);
+  const searchUrl = getGuideYouTubeSearchUrl(exercise);
+  const title = escapeGuideAttr(`Film instruktażowy: ${exercise.name}`);
+  const videoUrl = videoId ? `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}` : '';
+  const embedUrl = videoId ? `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}` : '';
+
+  if (embedUrl) {
+    return `
+      <div class="guide-info-card guide-video-card">
+        <div class="lex" style="font-weight:800;font-size:16px;margin-bottom:12px;">Film instruktażowy</div>
+        <div class="guide-video-frame">
+          <iframe src="${embedUrl}" title="${title}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        </div>
+        <a class="guide-youtube-link" href="${videoUrl}" target="_blank" rel="noopener noreferrer">
+          <span class="material-symbols-outlined">open_in_new</span>
+          Otwórz na YouTube
+        </a>
+        <div class="guide-video-note">Traktuj film jako pomoc wizualną, a nie indywidualną poradę treningową.</div>
+      </div>`;
+  }
+
+  return `
+    <div class="guide-info-card guide-video-card">
+      <div class="guide-video-empty">
+        <span class="material-symbols-outlined">play_circle</span>
+        <div>
+          <div class="lex" style="font-weight:800;font-size:16px;margin-bottom:5px;">Film instruktażowy</div>
+          <p>Nie mamy jeszcze przypiętego konkretnego filmu. Możesz od razu wyszukać demonstrację tego ćwiczenia na YouTube.</p>
+          <a class="guide-youtube-link" href="${searchUrl}" target="_blank" rel="noopener noreferrer">
+            <span class="material-symbols-outlined">search</span>
+            Szukaj na YouTube
+          </a>
+        </div>
+      </div>
+    </div>`;
+}
+
 function getGuideDetailTags(exercise) {
   const tags = [
     ...(Array.isArray(exercise.primaryMuscles) ? exercise.primaryMuscles.slice(0, 2) : []),
@@ -101,10 +198,12 @@ function guideExerciseMatchesPlan(exercise, planExerciseName) {
   });
 }
 
-function renderGuideList(q = '') {
+function renderGuideList(q = null) {
+  const query = q == null ? getGuideSearchQuery() : q;
   const filtered = getGuideData().filter(e =>
     (typeof guideMatchesContext !== 'function' || guideMatchesContext(e, state.guideFilter)) &&
-    (!q || normalizeGuidePlanText(getGuideSearchText(e)).includes(q))
+    (typeof guideMatchesBodyCategory !== 'function' || guideMatchesBodyCategory(e, state.guideBodyFilter)) &&
+    (!query || normalizeGuidePlanText(getGuideSearchText(e)).includes(query))
   );
 
   document.getElementById('guide-list').innerHTML = filtered.length
@@ -222,6 +321,7 @@ function renderGuideDetail(id) {
             <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--osd);margin-bottom:8px;">W planie treningowym</div>
             ${inPlanHTML}
           </div>
+          ${renderGuideVideoCard(ex)}
         </div>
       </div>
     </div>`;

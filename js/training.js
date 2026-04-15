@@ -607,6 +607,7 @@ function getProgressHint(history, todayMaxW) {
 let cbExercises = [];
 let cbContext = { mode: 'workout', editDate: null, dayType: null, planId: null };
 let cbGuideFilter = 'all';
+let cbGuideBodyFilter = 'all';
 let cbGuideQuery = '';
 
 function getCustomDatesInWeek(monday) {
@@ -666,6 +667,7 @@ function getCBGuideMeta(exercise) {
 
 function resetCBGuidePicker() {
   cbGuideFilter = 'all';
+  cbGuideBodyFilter = 'all';
   cbGuideQuery = '';
   const search = document.getElementById('cb-guide-search');
   if (search) search.value = '';
@@ -692,6 +694,11 @@ function setCBGuideCat(categoryId) {
   renderCBGuidePicker();
 }
 
+function setCBGuideBodyCat(categoryId) {
+  cbGuideBodyFilter = categoryId;
+  renderCBGuidePicker();
+}
+
 function filterCBGuide(query) {
   cbGuideQuery = query;
   renderCBGuidePicker();
@@ -705,17 +712,36 @@ function renderCBGuidePicker() {
 
   const categories = typeof getGuideCategories === 'function' ? getGuideCategories() : [{ id: 'all', label: 'Wszystkie' }];
   if (!categories.some(category => category.id === cbGuideFilter)) cbGuideFilter = 'all';
+  const bodyCategories = typeof getGuideBodyCategories === 'function' ? getGuideBodyCategories(cbGuideFilter) : [{ id: 'all', label: 'Wszystkie partie' }];
+  if (!bodyCategories.some(category => category.id === cbGuideBodyFilter)) cbGuideBodyFilter = 'all';
 
-  categoriesEl.innerHTML = categories.map(category => `
-    <button class="cb-guide-cat ${cbGuideFilter === category.id ? 'active' : ''}" onclick="setCBGuideCat('${category.id}')">
-      ${escapeHTML(category.label)}
-    </button>
-  `).join('');
+  categoriesEl.innerHTML = `
+    <div class="cb-guide-filter-group">
+      <div class="cb-guide-filter-label">Miejsce</div>
+      <div class="cb-guide-chip-row">
+        ${categories.map(category => `
+          <button class="cb-guide-cat ${cbGuideFilter === category.id ? 'active' : ''}" onclick="setCBGuideCat('${category.id}')">
+            ${escapeHTML(category.label)}
+          </button>
+        `).join('')}
+      </div>
+    </div>
+    <div class="cb-guide-filter-group">
+      <div class="cb-guide-filter-label">Partia</div>
+      <div class="cb-guide-chip-row">
+        ${bodyCategories.map(category => `
+          <button class="cb-guide-cat cb-guide-cat-sub ${cbGuideBodyFilter === category.id ? 'active' : ''}" onclick="setCBGuideBodyCat('${category.id}')">
+            ${escapeHTML(category.label)}
+          </button>
+        `).join('')}
+      </div>
+    </div>`;
 
   const query = normalizeCBSearchText(cbGuideQuery);
   const guideData = getGuideData();
   const filtered = guideData.filter(exercise =>
     (typeof guideMatchesContext !== 'function' || guideMatchesContext(exercise, cbGuideFilter)) &&
+    (typeof guideMatchesBodyCategory !== 'function' || guideMatchesBodyCategory(exercise, cbGuideBodyFilter)) &&
     (!query || normalizeCBSearchText(getCBGuideSearchText(exercise)).includes(query))
   );
 
