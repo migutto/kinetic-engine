@@ -550,45 +550,85 @@
 
 <!-- Custom Workout Builder -->
 <div class="overlay" id="custom-builder-overlay" onclick="if(event.target===this)closeModal('custom-builder')">
-  <div class="modal" style="max-width:560px;max-height:90vh;display:flex;flex-direction:column;">
+  <div class="modal custom-builder-modal">
     <button class="modal-close" onclick="closeModal('custom-builder')"><span class="material-symbols-outlined" style="font-size:18px;">close</span></button>
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
-      <span class="material-symbols-outlined" style="font-size:24px;color:var(--s);">add_circle</span>
-      <div class="modal-title">Własny Trening</div>
+    <div class="cb-builder-shell">
+      <div class="cb-builder-header">
+        <div class="cb-builder-title-wrap">
+          <div class="cb-builder-icon"><span class="material-symbols-outlined">add_circle</span></div>
+          <div>
+            <div class="modal-title" id="cb-builder-title">Własny Trening</div>
+            <p class="cb-builder-desc" id="cb-builder-desc">Stwórz dowolny zestaw ćwiczeń na wybrany dzień.</p>
+          </div>
+        </div>
+        <div class="cb-builder-count" id="cb-selected-count">0 ćwiczeń</div>
+      </div>
+
+      <div class="cb-meta-grid">
+        <div class="cb-field-wrap">
+          <label class="form-label">Data</label>
+          <input class="inp" type="date" id="cb-date" style="font-size:13px;">
+        </div>
+        <div class="cb-field-wrap">
+          <label class="form-label">Nazwa treningu</label>
+          <input class="inp" type="text" id="cb-name" placeholder="np. Klatka + Triceps">
+        </div>
+        <div class="cb-field-wrap cb-field-wide">
+          <label class="form-label">Podtytuł / opis dnia</label>
+          <input class="inp" type="text" id="cb-subtitle" placeholder="np. Klatka + Plecy">
+        </div>
+        <div class="cb-field-wrap" style="display:none;" id="cb-weekday-wrap">
+          <label class="form-label">Dzień tygodnia</label>
+          <select class="inp" id="cb-weekday">
+            <option value="0">Poniedziałek</option>
+            <option value="1">Wtorek</option>
+            <option value="2">Środa</option>
+            <option value="3">Czwartek</option>
+            <option value="4">Piątek</option>
+            <option value="5">Sobota</option>
+            <option value="6">Niedziela</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="cb-builder-grid">
+        <section class="cb-panel cb-selected-panel">
+          <div class="cb-panel-head">
+            <div>
+              <div class="cb-panel-kicker">Trening</div>
+              <div class="cb-panel-title">Ćwiczenia w kolejności wykonania</div>
+            </div>
+            <button class="btn-s cb-add-manual-btn" onclick="addCBExercise()">
+              <span class="material-symbols-outlined">add</span>Dodaj ręcznie
+            </button>
+          </div>
+          <div id="cb-exercises" class="cb-exercises"></div>
+        </section>
+
+        <section class="cb-panel cb-library-panel">
+          <div class="cb-panel-head cb-library-head">
+            <div>
+              <div class="cb-panel-kicker">Encyklopedia</div>
+              <div class="cb-panel-title">Wybierz ćwiczenie z bazy</div>
+            </div>
+            <div class="cb-guide-count" id="cb-guide-count">0 wyników</div>
+          </div>
+          <div class="cb-guide-search-wrap">
+            <span class="material-symbols-outlined">search</span>
+            <input class="cb-guide-search" id="cb-guide-search" type="search" placeholder="Szukaj: pompki, hantle, core..." oninput="filterCBGuide(this.value)">
+          </div>
+          <div class="cb-guide-cats" id="cb-guide-cats"></div>
+          <div class="cb-guide-results" id="cb-quick-list"></div>
+        </section>
+      </div>
+
+      <div class="cb-builder-footer">
+        <div class="cb-builder-summary" id="cb-builder-summary">Dodaj ćwiczenia z encyklopedii albo wpisz własne ręcznie.</div>
+        <button class="btn-p" id="cb-save-btn" onclick="saveCustomWorkout()">
+          <span style="display:flex;align-items:center;justify-content:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:16px;">save</span>Zapisz Trening</span>
+        </button>
+      </div>
     </div>
-    <p style="font-size:12px;color:var(--osd);margin-bottom:20px;">Stwórz dowolny zestaw ćwiczeń na wybrany dzień.</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
-      <div><label class="form-label">Data</label><input class="inp" type="date" id="cb-date" style="font-size:13px;"></div>
-      <div><label class="form-label">Nazwa treningu</label><input class="inp" type="text" id="cb-name" placeholder="np. Klatka + Triceps"></div>
-    </div>
-    <div style="margin-bottom:14px;">
-      <label class="form-label">Podtytuł / opis dnia</label>
-      <input class="inp" type="text" id="cb-subtitle" placeholder="np. Klatka + Plecy">
-    </div>
-    <div style="margin-bottom:14px;display:none;" id="cb-weekday-wrap">
-      <label class="form-label">Dzień tygodnia</label>
-      <select class="inp" id="cb-weekday">
-        <option value="0">Poniedziałek</option>
-        <option value="1">Wtorek</option>
-        <option value="2">Środa</option>
-        <option value="3">Czwartek</option>
-        <option value="4">Piątek</option>
-        <option value="5">Sobota</option>
-        <option value="6">Niedziela</option>
-      </select>
-    </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-      <div class="form-label">Ćwiczenia</div>
-      <button class="btn-s" style="padding:5px 12px;font-size:9px;" onclick="addCBExercise()"><span style="display:flex;align-items:center;gap:4px;"><span class="material-symbols-outlined" style="font-size:13px;">add</span>Dodaj</span></button>
-    </div>
-    <div id="cb-exercises" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:7px;min-height:80px;max-height:340px;padding-right:2px;"></div>
-    <div style="margin-top:12px;">
-      <div class="form-label" style="margin-bottom:8px;">Szybkie dodanie z encyklopedii</div>
-      <div style="display:flex;flex-wrap:wrap;gap:5px;" id="cb-quick-list"></div>
-    </div>
-    <button class="btn-p" style="margin-top:16px;width:100%;padding:14px;" onclick="saveCustomWorkout()">
-      <span style="display:flex;align-items:center;justify-content:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:16px;">save</span>Zapisz Trening</span>
-    </button>
   </div>
 </div>
 

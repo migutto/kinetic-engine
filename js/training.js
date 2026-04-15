@@ -68,7 +68,7 @@ function createTrainingPlan() {
 function renameCurrentTrainingPlan() {
   const activePlan = getActiveTrainingPlan();
   if (activePlan.isSystem) {
-    showToast('Najpierw utworz kopie planu bazowego.', 'info', 'var(--osd)');
+    showToast('Najpierw utwórz kopię planu bazowego.', 'info', 'var(--osd)');
     return;
   }
 
@@ -606,6 +606,8 @@ function getProgressHint(history, todayMaxW) {
 // ── WŁASNY TRENING — BUILDER ────────────────────────────────────
 let cbExercises = [];
 let cbContext = { mode: 'workout', editDate: null, dayType: null, planId: null };
+let cbGuideFilter = 'all';
+let cbGuideQuery = '';
 
 function getCustomDatesInWeek(monday) {
   const data = getData();
@@ -616,11 +618,120 @@ function getCustomDatesInWeek(monday) {
     .sort();
 }
 
+function escapeHTML(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function normalizeCBSearchText(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function getCBGuideSearchText(exercise) {
+  return [
+    exercise.name,
+    exercise.cat,
+    typeof getGuideCategoryLabel === 'function' ? getGuideCategoryLabel(exercise.cat) : '',
+    exercise.level,
+    ...(Array.isArray(exercise.aliases) ? exercise.aliases : []),
+    ...(Array.isArray(exercise.primaryMuscles) ? exercise.primaryMuscles : []),
+    ...(Array.isArray(exercise.secondaryMuscles) ? exercise.secondaryMuscles : []),
+    ...(Array.isArray(exercise.equipment) ? exercise.equipment : [])
+  ].join(' ');
+}
+
+function getCBGuideMeta(exercise) {
+  const category = typeof getGuideCategoryLabel === 'function' ? getGuideCategoryLabel(exercise.cat) : exercise.cat;
+  const muscles = Array.isArray(exercise.primaryMuscles) ? exercise.primaryMuscles.slice(0, 2).join(', ') : '';
+  const equipment = Array.isArray(exercise.equipment) ? exercise.equipment.slice(0, 2).join(', ') : '';
+  return [category, muscles, equipment].filter(Boolean).join(' · ');
+}
+
+function resetCBGuidePicker() {
+  cbGuideFilter = 'all';
+  cbGuideQuery = '';
+  const search = document.getElementById('cb-guide-search');
+  if (search) search.value = '';
+}
+
+function updateCBBuilderSummary() {
+  const countEl = document.getElementById('cb-selected-count');
+  const summaryEl = document.getElementById('cb-builder-summary');
+  const count = cbExercises.length;
+  const series = cbExercises.reduce((sum, exercise) => sum + (parseInt(exercise.sets, 10) || 0), 0);
+  const exerciseLabel = count === 1 ? 'ćwiczenie' : 'ćwiczeń';
+  const seriesLabel = series === 1 ? 'seria' : ([2, 3, 4].includes(series % 10) && ![12, 13, 14].includes(series % 100) ? 'serie' : 'serii');
+
+  if (countEl) countEl.textContent = `${count} ${exerciseLabel}`;
+  if (summaryEl) {
+    summaryEl.textContent = count
+      ? `${count} ${exerciseLabel} · ${series} ${seriesLabel} w planie. Kolejność zmienisz strzałkami przy ćwiczeniu.`
+      : 'Dodaj ćwiczenia z encyklopedii albo wpisz własne ręcznie.';
+  }
+}
+
+function setCBGuideCat(categoryId) {
+  cbGuideFilter = categoryId;
+  renderCBGuidePicker();
+}
+
+function filterCBGuide(query) {
+  cbGuideQuery = query;
+  renderCBGuidePicker();
+}
+
+function renderCBGuidePicker() {
+  const categoriesEl = document.getElementById('cb-guide-cats');
+  const resultsEl = document.getElementById('cb-quick-list');
+  const countEl = document.getElementById('cb-guide-count');
+  if (!categoriesEl || !resultsEl) return;
+
+  const categories = typeof getGuideCategories === 'function' ? getGuideCategories() : [{ id: 'all', label: 'Wszystkie' }];
+  if (!categories.some(category => category.id === cbGuideFilter)) cbGuideFilter = 'all';
+
+  categoriesEl.innerHTML = categories.map(category => `
+    <button class="cb-guide-cat ${cbGuideFilter === category.id ? 'active' : ''}" onclick="setCBGuideCat('${category.id}')">
+      ${escapeHTML(category.label)}
+    </button>
+  `).join('');
+
+  const query = normalizeCBSearchText(cbGuideQuery);
+  const guideData = getGuideData();
+  const filtered = guideData.filter(exercise =>
+    (cbGuideFilter === 'all' || exercise.cat === cbGuideFilter) &&
+    (!query || normalizeCBSearchText(getCBGuideSearchText(exercise)).includes(query))
+  );
+
+  if (countEl) countEl.textContent = `${filtered.length} ${filtered.length === 1 ? 'wynik' : 'wyników'}`;
+
+  resultsEl.innerHTML = filtered.length
+    ? filtered.map(exercise => `
+      <button class="cb-guide-card" onclick="addCBExerciseFromGuide('${exercise.id}')">
+        <span class="cb-guide-icon">${escapeHTML(exercise.icon)}</span>
+        <span style="min-width:0;">
+          <span class="cb-guide-name">${escapeHTML(exercise.name)}</span>
+          <span class="cb-guide-meta">${escapeHTML(getCBGuideMeta(exercise))}</span>
+        </span>
+        <span class="cb-guide-add">Dodaj</span>
+      </button>
+    `).join('')
+    : `<div class="cb-guide-empty">Brak ćwiczeń dla tego filtra. Zmień kategorię albo wpisz inną frazę.</div>`;
+}
+
 function syncCustomBuilderUI({ mode, title, description, saveLabel, showDateField, showWeekdayField, nameLabel, namePlaceholder, subtitleValue = '', weekdayValue = 0 }) {
   const overlay = document.getElementById('custom-builder-overlay');
-  const titleEl = overlay?.querySelector('.modal-title');
-  const descEl = overlay?.querySelector('p');
-  const saveButton = overlay?.querySelector('.btn-p');
+  const titleEl = document.getElementById('cb-builder-title') || overlay?.querySelector('.modal-title');
+  const descEl = document.getElementById('cb-builder-desc');
+  const saveButton = document.getElementById('cb-save-btn') || overlay?.querySelector('.btn-p');
   const cbDate = document.getElementById('cb-date');
   const cbName = document.getElementById('cb-name');
   const cbSubtitle = document.getElementById('cb-subtitle');
@@ -660,27 +771,26 @@ function openPlanDayBuilder(dayType) {
   cbExercises = dayPlan?.exercises ? JSON.parse(JSON.stringify(dayPlan.exercises)) : [];
 
   if (cbDate) cbDate.value = fmtDate(new Date());
-  if (cbName) cbName.value = dayPlan?.name || `Dzien ${dayType}`;
+  if (cbName) cbName.value = dayPlan?.name || `Dzień ${dayType}`;
   if (cbSubtitle) cbSubtitle.value = dayPlan?.subtitle || '';
   if (cbWeekday) cbWeekday.value = String(dayPlan?.weekday ?? 0);
+  resetCBGuidePicker();
 
   syncCustomBuilderUI({
     mode: 'plan-day',
-    title: `${activePlan.name} · ${dayPlan?.name || `Dzien ${dayType}`}`,
-    description: 'Edytujesz dzien aktywnego planu. Zmiany od razu wejda do harmonogramu i dashboardu.',
-    saveLabel: 'Zapisz dzien planu',
+    title: `${activePlan.name} · ${dayPlan?.name || `Dzień ${dayType}`}`,
+    description: 'Edytujesz dzień aktywnego planu. Zmiany od razu wejdą do harmonogramu i dashboardu.',
+    saveLabel: 'Zapisz dzień planu',
     showDateField: false,
     showWeekdayField: true,
     nameLabel: 'Nazwa dnia',
-    namePlaceholder: `np. Dzien ${dayType}`,
+    namePlaceholder: `np. Dzień ${dayType}`,
     subtitleValue: dayPlan?.subtitle || '',
     weekdayValue: dayPlan?.weekday ?? 0
   });
 
   renderCBExercises();
-  document.getElementById('cb-quick-list').innerHTML = getGuideData().map(g =>
-    `<span class="cb-quick-chip" onclick="addCBExerciseFromGuide('${g.id}')">${g.icon} ${g.name.split(' ').slice(0, 2).join(' ')}</span>`
-  ).join('');
+  renderCBGuidePicker();
   openModal('custom-builder');
 }
 
@@ -703,6 +813,7 @@ function openCustomBuilder(editDate) {
     cbName.value = '';
     if (cbSubtitle) cbSubtitle.value = '';
   }
+  resetCBGuidePicker();
 
   syncCustomBuilderUI({
     mode: 'workout',
@@ -716,40 +827,58 @@ function openCustomBuilder(editDate) {
   });
 
   renderCBExercises();
-  document.getElementById('cb-quick-list').innerHTML = getGuideData().map(g =>
-    `<span class="cb-quick-chip" onclick="addCBExerciseFromGuide('${g.id}')">${g.icon} ${g.name.split(' ').slice(0, 2).join(' ')}</span>`
-  ).join('');
+  renderCBGuidePicker();
   openModal('custom-builder');
 }
 
 function renderCBExercises() {
   const el = document.getElementById('cb-exercises');
   if (!cbExercises.length) {
-    el.innerHTML = `<div style="text-align:center;padding:24px;color:var(--osd);font-size:12px;border:1px dashed rgba(255,255,255,.08);border-radius:10px;">
-      Brak ćwiczeń — dodaj poniżej lub wybierz z encyklopedii
+    el.innerHTML = `<div class="cb-empty-state">
+      <span class="material-symbols-outlined">playlist_add</span>
+      <div class="cb-empty-title">Jeszcze nie ma ćwiczeń</div>
+      <div class="cb-empty-copy">Wybierz ćwiczenie z encyklopedii po prawej albo dodaj własny ruch ręcznie.</div>
     </div>`;
+    updateCBBuilderSummary();
     return;
   }
   el.innerHTML = cbExercises.map((ex, i) => `
     <div class="cb-ex-row">
-      <input class="cb-ex-inp" type="text" placeholder="Nazwa ćwiczenia" value="${ex.n || ''}"
-        oninput="cbExercises[${i}].n=this.value">
-      <input class="cb-ex-inp" type="number" placeholder="Serie" value="${ex.sets || 3}" min="1" max="10"
-        oninput="cbExercises[${i}].sets=parseInt(this.value)||3" style="text-align:center;">
-      <input class="cb-ex-inp" type="text" placeholder="Powt." value="${ex.reps || '8–12'}"
-        oninput="cbExercises[${i}].reps=this.value">
-      <div style="display:flex;align-items:center;gap:5px;justify-content:center;">
-        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:10px;color:var(--osd);">
-          <input type="checkbox" ${ex.weight ? 'checked' : ''} onchange="cbExercises[${i}].weight=this.checked"
-            style="width:14px;height:14px;accent-color:var(--p);"> kg
-        </label>
+      <div class="cb-ex-order">${String(i + 1).padStart(2, '0')}</div>
+      <div class="cb-ex-main">
+        <input class="cb-ex-inp" data-field="name" type="text" placeholder="Nazwa ćwiczenia" value="${escapeHTML(ex.n || '')}"
+          oninput="cbExercises[${i}].n=this.value">
+        <div class="cb-ex-controls">
+          <input class="cb-ex-inp" data-field="sets" type="number" placeholder="Serie" value="${ex.sets || 3}" min="1" max="10"
+            oninput="cbExercises[${i}].sets=parseInt(this.value)||3" style="text-align:center;">
+          <input class="cb-ex-inp" data-field="reps" type="text" placeholder="Powt." value="${escapeHTML(ex.reps || '8–12')}"
+            oninput="cbExercises[${i}].reps=this.value">
+          <label class="cb-track-weight">
+            <input type="checkbox" ${ex.weight ? 'checked' : ''} onchange="cbExercises[${i}].weight=this.checked"> kg
+          </label>
+        </div>
       </div>
-      <button onclick="removeCBExercise(${i})"
-        style="background:transparent;border:none;color:rgba(255,113,108,.5);cursor:pointer;padding:3px;"
-        onmouseover="this.style.color='var(--er)'" onmouseout="this.style.color='rgba(255,113,108,.5)'">
-        <span class="material-symbols-outlined" style="font-size:18px;">delete</span>
-      </button>
+      <div class="cb-row-actions">
+        <button class="cb-icon-btn" onclick="moveCBExercise(${i}, -1)" title="Przesuń wyżej" ${i === 0 ? 'disabled' : ''}>
+          <span class="material-symbols-outlined">keyboard_arrow_up</span>
+        </button>
+        <button class="cb-icon-btn" onclick="moveCBExercise(${i}, 1)" title="Przesuń niżej" ${i === cbExercises.length - 1 ? 'disabled' : ''}>
+          <span class="material-symbols-outlined">keyboard_arrow_down</span>
+        </button>
+        <button class="cb-icon-btn danger" onclick="removeCBExercise(${i})" title="Usuń">
+          <span class="material-symbols-outlined">delete</span>
+        </button>
+      </div>
     </div>`).join('');
+  updateCBBuilderSummary();
+}
+
+function moveCBExercise(index, direction) {
+  const target = index + direction;
+  if (target < 0 || target >= cbExercises.length) return;
+  const [exercise] = cbExercises.splice(index, 1);
+  cbExercises.splice(target, 0, exercise);
+  renderCBExercises();
 }
 
 function addCBExercise() {
@@ -758,8 +887,8 @@ function addCBExercise() {
   setTimeout(() => {
     const el = document.getElementById('cb-exercises');
     el.scrollTop = el.scrollHeight;
-    const inputs = el.querySelectorAll('.cb-ex-inp');
-    if (inputs.length) inputs[inputs.length - 4].focus();
+    const inputs = el.querySelectorAll('.cb-ex-inp[data-field="name"]');
+    if (inputs.length) inputs[inputs.length - 1].focus();
   }, 50);
 }
 
@@ -775,6 +904,7 @@ function addCBExerciseFromGuide(guideId) {
   if (!g) return;
   cbExercises.push({ n: g.name, sets: 3, reps: '8–12', weight: guideExerciseUsesTrackedWeight(g), icon: g.icon });
   renderCBExercises();
+  renderCBGuidePicker();
   showToast(g.name + ' dodane', 'check_circle', 'var(--s)');
 }
 
@@ -807,11 +937,11 @@ function saveCustomWorkout() {
   if (cbContext.mode === 'plan-day') {
     const planId = cbContext.planId || getActiveTrainingPlan().id;
     if (!Number.isInteger(weekday) || weekday < 0 || weekday > 6) {
-      showToast('Wybierz dzien tygodnia', 'error', 'var(--er)');
+      showToast('Wybierz dzień tygodnia', 'error', 'var(--er)');
       return;
     }
     if (!canUseTrainingPlanWeekday(planId, cbContext.dayType, weekday)) {
-      showToast('Ten dzien tygodnia jest juz zajety w planie.', 'warning', 'var(--er)');
+      showToast('Ten dzień tygodnia jest już zajęty w planie.', 'warning', 'var(--er)');
       return;
     }
     if (!updateTrainingPlanDay(planId, cbContext.dayType, {
@@ -820,14 +950,14 @@ function saveCustomWorkout() {
       weekday,
       exercises: validEx
     })) {
-      showToast('Nie udalo sie zapisac dnia planu', 'error', 'var(--er)');
+      showToast('Nie udało się zapisać dnia planu', 'error', 'var(--er)');
       return;
     }
 
     closeModal('custom-builder');
     state.activeDayType = cbContext.dayType;
     state.activeDayDate = getWeekDates(state.currentWeekMonday)[cbContext.dayType];
-    showToast('Dzien planu zapisany!', 'check_circle', 'var(--s)');
+    showToast('Dzień planu zapisany!', 'check_circle', 'var(--s)');
     refreshTrainingLinkedViews();
     return;
   }
