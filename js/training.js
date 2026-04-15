@@ -641,6 +641,7 @@ function getCBGuideSearchText(exercise) {
     exercise.name,
     exercise.cat,
     typeof getGuideCategoryLabel === 'function' ? getGuideCategoryLabel(exercise.cat) : '',
+    getCBGuideContextMeta(exercise),
     exercise.level,
     ...(Array.isArray(exercise.aliases) ? exercise.aliases : []),
     ...(Array.isArray(exercise.primaryMuscles) ? exercise.primaryMuscles : []),
@@ -649,11 +650,18 @@ function getCBGuideSearchText(exercise) {
   ].join(' ');
 }
 
+function getCBGuideContextMeta(exercise) {
+  const contexts = Array.isArray(exercise.contexts) ? exercise.contexts : [];
+  if (!contexts.length || typeof getGuideContextLabel !== 'function') return '';
+  return contexts.map(getGuideContextLabel).join(' / ');
+}
+
 function getCBGuideMeta(exercise) {
+  const context = getCBGuideContextMeta(exercise);
   const category = typeof getGuideCategoryLabel === 'function' ? getGuideCategoryLabel(exercise.cat) : exercise.cat;
   const muscles = Array.isArray(exercise.primaryMuscles) ? exercise.primaryMuscles.slice(0, 2).join(', ') : '';
   const equipment = Array.isArray(exercise.equipment) ? exercise.equipment.slice(0, 2).join(', ') : '';
-  return [category, muscles, equipment].filter(Boolean).join(' · ');
+  return [context, category, muscles, equipment].filter(Boolean).join(' · ');
 }
 
 function resetCBGuidePicker() {
@@ -707,7 +715,7 @@ function renderCBGuidePicker() {
   const query = normalizeCBSearchText(cbGuideQuery);
   const guideData = getGuideData();
   const filtered = guideData.filter(exercise =>
-    (cbGuideFilter === 'all' || exercise.cat === cbGuideFilter) &&
+    (typeof guideMatchesContext !== 'function' || guideMatchesContext(exercise, cbGuideFilter)) &&
     (!query || normalizeCBSearchText(getCBGuideSearchText(exercise)).includes(query))
   );
 
@@ -724,7 +732,7 @@ function renderCBGuidePicker() {
         <span class="cb-guide-add">Dodaj</span>
       </button>
     `).join('')
-    : `<div class="cb-guide-empty">Brak ćwiczeń dla tego filtra. Zmień kategorię albo wpisz inną frazę.</div>`;
+    : `<div class="cb-guide-empty">Brak ćwiczeń dla tego filtra. Zmień filtr albo wpisz inną frazę.</div>`;
 }
 
 function syncCustomBuilderUI({ mode, title, description, saveLabel, showDateField, showWeekdayField, nameLabel, namePlaceholder, subtitleValue = '', weekdayValue = 0 }) {

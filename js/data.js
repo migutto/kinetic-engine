@@ -68,8 +68,13 @@ function guideExercise(exercise) {
     primaryMuscles: [],
     secondaryMuscles: [],
     equipment: [],
+    contexts: ['home'],
     ...exercise
   };
+}
+
+function guideGymExercise(exercise) {
+  return guideExercise({ contexts: ['gym'], ...exercise });
 }
 
 const GUIDE_DATA = [
@@ -423,18 +428,227 @@ const GUIDE_DATA = [
     aliases: ['walizka', 'suitcase walk', 'farmer walk jednorącz'],
     primaryMuscles: ['core'], secondaryMuscles: ['chwyt', 'barki', 'pośladki'], equipment: ['hantel', 'miejsce do marszu'],
     steps: guideSteps('Chwyć hantel w jedną rękę i stań prosto. Druga ręka zostaje swobodnie przy boku.', 'Idź spokojnie, nie pozwalając tułowiowi przechylać się w stronę ciężaru.', 'Po wybranym dystansie albo czasie zmień stronę.', 'Nie kompensuj ciężaru odchylaniem barków.') }),
+  guideGymExercise({ id: 'bench-press-sztanga', name: 'Wyciskanie sztangi na ławce płaskiej', cat: 'klatka', level: 'sredni', diff: 2, icon: '🏋️',
+    desc: 'Klasyczne wyciskanie na klatkę w warunkach siłowni. Dobrze nadaje się do śledzenia progresu obciążenia.',
+    aliases: ['bench press', 'barbell bench press', 'wyciskanie leżąc'], primaryMuscles: ['klatka piersiowa'], secondaryMuscles: ['triceps', 'przedni akton barków'], equipment: ['sztanga', 'ławka', 'stojaki'],
+    steps: guideSteps('Połóż się na ławce, ustaw stopy stabilnie i złap sztangę trochę szerzej niż barki.', 'Opuść sztangę do kontrolowanego kontaktu z klatką.', 'Wyciskaj sztangę w górę bez odrywania bioder od ławki.', 'Przy ciężkich seriach korzystaj z asekuracji albo zabezpieczeń w stojakach.') }),
+  guideGymExercise({ id: 'incline-bench-press-sztanga', name: 'Wyciskanie sztangi na skosie dodatnim', cat: 'klatka', level: 'sredni', diff: 2, icon: '🏋️',
+    desc: 'Wariant wyciskania z większym akcentem na górną część klatki i przedni akton barków.',
+    aliases: ['incline bench press', 'barbell incline press', 'wyciskanie skos dodatni'], primaryMuscles: ['klatka piersiowa'], secondaryMuscles: ['przedni akton barków', 'triceps'], equipment: ['sztanga', 'ławka skośna', 'stojaki'],
+    steps: guideSteps('Ustaw ławkę na umiarkowany skos i połóż się stabilnie.', 'Złap sztangę trochę szerzej niż barki i zdejmij ją ze stojaków.', 'Opuść sztangę w stronę górnej części klatki, bez unoszenia barków do uszu.', 'Wyciskaj płynnie i nie zwiększaj skosu tak mocno, że ruch zamienia się w barki.') }),
+  guideGymExercise({ id: 'wyciskanie-hantli-skos', name: 'Wyciskanie hantli na skosie dodatnim', cat: 'klatka', level: 'sredni', diff: 2, icon: '💪',
+    desc: 'Wyciskanie hantli na ławce skośnej. Przydatne, gdy chcesz pracować każdą stroną osobno.',
+    aliases: ['incline dumbbell press', 'DB incline press'], primaryMuscles: ['klatka piersiowa'], secondaryMuscles: ['triceps', 'przedni akton barków'], equipment: ['hantle', 'ławka skośna'],
+    steps: guideSteps('Ustaw ławkę na umiarkowany skos i oprzyj plecy.', 'Startuj z hantlami po bokach klatki, nadgarstki trzymaj stabilnie.', 'Wyciskaj hantle w górę bez zderzania ich na końcu ruchu.', 'Opuść hantle do zakresu, który kontrolujesz barkami.') }),
+  guideGymExercise({ id: 'chest-press-maszyna', name: 'Wyciskanie na maszynie', cat: 'klatka', icon: '🏋️',
+    desc: 'Maszynowy wariant wyciskania. Dobry, gdy chcesz prosto dołożyć objętość bez ustawiania sztangi.',
+    aliases: ['chest press', 'machine chest press'], primaryMuscles: ['klatka piersiowa'], secondaryMuscles: ['triceps', 'przedni akton barków'], equipment: ['maszyna chest press'],
+    steps: guideSteps('Ustaw siedzisko tak, żeby uchwyty startowały mniej więcej na wysokości klatki.', 'Oprzyj plecy i złap uchwyty bez unoszenia barków.', 'Wypchnij uchwyty do przodu, zostawiając kontrolę w łokciach.', 'Wracaj powoli i nie pozwól, żeby ciężar gwałtownie uderzał o stos.') }),
+  guideGymExercise({ id: 'pec-deck', name: 'Pec deck', cat: 'klatka', icon: '🏋️',
+    desc: 'Izolowany ruch na klatkę na maszynie. Przydatny jako akcesorium po głównych wyciskaniach.',
+    aliases: ['butterfly machine', 'rozpiętki na maszynie'], primaryMuscles: ['klatka piersiowa'], secondaryMuscles: ['przedni akton barków'], equipment: ['maszyna pec deck'],
+    steps: guideSteps('Ustaw siedzisko tak, żeby ramiona startowały wygodnie na wysokości klatki.', 'Ściągnij uchwyty przed sobą, utrzymując łokcie w podobnym kącie.', 'Zatrzymaj ruch krótko w spięciu i wróć z kontrolą.', 'Nie cofaj ramion głębiej, niż pozwala komfort barków.') }),
+  guideGymExercise({ id: 'brama-rozpietki', name: 'Rozpiętki na bramie', cat: 'klatka', level: 'sredni', diff: 2, icon: '🏋️',
+    desc: 'Rozpiętki na wyciągach. Dają stałe napięcie i łatwo zmienić kąt pracy.',
+    aliases: ['cable fly', 'cable crossover', 'rozpiętki na wyciągu'], primaryMuscles: ['klatka piersiowa'], secondaryMuscles: ['przedni akton barków'], equipment: ['brama', 'wyciąg'],
+    steps: guideSteps('Ustaw oba wyciągi na podobnej wysokości i stań stabilnie między nimi.', 'Z lekko ugiętymi łokciami prowadź dłonie przed klatkę.', 'Wróć do rozciągnięcia spokojnie, bez szarpania barkami.', 'Dobierz ciężar tak, żeby nie musieć rzucać tułowiem.') }),
+  guideGymExercise({ id: 'dipy-porecze-klatka', name: 'Dipy na poręczach', cat: 'klatka', level: 'sredni', diff: 2, icon: '🤸',
+    desc: 'Wypychanie na poręczach. Może mocno angażować klatkę i triceps, ale wymaga kontroli barków.',
+    aliases: ['dips', 'parallel bar dips', 'pompki na poręczach'], primaryMuscles: ['klatka piersiowa'], secondaryMuscles: ['triceps', 'przedni akton barków'], equipment: ['poręcze'],
+    steps: guideSteps('Złap poręcze i ustaw ciało stabilnie, bez zapadania barków.', 'Zejdź w dół w zakresie, który kontrolujesz.', 'Wypchnij ciało do góry, prowadząc łokcie bez gwałtownego blokowania.', 'Jeśli barki czują się źle, wybierz maszynę albo płytszy zakres.') }),
+  guideGymExercise({ id: 'martwy-ciag-sztanga', name: 'Martwy ciąg ze sztangą', cat: 'plecy', level: 'zaawansowany', diff: 3, icon: '🏋️',
+    desc: 'Ciężki ruch hip hinge ze sztangą. W dzienniku ma sens, jeśli prowadzisz go technicznie i konsekwentnie.',
+    aliases: ['deadlift', 'barbell deadlift'], primaryMuscles: ['prostowniki grzbietu', 'pośladki', 'tył uda'], secondaryMuscles: ['najszerszy grzbietu', 'chwyt', 'core'], equipment: ['sztanga', 'talerze'],
+    steps: guideSteps('Stań blisko sztangi i ustaw stopy stabilnie pod biodrami.', 'Cofnij biodra, złap sztangę i napnij tułów przed oderwaniem ciężaru.', 'Wstań, prowadząc sztangę blisko nóg i prostując biodra.', 'Nie zaczynaj ciężkich serii, jeśli nie potrafisz utrzymać pozycji pleców.') }),
+  guideGymExercise({ id: 'podciaganie-drazek', name: 'Podciąganie na drążku', cat: 'plecy', level: 'sredni', diff: 2, icon: '🤸',
+    desc: 'Pionowe przyciąganie z masą ciała. Dobry punkt odniesienia dla siły pleców i ramion.',
+    aliases: ['pull-up', 'chin-up', 'podciąganie'], primaryMuscles: ['najszerszy grzbietu'], secondaryMuscles: ['biceps', 'środkowa część pleców', 'chwyt'], equipment: ['drążek'],
+    steps: guideSteps('Złap drążek nachwytem albo podchwytem i ustaw ciało spokojnie.', 'Pociągnij łokcie w dół, aż broda zbliży się do drążka.', 'Opuść się do kontrolowanego wyprostu ramion.', 'Nie zamieniaj serii w bujanie nogami, jeśli celem jest siła pleców.') }),
+  guideGymExercise({ id: 'sciaganie-drazka-klatka', name: 'Ściąganie drążka do klatki', cat: 'plecy', icon: '🏋️',
+    desc: 'Maszynowy ruch pionowego przyciągania. Dobra alternatywa lub progresja do podciągania.',
+    aliases: ['lat pulldown', 'pulldown', 'ściąganie drążka'], primaryMuscles: ['najszerszy grzbietu'], secondaryMuscles: ['biceps', 'dolna część łopatek'], equipment: ['wyciąg górny', 'drążek'],
+    steps: guideSteps('Usiądź pod wyciągiem i ustaw blokadę ud tak, żeby ciało było stabilne.', 'Złap drążek trochę szerzej niż barki.', 'Ściągnij łokcie w dół w stronę żeber, kończąc ruch przy górnej klatce.', 'Nie odchylaj tułowia mocno, żeby dociągnąć ostatnie centymetry.') }),
+  guideGymExercise({ id: 'wioslowanie-sztanga', name: 'Wiosłowanie sztangą w opadzie', cat: 'plecy', level: 'sredni', diff: 2, icon: '🏋️',
+    desc: 'Cięższy wariant wiosłowania. Przydatny, gdy potrafisz utrzymać stabilny opad tułowia.',
+    aliases: ['barbell row', 'bent over row'], primaryMuscles: ['środkowa część pleców', 'najszerszy grzbietu'], secondaryMuscles: ['biceps', 'tył barków', 'prostowniki grzbietu'], equipment: ['sztanga'],
+    steps: guideSteps('Złap sztangę i cofnij biodra do stabilnego opadu.', 'Pociągnij sztangę w stronę dolnej części żeber.', 'Opuść sztangę bez prostowania tułowia między powtórzeniami.', 'Jeśli pozycja pleców ucieka, zmniejsz ciężar albo wybierz wiosłowanie z podparciem.') }),
+  guideGymExercise({ id: 'wioslowanie-maszyna', name: 'Wiosłowanie na maszynie', cat: 'plecy', icon: '🏋️',
+    desc: 'Wiosłowanie z podparciem. Pozwala skupić się na pracy pleców bez walki o pozycję tułowia.',
+    aliases: ['machine row', 'chest supported row'], primaryMuscles: ['środkowa część pleców'], secondaryMuscles: ['najszerszy grzbietu', 'biceps', 'tył barków'], equipment: ['maszyna do wiosłowania'],
+    steps: guideSteps('Ustaw siedzisko i podparcie tak, żeby klatka była stabilna.', 'Złap uchwyty i zacznij ruch od ściągnięcia łopatek.', 'Pociągnij łokcie w tył bez unoszenia barków.', 'Wracaj do wyprostu ramion spokojnie, bez puszczania ciężaru.') }),
+  guideGymExercise({ id: 'seated-cable-row', name: 'Wiosłowanie siedząc na wyciągu', cat: 'plecy', icon: '🏋️',
+    desc: 'Klasyczne wiosłowanie na wyciągu dolnym. Łatwe do progresowania i czytelne w logowaniu.',
+    aliases: ['seated cable row', 'low cable row'], primaryMuscles: ['środkowa część pleców', 'najszerszy grzbietu'], secondaryMuscles: ['biceps', 'tył barków'], equipment: ['wyciąg dolny', 'uchwyt'],
+    steps: guideSteps('Usiądź stabilnie i ustaw stopy na platformie.', 'Zacznij z prostymi ramionami i neutralnym tułowiem.', 'Przyciągnij uchwyt do dolnej części żeber.', 'Nie odchylaj się mocno do tyłu przy każdym powtórzeniu.') }),
+  guideGymExercise({ id: 't-bar-row', name: 'T-bar row', cat: 'plecy', level: 'sredni', diff: 2, icon: '🏋️',
+    desc: 'Wiosłowanie na maszynie lub landmine. Daje mocny bodziec dla środka pleców.',
+    aliases: ['t-bar row', 'wiosłowanie t-bar'], primaryMuscles: ['środkowa część pleców'], secondaryMuscles: ['najszerszy grzbietu', 'biceps', 'tył barków'], equipment: ['maszyna T-bar', 'landmine'],
+    steps: guideSteps('Ustaw stopy stabilnie i złap uchwyty.', 'Utrzymaj tułów w stałej pozycji przez całą serię.', 'Pociągnij łokcie w tył i zatrzymaj krótko ruch przy tułowiu.', 'Nie szarp ciężarem z bioder.') }),
+  guideGymExercise({ id: 'prostowanie-grzbietu-lawka', name: 'Prostowanie grzbietu na ławce rzymskiej', cat: 'plecy', icon: '🏋️',
+    desc: 'Akcesorium dla tylnej taśmy. Może pracować bardziej grzbietem albo pośladkami zależnie od ustawienia.',
+    aliases: ['back extension', 'hyperextension'], primaryMuscles: ['prostowniki grzbietu'], secondaryMuscles: ['pośladki', 'tył uda'], equipment: ['ławka rzymska'],
+    steps: guideSteps('Ustaw biodra na podparciu i zablokuj stopy.', 'Opuść tułów w kontrolowanym zakresie.', 'Wróć do linii ciała, bez mocnego przeprostu na górze.', 'Dodawaj ciężar dopiero, gdy ruch bez obciążenia jest stabilny.') }),
+  guideGymExercise({ id: 'przysiad-sztanga-tyl', name: 'Przysiad ze sztangą z tyłu', cat: 'nogi', level: 'zaawansowany', diff: 3, icon: '🏋️',
+    desc: 'Główne ćwiczenie na nogi ze sztangą. Wymaga dobrze ustawionej techniki i sensownej progresji.',
+    aliases: ['back squat', 'barbell squat'], primaryMuscles: ['czworogłowe uda'], secondaryMuscles: ['pośladki', 'przywodziciele', 'core'], equipment: ['sztanga', 'stojaki'],
+    steps: guideSteps('Ustaw sztangę na górze pleców i zdejmij ją ze stojaków krótkim krokiem.', 'Zejdź w przysiad, prowadząc kolana w kierunku palców.', 'Wstań, naciskając całą stopą na podłoże.', 'Używaj zabezpieczeń w stojaku, zwłaszcza przy cięższych seriach.') }),
+  guideGymExercise({ id: 'front-squat', name: 'Front squat', cat: 'nogi', level: 'zaawansowany', diff: 3, icon: '🏋️',
+    desc: 'Przysiad ze sztangą z przodu. Mocno wymaga stabilnego tułowia i mobilnej pozycji rack.',
+    aliases: ['front squat', 'przysiad przedni'], primaryMuscles: ['czworogłowe uda'], secondaryMuscles: ['core', 'górna część pleców', 'pośladki'], equipment: ['sztanga', 'stojaki'],
+    steps: guideSteps('Ustaw sztangę z przodu barków i unieś łokcie.', 'Zejdź w przysiad, trzymając tułów możliwie pionowo.', 'Wstań bez opadania łokci i bez zaokrąglania góry pleców.', 'Jeśli chwyt przeszkadza, użyj pasków albo wybierz goblet squat.') }),
+  guideGymExercise({ id: 'hack-squat', name: 'Hack squat', cat: 'nogi', level: 'sredni', diff: 2, icon: '🏋️',
+    desc: 'Maszynowy przysiad z prowadnicą. Dobry do pracy nad nogami przy mniejszej liczbie zmiennych technicznych.',
+    aliases: ['hack squat machine', 'przysiad hack'], primaryMuscles: ['czworogłowe uda'], secondaryMuscles: ['pośladki', 'przywodziciele'], equipment: ['maszyna hack squat'],
+    steps: guideSteps('Ustaw plecy na oparciu i stopy na platformie.', 'Odblokuj zabezpieczenie i zejdź w kontrolowany przysiad.', 'Wypchnij platformę, utrzymując kolana w linii ze stopami.', 'Nie blokuj kolan agresywnie na końcu ruchu.') }),
+  guideGymExercise({ id: 'leg-press', name: 'Suwnica', cat: 'nogi', icon: '🏋️',
+    desc: 'Wypychanie platformy nogami. Bardzo praktyczne do objętości na nogi, jeśli pilnujesz zakresu i ustawienia.',
+    aliases: ['leg press', 'suwnica pozioma', 'suwnica skośna'], primaryMuscles: ['czworogłowe uda'], secondaryMuscles: ['pośladki', 'przywodziciele'], equipment: ['suwnica', 'leg press'],
+    steps: guideSteps('Usiądź stabilnie i ustaw stopy na platformie.', 'Opuść platformę w zakresie, w którym miednica nie odrywa się od oparcia.', 'Wypchnij platformę całą stopą.', 'Nie schodź tak nisko, że tracisz ustawienie dolnych pleców.') }),
+  guideGymExercise({ id: 'leg-extension', name: 'Prostowanie nóg na maszynie', cat: 'nogi', icon: '🏋️',
+    desc: 'Izolowane ćwiczenie na przód uda. Dobre jako dodatek, nie musi zastępować przysiadów ani suwnicy.',
+    aliases: ['leg extension', 'wyprosty nóg'], primaryMuscles: ['czworogłowe uda'], secondaryMuscles: [], equipment: ['maszyna leg extension'],
+    steps: guideSteps('Ustaw siedzisko i wałek tak, żeby oś ruchu była wygodna dla kolana.', 'Wyprostuj nogi do góry bez odrywania bioder od siedziska.', 'Zatrzymaj krótko ruch i opuść ciężar spokojnie.', 'Nie kop ciężaru rozpędem.') }),
+  guideGymExercise({ id: 'leg-curl-siedzac', name: 'Uginanie nóg siedząc', cat: 'posladki', icon: '🏋️',
+    desc: 'Maszynowy ruch na tył uda. Łatwy do logowania i progresowania w spokojnym zakresie.',
+    aliases: ['seated leg curl', 'uginanie podudzi siedząc'], primaryMuscles: ['tył uda'], secondaryMuscles: ['łydki'], equipment: ['maszyna leg curl'],
+    steps: guideSteps('Ustaw siedzisko i blokady tak, żeby uda były stabilne.', 'Zegnij kolana, prowadząc wałek w dół.', 'Zatrzymaj krótko napięcie i wróć powoli.', 'Nie odrywaj bioder od siedziska, żeby dociągnąć ciężar.') }),
+  guideGymExercise({ id: 'leg-curl-lezac', name: 'Uginanie nóg leżąc', cat: 'posladki', icon: '🏋️',
+    desc: 'Wariant uginania na tył uda w leżeniu. Dobry, gdy ta maszyna jest wygodniejsza niż wersja siedząca.',
+    aliases: ['lying leg curl', 'hamstring curl'], primaryMuscles: ['tył uda'], secondaryMuscles: ['łydki'], equipment: ['maszyna leg curl leżąc'],
+    steps: guideSteps('Połóż się na maszynie i ustaw wałek nad piętami.', 'Ugnij kolana, prowadząc pięty w stronę pośladków.', 'Opuść ciężar kontrolowanie do prawie pełnego wyprostu.', 'Nie unoś bioder, żeby skrócić ruch.') }),
+  guideGymExercise({ id: 'lydki-maszyna-stojac', name: 'Wspięcia na palce stojąc na maszynie', cat: 'nogi', icon: '🦵',
+    desc: 'Ćwiczenie na łydki w pozycji stojącej. Proste, ale wymaga pełnej kontroli zakresu.',
+    aliases: ['standing calf raise', 'calf raise machine'], primaryMuscles: ['łydki'], secondaryMuscles: [], equipment: ['maszyna do łydek'],
+    steps: guideSteps('Ustaw barki pod poduszkami i oprzyj śródstopie na platformie.', 'Opuść pięty w kontrolowanym zakresie.', 'Wspnij się wysoko na palce i zatrzymaj krótko ruch.', 'Nie odbijaj się sprężyście z dołu.') }),
+  guideGymExercise({ id: 'lydki-maszyna-siedzac', name: 'Wspięcia na palce siedząc', cat: 'nogi', icon: '🦵',
+    desc: 'Maszynowy wariant na łydki w siadzie. Przydatny jako proste akcesorium po nogach.',
+    aliases: ['seated calf raise'], primaryMuscles: ['łydki'], secondaryMuscles: [], equipment: ['maszyna seated calf raise'],
+    steps: guideSteps('Usiądź i ustaw kolana pod poduszkami.', 'Opuść pięty, utrzymując śródstopie na platformie.', 'Wspnij się na palce i zatrzymaj napięcie na górze.', 'Prowadź ruch spokojnie, bez bujania ciężarem.') }),
+  guideGymExercise({ id: 'hip-thrust-sztanga', name: 'Hip thrust ze sztangą', cat: 'posladki', level: 'sredni', diff: 2, icon: '🍑',
+    desc: 'Mocny ruch na pośladki ze sztangą. Łatwy do progresowania, jeśli ustawienie ławki jest stabilne.',
+    aliases: ['barbell hip thrust', 'hip thrust'], primaryMuscles: ['pośladki'], secondaryMuscles: ['tył uda', 'core'], equipment: ['sztanga', 'ławka', 'mata na sztangę'],
+    steps: guideSteps('Oprzyj górę pleców o ławkę i ustaw sztangę nad biodrami.', 'Ustaw stopy tak, żeby w górze ruchu golenie były blisko pionu.', 'Wypchnij biodra w górę i zatrzymaj krótko napięcie pośladków.', 'Nie kończ ruchu przeprostem w lędźwiach.') }),
+  guideGymExercise({ id: 'rdl-sztanga', name: 'Rumuński martwy ciąg ze sztangą', cat: 'posladki', level: 'sredni', diff: 2, icon: '🏋️',
+    desc: 'Hip hinge na tył uda i pośladki. Bardzo użyteczny, ale wymaga kontroli toru sztangi.',
+    aliases: ['barbell RDL', 'romanian deadlift', 'RDL'], primaryMuscles: ['tył uda', 'pośladki'], secondaryMuscles: ['prostowniki grzbietu', 'chwyt'], equipment: ['sztanga'],
+    steps: guideSteps('Stań ze sztangą przed udami i lekko ugnij kolana.', 'Cofnij biodra, prowadząc sztangę blisko nóg.', 'Zejdź do zakresu, w którym trzymasz napięcie tyłu uda i stabilne plecy.', 'Wróć przez wyprost bioder, nie przez odchylanie pleców.') }),
+  guideGymExercise({ id: 'good-morning-sztanga', name: 'Good morning ze sztangą', cat: 'posladki', level: 'zaawansowany', diff: 3, icon: '🏋️',
+    desc: 'Zaawansowany hip hinge ze sztangą na plecach. Ma sens jako lekkie, techniczne akcesorium.',
+    aliases: ['good morning', 'barbell good morning'], primaryMuscles: ['tył uda', 'pośladki'], secondaryMuscles: ['prostowniki grzbietu', 'core'], equipment: ['sztanga', 'stojaki'],
+    steps: guideSteps('Ustaw sztangę na górze pleców podobnie jak do przysiadu.', 'Lekko ugnij kolana i cofnij biodra, pochylając tułów.', 'Wróć do stania przez pracę bioder.', 'Zacznij bardzo lekko; to nie jest ćwiczenie do szarpania ciężaru.') }),
+  guideGymExercise({ id: 'glute-kickback-wyciag', name: 'Kickback na wyciągu', cat: 'posladki', icon: '🍑',
+    desc: 'Akcesorium na pośladki z wyciągiem dolnym. Przydatne do pracy jednostronnej.',
+    aliases: ['cable kickback', 'glute kickback'], primaryMuscles: ['pośladki'], secondaryMuscles: ['tył uda', 'core'], equipment: ['wyciąg dolny', 'opaska na kostkę'],
+    steps: guideSteps('Przypnij opaskę do kostki i stań twarzą do wyciągu.', 'Utrzymaj tułów stabilnie i cofnij nogę w tył.', 'Zatrzymaj krótko ruch bez przeprostu pleców.', 'Wracaj powoli, nie pozwalając stosowi uderzać.') }),
+  guideGymExercise({ id: 'odwodzenie-bioder-maszyna', name: 'Odwodzenie bioder na maszynie', cat: 'posladki', icon: '🍑',
+    desc: 'Maszynowe ćwiczenie na bok pośladka. Proste jako akcesorium, ale nie wymaga dużego ciężaru.',
+    aliases: ['hip abduction machine', 'abductor machine'], primaryMuscles: ['pośladek średni'], secondaryMuscles: ['pośladki'], equipment: ['maszyna odwodzenia bioder'],
+    steps: guideSteps('Usiądź na maszynie i oprzyj uda o poduszki.', 'Rozsuń kolana na boki w kontrolowanym zakresie.', 'Zatrzymaj krótko napięcie i wróć spokojnie.', 'Nie bujaj tułowiem, żeby otworzyć zakres na siłę.') }),
+  guideGymExercise({ id: 'przywodzenie-bioder-maszyna', name: 'Przywodzenie bioder na maszynie', cat: 'nogi', icon: '🦵',
+    desc: 'Maszynowy ruch na przywodziciele. Przydatny jako dodatek przy treningu nóg.',
+    aliases: ['hip adduction machine', 'adductor machine'], primaryMuscles: ['przywodziciele'], secondaryMuscles: ['core'], equipment: ['maszyna przywodzenia bioder'],
+    steps: guideSteps('Usiądź i ustaw uda oparte o poduszki.', 'Złącz nogi w kontrolowanym zakresie.', 'Wróć powoli do pozycji startowej.', 'Nie rozciągaj zakresu gwałtownie pod ciężarem.') }),
+  guideGymExercise({ id: 'ohp-sztanga', name: 'Wyciskanie żołnierskie', cat: 'barki', level: 'sredni', diff: 2, icon: '🏋️',
+    desc: 'Wyciskanie sztangi nad głowę. Dobre do śledzenia siły barków, jeśli tułów zostaje stabilny.',
+    aliases: ['overhead press', 'OHP', 'barbell shoulder press'], primaryMuscles: ['barki'], secondaryMuscles: ['triceps', 'core', 'górna część pleców'], equipment: ['sztanga', 'stojaki'],
+    steps: guideSteps('Złap sztangę z przodu barków i ustaw stopy stabilnie.', 'Napnij brzuch przed wyciśnięciem.', 'Wyciskaj sztangę nad głowę, prowadząc ją blisko twarzy.', 'Nie zamieniaj ruchu w odgięcie pleców do tyłu.') }),
+  guideGymExercise({ id: 'shoulder-press-maszyna', name: 'Wyciskanie na barki na maszynie', cat: 'barki', icon: '🏋️',
+    desc: 'Maszynowy wariant wyciskania nad głowę. Prosty wybór na dodatkową objętość barków.',
+    aliases: ['machine shoulder press', 'shoulder press machine'], primaryMuscles: ['barki'], secondaryMuscles: ['triceps'], equipment: ['maszyna shoulder press'],
+    steps: guideSteps('Ustaw siedzisko tak, żeby uchwyty startowały przy barkach.', 'Oprzyj plecy i złap uchwyty bez unoszenia barków.', 'Wyciskaj w górę płynnie, zostawiając kontrolę w łokciach.', 'Wracaj powoli i nie puszczaj stosu ciężaru.') }),
+  guideGymExercise({ id: 'unoszenie-bokiem-wyciag', name: 'Unoszenie bokiem na wyciągu', cat: 'barki', icon: '🏋️',
+    desc: 'Boczne unoszenie z linką. Daje stałe napięcie i pozwala dokładnie dobrać mały ciężar.',
+    aliases: ['cable lateral raise', 'unoszenie bokiem linką'], primaryMuscles: ['boczny akton barków'], secondaryMuscles: ['górny trapez'], equipment: ['wyciąg dolny', 'uchwyt'],
+    steps: guideSteps('Stań bokiem do wyciągu i złap uchwyt dalszą ręką.', 'Unieś ramię bokiem do kontrolowanej wysokości.', 'Opuść rękę powoli, bez puszczania napięcia.', 'Nie przechylaj całego ciała, żeby podnieść ciężar.') }),
+  guideGymExercise({ id: 'unoszenie-bokiem-maszyna', name: 'Unoszenie bokiem na maszynie', cat: 'barki', icon: '🏋️',
+    desc: 'Maszynowy wariant na boczny akton barków. Przydatny, gdy hantle łatwo zamieniają się w bujanie.',
+    aliases: ['lateral raise machine', 'machine lateral raise'], primaryMuscles: ['boczny akton barków'], secondaryMuscles: ['górny trapez'], equipment: ['maszyna lateral raise'],
+    steps: guideSteps('Ustaw siedzisko tak, żeby poduszki były przy ramionach.', 'Unieś ramiona na boki w spokojnym tempie.', 'Zatrzymaj krótko ruch i wróć kontrolowanie.', 'Nie wciskaj barków do uszu przy końcu zakresu.') }),
+  guideGymExercise({ id: 'face-pull-wyciag', name: 'Face pull na wyciągu', cat: 'barki', icon: '🏋️',
+    desc: 'Akcesorium na tył barków i górę pleców. Dobrze pasuje po wyciskaniach.',
+    aliases: ['cable face pull', 'face pull'], primaryMuscles: ['tył barków'], secondaryMuscles: ['górna część pleców', 'rotatory barku'], equipment: ['wyciąg', 'lina'],
+    steps: guideSteps('Ustaw linę mniej więcej na wysokości twarzy.', 'Przyciągnij końce liny w stronę twarzy, prowadząc łokcie na boki.', 'Zatrzymaj krótko ruch i wróć spokojnie.', 'To ćwiczenie zwykle działa lepiej z mniejszym ciężarem i kontrolą.') }),
+  guideGymExercise({ id: 'reverse-pec-deck', name: 'Reverse pec deck', cat: 'barki', icon: '🏋️',
+    desc: 'Maszynowe odwrotne rozpiętki. Czytelny ruch na tył barków bez ustawiania opadu tułowia.',
+    aliases: ['reverse fly machine', 'rear delt machine'], primaryMuscles: ['tył barków'], secondaryMuscles: ['górna część pleców', 'łopatki'], equipment: ['maszyna pec deck'],
+    steps: guideSteps('Usiądź przodem do oparcia i złap uchwyty.', 'Rozprowadź ramiona na boki, prowadząc ruch tyłem barków.', 'Wróć do startu z kontrolą.', 'Nie odchylaj tułowia od oparcia, żeby dociągnąć zakres.') }),
+  guideGymExercise({ id: 'triceps-pushdown', name: 'Prostowanie ramion na wyciągu', cat: 'ramiona', icon: '💪',
+    desc: 'Podstawowe akcesorium na triceps. Łatwe do ustawienia i progresowania małymi skokami.',
+    aliases: ['triceps pushdown', 'cable pushdown'], primaryMuscles: ['triceps'], secondaryMuscles: ['przedramiona'], equipment: ['wyciąg górny', 'lina lub drążek'],
+    steps: guideSteps('Stań przy wyciągu i ustaw łokcie blisko tułowia.', 'Prostuj ramiona w dół, nie cofając barków.', 'Zatrzymaj krótko pełny wyprost i wróć do ugięcia.', 'Łokcie zostają w podobnym miejscu przez całą serię.') }),
+  guideGymExercise({ id: 'triceps-linka-nad-glowa', name: 'Prostowanie tricepsa nad głową na wyciągu', cat: 'ramiona', icon: '💪',
+    desc: 'Wariant tricepsa z ramionami nad głową. Dobrze uzupełnia klasyczne pushdowny.',
+    aliases: ['overhead cable triceps extension', 'cable overhead extension'], primaryMuscles: ['triceps'], secondaryMuscles: ['core'], equipment: ['wyciąg', 'lina'],
+    steps: guideSteps('Ustaw wyciąg nisko lub za plecami i złap linę nad głową.', 'Utrzymaj łokcie skierowane do przodu.', 'Wyprostuj ramiona bez wyginania pleców.', 'Wróć powoli do ugięcia, pilnując pozycji łokci.') }),
+  guideGymExercise({ id: 'wyciskanie-wasko-sztanga', name: 'Wyciskanie wąsko sztangi', cat: 'ramiona', level: 'sredni', diff: 2, icon: '🏋️',
+    desc: 'Wyciskanie z większym udziałem tricepsa. Warto traktować je jako cięższe ćwiczenie akcesoryjne.',
+    aliases: ['close grip bench press', 'close-grip bench'], primaryMuscles: ['triceps'], secondaryMuscles: ['klatka piersiowa', 'przedni akton barków'], equipment: ['sztanga', 'ławka', 'stojaki'],
+    steps: guideSteps('Połóż się na ławce i złap sztangę trochę węziej niż w klasycznym wyciskaniu.', 'Opuść sztangę kontrolowanie, prowadząc łokcie bliżej tułowia.', 'Wyciskaj do góry bez rozjeżdżania nadgarstków.', 'Nie ustawiaj chwytu ekstremalnie wąsko, jeśli obciąża nadgarstki.') }),
+  guideGymExercise({ id: 'modlitewnik', name: 'Uginanie na modlitewniku', cat: 'ramiona', icon: '💪',
+    desc: 'Izolowane uginanie na biceps z podparciem ramion. Pomaga ograniczyć bujanie tułowiem.',
+    aliases: ['preacher curl', 'modlitewnik curl'], primaryMuscles: ['biceps'], secondaryMuscles: ['przedramiona'], equipment: ['modlitewnik', 'sztanga łamana lub hantle'],
+    steps: guideSteps('Ustaw wysokość modlitewnika tak, żeby ramiona leżały stabilnie.', 'Opuść ciężar kontrolowanie, bez agresywnego prostowania łokci.', 'Ugnij ramiona i zatrzymaj krótko napięcie.', 'Nie odrywaj ramion od podparcia przy końcu serii.') }),
+  guideGymExercise({ id: 'uginanie-sztanga', name: 'Uginanie ramion ze sztangą', cat: 'ramiona', icon: '💪',
+    desc: 'Klasyczne ćwiczenie na biceps. Największy sens ma wtedy, gdy ciężar nie wymusza bujania.',
+    aliases: ['barbell curl', 'biceps curl sztanga'], primaryMuscles: ['biceps'], secondaryMuscles: ['przedramiona'], equipment: ['sztanga lub sztanga łamana'],
+    steps: guideSteps('Stań stabilnie i trzymaj sztangę przed udami.', 'Ugnij ramiona, prowadząc łokcie blisko tułowia.', 'Opuść sztangę powoli do wyprostu.', 'Jeśli biodra pomagają w każdym powtórzeniu, ciężar jest za duży.') }),
+  guideGymExercise({ id: 'uginanie-wyciag', name: 'Uginanie ramion na wyciągu', cat: 'ramiona', icon: '💪',
+    desc: 'Biceps na wyciągu dolnym. Daje stałe napięcie i łatwo dobrać dokładne obciążenie.',
+    aliases: ['cable curl', 'biceps cable curl'], primaryMuscles: ['biceps'], secondaryMuscles: ['przedramiona'], equipment: ['wyciąg dolny', 'drążek lub lina'],
+    steps: guideSteps('Stań przy wyciągu i złap uchwyt podchwytem.', 'Uginaj ramiona bez cofania łokci za tułów.', 'Zatrzymaj krótko napięcie i wróć spokojnie.', 'Nie odchylaj pleców, żeby ruszyć ciężar.') }),
+  guideGymExercise({ id: 'uginanie-hantle-skos', name: 'Uginanie hantli na ławce skośnej', cat: 'ramiona', level: 'sredni', diff: 2, icon: '💪',
+    desc: 'Uginanie z ramionami cofniętymi za tułów. Dobre jako spokojne akcesorium na biceps.',
+    aliases: ['incline dumbbell curl', 'incline curl'], primaryMuscles: ['biceps'], secondaryMuscles: ['przedramiona'], equipment: ['hantle', 'ławka skośna'],
+    steps: guideSteps('Usiądź na ławce skośnej i pozwól ramionom swobodnie zwisać.', 'Uginaj hantle bez przesuwania łokci do przodu.', 'Opuść ciężar powoli do pełnej kontroli.', 'Użyj lżejszych hantli niż w zwykłym uginaniu stojąc.') }),
+  guideGymExercise({ id: 'cable-crunch', name: 'Cable crunch', cat: 'core', icon: '🧘',
+    desc: 'Spięcie brzucha z linką wyciągu. Łatwe do progresowania, jeśli ruch idzie z tułowia, nie z bioder.',
+    aliases: ['kneeling cable crunch', 'spięcia na wyciągu'], primaryMuscles: ['mięśnie brzucha'], secondaryMuscles: ['mięśnie skośne brzucha'], equipment: ['wyciąg górny', 'lina'],
+    steps: guideSteps('Uklęknij przed wyciągiem i złap linę przy głowie.', 'Zrób kontrolowane zgięcie tułowia, kierując żebra w stronę miednicy.', 'Wróć do pozycji startowej bez prostowania bioder na siłę.', 'Nie ciągnij ciężaru samymi rękami.') }),
+  guideGymExercise({ id: 'unoszenie-kolan-drazek', name: 'Unoszenie kolan w zwisie', cat: 'core', level: 'sredni', diff: 2, icon: '🤸',
+    desc: 'Ćwiczenie brzucha w zwisie. Wymaga chwytu i kontroli bujania.',
+    aliases: ['hanging knee raise', 'unoszenie nóg w zwisie'], primaryMuscles: ['mięśnie brzucha'], secondaryMuscles: ['zginacze bioder', 'chwyt'], equipment: ['drążek'],
+    steps: guideSteps('Zawiśnij na drążku i uspokój ciało przed startem.', 'Unieś kolana w stronę klatki, podwijając lekko miednicę.', 'Opuść nogi z kontrolą.', 'Nie rozpędzaj nóg wahadłem, jeśli chcesz trenować brzuch.') }),
+  guideGymExercise({ id: 'ab-wheel', name: 'Ab wheel', cat: 'core', level: 'zaawansowany', diff: 3, icon: '🧘',
+    desc: 'Rollout na kółku. Mocne ćwiczenie antywyprostne, które trzeba skalować zakresem.',
+    aliases: ['ab rollout', 'kółko do brzucha', 'ab wheel rollout'], primaryMuscles: ['core'], secondaryMuscles: ['barki', 'najszerszy grzbietu'], equipment: ['ab wheel', 'mata'],
+    steps: guideSteps('Uklęknij na macie i złap kółko pod barkami.', 'Wyjedź do przodu tylko tak daleko, jak utrzymujesz napięty brzuch.', 'Wróć, przyciągając kółko pod barki bez łamania bioder.', 'Skróć zakres, jeśli lędźwie zaczynają opadać.') }),
+  guideGymExercise({ id: 'woodchop-wyciag', name: 'Woodchop na wyciągu', cat: 'core', level: 'sredni', diff: 2, icon: '🧘',
+    desc: 'Rotacyjny ruch tułowia z linką. Dobrze sprawdza się jako kontrolowane akcesorium core.',
+    aliases: ['cable woodchop', 'wood chop'], primaryMuscles: ['mięśnie skośne brzucha'], secondaryMuscles: ['core', 'barki'], equipment: ['wyciąg', 'uchwyt'],
+    steps: guideSteps('Ustaw wyciąg wysoko albo nisko, zależnie od wariantu.', 'Stań bokiem i złap uchwyt obiema rękami.', 'Przeprowadź uchwyt po skosie przez ciało, obracając tułów z kontrolą.', 'Nie szarp linki samymi rękami.') }),
+  guideGymExercise({ id: 'landmine-rotation', name: 'Rotacja landmine', cat: 'core', level: 'sredni', diff: 2, icon: '🏋️',
+    desc: 'Kontrolowana rotacja ze sztangą w landmine. Łączy pracę core, barków i stabilnej pozycji nóg.',
+    aliases: ['landmine rotation', 'landmine twist'], primaryMuscles: ['core'], secondaryMuscles: ['barki', 'mięśnie skośne brzucha'], equipment: ['landmine', 'sztanga'],
+    steps: guideSteps('Ustaw sztangę w landmine i złap koniec obiema rękami.', 'Stań stabilnie z lekko ugiętymi kolanami.', 'Przenieś sztangę po łuku z jednej strony na drugą.', 'Ruch ma być kontrolowany; nie pozwól ciężarowi ciągnąć lędźwi.') }),
+  guideGymExercise({ id: 'smith-squat', name: 'Przysiad na Smithie', cat: 'nogi', level: 'sredni', diff: 2, icon: '🏋️',
+    desc: 'Przysiad w prowadnicy. Przydatny, jeśli chcesz prosty tor ruchu, ale nadal trzeba pilnować ustawienia stóp.',
+    aliases: ['smith machine squat', 'squat smith'], primaryMuscles: ['czworogłowe uda'], secondaryMuscles: ['pośladki', 'przywodziciele'], equipment: ['maszyna Smitha'],
+    steps: guideSteps('Ustaw sztangę na górze pleców i dobierz pozycję stóp do toru maszyny.', 'Zejdź w przysiad bez odrywania pięt.', 'Wstań, prowadząc kolana stabilnie.', 'Nie ustawiaj stóp losowo; tor Smitha wymaga konkretnej pozycji startowej.') }),
+  guideGymExercise({ id: 'pullover-maszyna', name: 'Pullover na maszynie', cat: 'plecy', icon: '🏋️',
+    desc: 'Maszynowy ruch na najszerszy grzbietu. Dobry, gdy chcesz pracować plecami bez dużego udziału bicepsa.',
+    aliases: ['machine pullover', 'pullover machine'], primaryMuscles: ['najszerszy grzbietu'], secondaryMuscles: ['triceps', 'core'], equipment: ['maszyna pullover'],
+    steps: guideSteps('Ustaw siedzisko tak, żeby oś ruchu była wygodna dla barków.', 'Oprzyj ramiona lub dłonie zgodnie z konstrukcją maszyny.', 'Ściągnij uchwyt w dół łukiem, myśląc o pracy pleców.', 'Wracaj powoli i nie wymuszaj zakresu za głową.') }),
+  guideGymExercise({ id: 'sled-push', name: 'Pchanie sanek', cat: 'nogi', level: 'sredni', diff: 2, icon: '🦵',
+    desc: 'Prosty ruch kondycyjno-siłowy na nogi. Dobrze nadaje się do logowania dystansu, czasu albo obciążenia.',
+    aliases: ['sled push', 'prowler push'], primaryMuscles: ['czworogłowe uda', 'pośladki'], secondaryMuscles: ['łydki', 'core'], equipment: ['sanki treningowe', 'tor'],
+    steps: guideSteps('Ustaw dłonie na uchwytach sanek i pochyl tułów.', 'Ruszaj krótkimi, mocnymi krokami, utrzymując napięty brzuch.', 'Pchaj na wybrany dystans albo czas.', 'Zacznij od lekkiego obciążenia, żeby złapać rytm kroku.') }),
+  guideGymExercise({ id: 'farmers-walk-hantle', name: 'Farmer walk', cat: 'core', level: 'sredni', diff: 2, icon: '🏋️',
+    desc: 'Marsz z ciężarami w obu rękach. Bardzo praktyczne ćwiczenie na chwyt, core i stabilną postawę.',
+    aliases: ['farmer carry', 'farmers walk', 'spacer farmera'], primaryMuscles: ['chwyt', 'core'], secondaryMuscles: ['barki', 'górna część pleców', 'łydki'], equipment: ['hantle lub trap bar', 'miejsce do marszu'],
+    steps: guideSteps('Chwyć ciężary po bokach i stań prosto.', 'Idź równym tempem, utrzymując barki stabilnie i żebra nisko.', 'Zakończ serię po wybranym dystansie albo czasie.', 'Nie skracaj kroku tak mocno, że tracisz rytm i postawę.') }),
 ];
 
 const GUIDE_CATS = [
-  { id: 'all',     label: 'Wszystkie' },
-  { id: 'klatka',  label: 'Klatka' },
-  { id: 'plecy',   label: 'Plecy' },
-  { id: 'nogi',    label: 'Nogi' },
-  { id: 'posladki', label: 'Pośladki' },
-  { id: 'barki',   label: 'Barki' },
-  { id: 'ramiona', label: 'Ramiona' },
-  { id: 'core',    label: 'Core' },
+  { id: 'all', label: 'Wszystkie' },
+  { id: 'home', label: 'Domowe' },
+  { id: 'gym', label: 'Siłownia' },
 ];
+
+const GUIDE_CONTEXT_LABELS = {
+  all: 'Wszystkie',
+  home: 'Domowe',
+  gym: 'Siłownia'
+};
 
 const GUIDE_CATEGORY_LABELS = {
   all: 'Wszystkie',
@@ -581,6 +795,65 @@ function getGuideCategoryLabel(categoryId) {
   return GUIDE_CATEGORY_LABELS[normalized] || GUIDE_CATEGORY_LABELS[categoryId] || (normalized.charAt(0).toUpperCase() + normalized.slice(1));
 }
 
+function normalizeGuideContextId(contextId) {
+  const raw = String(contextId || '').toLowerCase().trim();
+  const normalized = slugifyGuideValue(contextId);
+
+  if (raw.includes('sił') || raw.includes('sil') || normalized.includes('gym')) return 'gym';
+  if (raw.includes('dom') || normalized.includes('home')) return 'home';
+
+  const aliases = {
+    all: 'all',
+    allround: 'all',
+    home: 'home',
+    dom: 'home',
+    domowe: 'home',
+    bodyweight: 'home',
+    gym: 'gym',
+    silownia: 'gym',
+    silowniowe: 'gym',
+    'si-ownia': 'gym'
+  };
+
+  return aliases[normalized] || normalized || 'home';
+}
+
+function getGuideContextLabel(contextId) {
+  const normalized = normalizeGuideContextId(contextId);
+  return GUIDE_CONTEXT_LABELS[normalized] || GUIDE_CONTEXT_LABELS[contextId] || normalized;
+}
+
+function normalizeGuideContexts(rawExercise, equipment = []) {
+  const rawContexts = [
+    ...(Array.isArray(rawExercise?.contexts) ? rawExercise.contexts : []),
+    rawExercise?.context,
+    rawExercise?.scope,
+    rawExercise?.location
+  ].filter(Boolean);
+
+  const explicit = normalizeGuideStringList(rawContexts)
+    .map(normalizeGuideContextId)
+    .filter(contextId => contextId === 'home' || contextId === 'gym');
+
+  if (explicit.length) return [...new Set(explicit)];
+
+  const equipmentText = normalizeGuideStringList(equipment).join(' ').toLowerCase();
+  const gymEquipmentPattern = /(sztanga|stojaki|rack|smith|maszyna|wyciąg|wyciag|brama|suwnica|leg press|hack|modlitewnik|poręcz|porecz|drążek|drazek|t-bar|landmine|sanki|sled|pec deck|lat pulldown|ab wheel)/i;
+
+  return gymEquipmentPattern.test(equipmentText) ? ['gym'] : ['home'];
+}
+
+function guideMatchesContext(exercise, contextFilter = 'all') {
+  const normalizedFilter = normalizeGuideContextId(contextFilter);
+  if (!normalizedFilter || normalizedFilter === 'all') return true;
+
+  const contexts = Array.isArray(exercise?.contexts) && exercise.contexts.length
+    ? exercise.contexts.map(normalizeGuideContextId)
+    : normalizeGuideContexts(exercise, exercise?.equipment || []);
+
+  return contexts.includes(normalizedFilter);
+}
+
 function inferGuideCategory(rawCategory, primaryMuscles = [], secondaryMuscles = []) {
   const haystack = [rawCategory, ...primaryMuscles, ...secondaryMuscles].join(' ').toLowerCase();
 
@@ -677,6 +950,7 @@ function normalizeGuideExercise(rawExercise, index = 0) {
   const primaryMuscles = normalizeGuideStringList(rawExercise?.primaryMuscles || rawExercise?.muscles);
   const secondaryMuscles = normalizeGuideStringList(rawExercise?.secondaryMuscles || rawExercise?.musclesSecondary);
   const equipment = normalizeGuideStringList(rawExercise?.equipment);
+  const contexts = normalizeGuideContexts(rawExercise, equipment);
   const cat = normalizeGuideCategoryId(rawExercise?.cat || inferGuideCategory(rawExercise?.category, primaryMuscles, secondaryMuscles));
   const desc = stripGuideHtml(rawExercise?.desc || rawExercise?.description || '');
   const level = rawExercise?.level || 'sredni';
@@ -697,6 +971,7 @@ function normalizeGuideExercise(rawExercise, index = 0) {
     primaryMuscles,
     secondaryMuscles,
     equipment,
+    contexts,
     images: normalizeGuideStringList(rawExercise?.images),
     video: stripGuideHtml(rawExercise?.video || ''),
     source: rawExercise?.source || 'local',
@@ -728,17 +1003,14 @@ function getGuideData() {
 }
 
 function getGuideCategories() {
-  const available = new Set(getGuideData().map(exercise => exercise.cat).filter(Boolean));
-  const orderedBase = GUIDE_CATS.filter(category => category.id === 'all' || available.has(category.id));
-  const dynamic = [...available]
-    .filter(categoryId => !orderedBase.some(category => category.id === categoryId))
-    .sort((left, right) => getGuideCategoryLabel(left).localeCompare(getGuideCategoryLabel(right)))
-    .map(categoryId => ({
-      id: categoryId,
-      label: getGuideCategoryLabel(categoryId)
-    }));
+  const available = new Set(
+    getGuideData()
+      .flatMap(exercise => Array.isArray(exercise.contexts) ? exercise.contexts : normalizeGuideContexts(exercise, exercise.equipment || []))
+      .map(normalizeGuideContextId)
+      .filter(contextId => contextId === 'home' || contextId === 'gym')
+  );
 
-  return [orderedBase[0], ...orderedBase.slice(1), ...dynamic].filter(Boolean);
+  return GUIDE_CATS.filter(category => category.id === 'all' || available.has(category.id));
 }
 
 function getGuideImportMeta() {

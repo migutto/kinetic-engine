@@ -11,7 +11,7 @@ function renderGuide() {
     state.guideSelected = guideData[0]?.id || null;
   }
 
-  // Kategorie (chipy)
+  // Filtry kontekstu: wszystkie, domowe, siłownia
   document.getElementById('guide-cats').innerHTML = categories.map(c =>
     `<button class="chip ${state.guideFilter === c.id ? 'active' : ''}" onclick="setGuideCat('${c.id}')">${c.label}</button>`
   ).join('');
@@ -39,10 +39,17 @@ function getGuideLevelLabel(level) {
   return labels[level] || level;
 }
 
+function getGuideContextMeta(exercise) {
+  const contexts = Array.isArray(exercise.contexts) ? exercise.contexts : [];
+  if (!contexts.length || typeof getGuideContextLabel !== 'function') return '';
+  return contexts.map(getGuideContextLabel).join(' / ');
+}
+
 function getGuideListMeta(exercise) {
+  const context = getGuideContextMeta(exercise);
   const category = typeof getGuideCategoryLabel === 'function' ? getGuideCategoryLabel(exercise.cat) : exercise.cat;
   const equipment = Array.isArray(exercise.equipment) && exercise.equipment[0] ? exercise.equipment[0] : '';
-  return [category, equipment].filter(Boolean).join(' · ');
+  return [context, category, equipment].filter(Boolean).join(' · ');
 }
 
 function getGuideSearchText(exercise) {
@@ -50,6 +57,7 @@ function getGuideSearchText(exercise) {
     exercise.name,
     exercise.cat,
     typeof getGuideCategoryLabel === 'function' ? getGuideCategoryLabel(exercise.cat) : '',
+    getGuideContextMeta(exercise),
     exercise.level,
     ...(Array.isArray(exercise.aliases) ? exercise.aliases : []),
     ...(Array.isArray(exercise.primaryMuscles) ? exercise.primaryMuscles : []),
@@ -95,7 +103,7 @@ function guideExerciseMatchesPlan(exercise, planExerciseName) {
 
 function renderGuideList(q = '') {
   const filtered = getGuideData().filter(e =>
-    (state.guideFilter === 'all' || e.cat === state.guideFilter) &&
+    (typeof guideMatchesContext !== 'function' || guideMatchesContext(e, state.guideFilter)) &&
     (!q || normalizeGuidePlanText(getGuideSearchText(e)).includes(q))
   );
 
@@ -180,6 +188,7 @@ function renderGuideDetail(id) {
         <div class="guide-hero-icon">${ex.icon}</div>
         <div class="guide-hero-copy">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+            <span class="badge bdg-p" style="font-size:9px;padding:5px 12px;">${getGuideContextMeta(ex)}</span>
             <span class="badge bdg-s" style="font-size:9px;padding:5px 12px;">${typeof getGuideCategoryLabel === 'function' ? getGuideCategoryLabel(ex.cat) : ex.cat}</span>
             <span style="font-size:10px;color:var(--osd);">${getGuideLevelLabel(ex.level)}</span>
           </div>
