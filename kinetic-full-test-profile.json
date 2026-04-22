@@ -1,245 +1,105 @@
 {
   "version": "3.2",
-  "exportDate": "2026-04-09T10:50:00.000Z",
+  "exportDate": "2026-04-22T12:00:00.000Z",
   "workouts": {
-    "2026-03-16": {
-      "type": "upper-a",
-      "completed": true,
-      "sets": {
-        "DB Bench Press": [
-          { "reps": "8", "weight": "26", "done": true },
-          { "reps": "8", "weight": "26", "done": true },
-          { "reps": "7", "weight": "28", "done": true },
-          { "reps": "6", "weight": "28", "done": true }
-        ],
-        "One Arm Row": [
-          { "reps": "10", "weight": "30", "done": true },
-          { "reps": "10", "weight": "30", "done": true },
-          { "reps": "9", "weight": "32", "done": true },
-          { "reps": "8", "weight": "32", "done": true }
-        ],
-        "Incline DB Press": [
-          { "reps": "10", "weight": "22", "done": true },
-          { "reps": "9", "weight": "22", "done": true },
-          { "reps": "8", "weight": "22", "done": true }
-        ],
-        "Lateral Raise": [
-          { "reps": "14", "weight": "8", "done": true },
-          { "reps": "14", "weight": "8", "done": true },
-          { "reps": "12", "weight": "8", "done": true }
-        ],
-        "DB Curl": [
-          { "reps": "12", "weight": "12", "done": true },
-          { "reps": "11", "weight": "12", "done": true },
-          { "reps": "10", "weight": "12", "done": true }
-        ]
-      }
-    },
-    "2026-03-18": {
-      "type": "lower-a",
-      "completed": true,
-      "sets": {
-        "Goblet Squat": [
-          { "reps": "10", "weight": "28", "done": true },
-          { "reps": "10", "weight": "28", "done": true },
-          { "reps": "8", "weight": "30", "done": true },
-          { "reps": "8", "weight": "30", "done": true }
-        ],
-        "Romanian Deadlift": [
-          { "reps": "10", "weight": "34", "done": true },
-          { "reps": "10", "weight": "34", "done": true },
-          { "reps": "9", "weight": "36", "done": true },
-          { "reps": "8", "weight": "36", "done": true }
-        ],
-        "Bulgarian Split Squat": [
-          { "reps": "10", "weight": "14", "done": true },
-          { "reps": "10", "weight": "14", "done": true },
-          { "reps": "8", "weight": "16", "done": true }
-        ],
-        "Hip Thrust": [
-          { "reps": "12", "weight": "40", "done": true },
-          { "reps": "12", "weight": "40", "done": true },
-          { "reps": "10", "weight": "45", "done": true },
-          { "reps": "10", "weight": "45", "done": true }
-        ],
-        "Plank": [
-          { "reps": "45", "weight": "", "done": true },
-          { "reps": "45", "weight": "", "done": true },
-          { "reps": "40", "weight": "", "done": true }
-        ]
-      }
-    },
-    "2026-03-21": {
-      "type": "full-body",
-      "completed": true,
-      "sets": {
-        "Push Up": [
-          { "reps": "15", "weight": "", "done": true },
-          { "reps": "14", "weight": "", "done": true },
-          { "reps": "12", "weight": "", "done": true }
-        ],
-        "Chest Supported Row": [
-          { "reps": "10", "weight": "28", "done": true },
-          { "reps": "10", "weight": "28", "done": true },
-          { "reps": "9", "weight": "30", "done": true },
-          { "reps": "8", "weight": "30", "done": true }
-        ],
-        "DB Romanian Deadlift": [
-          { "reps": "12", "weight": "30", "done": true },
-          { "reps": "12", "weight": "30", "done": true },
-          { "reps": "10", "weight": "32", "done": true }
-        ],
-        "Arnold Press": [
-          { "reps": "10", "weight": "16", "done": true },
-          { "reps": "9", "weight": "16", "done": true },
-          { "reps": "8", "weight": "18", "done": true }
-        ],
-        "Walking Lunge": [
-          { "reps": "12", "weight": "12", "done": true },
-          { "reps": "12", "weight": "12", "done": true },
-          { "reps": "10", "weight": "14", "done": true }
-        ],
-        "Hollow Hold": [
-          { "reps": "35", "weight": "", "done": true },
-          { "reps": "35", "weight": "", "done": true },
-          { "reps": "30", "weight": "", "done": true }
-        ]
-      }
-    },
-    "2026-03-23": {
-      "type": "upper-a",
-      "completed": true,
-      "sets": {
-        "DB Bench Press": [
-          { "reps": "8", "weight": "28", "done": true },
-          { "reps": "8", "weight": "28", "done": true },
-          { "reps": "7", "weight": "30", "done": true },
-          { "reps": "6", "weight": "30", "done": true }
-        ],
-        "One Arm Row": [
-          { "reps": "10", "weight": "32", "done": true },
-          { "reps": "10", "weight": "32", "done": true },
-          { "reps": "9", "weight": "34", "done": true },
-          { "reps": "8", "weight": "34", "done": true }
-        ],
-        "Incline DB Press": [
-          { "reps": "10", "weight": "22", "done": true },
-          { "reps": "10", "weight": "24", "done": true },
-          { "reps": "8", "weight": "24", "done": true }
-        ],
-        "Lateral Raise": [
-          { "reps": "15", "weight": "8", "done": true },
-          { "reps": "14", "weight": "8", "done": true },
-          { "reps": "12", "weight": "9", "done": true }
-        ],
-        "DB Curl": [
-          { "reps": "12", "weight": "12", "done": true },
-          { "reps": "12", "weight": "12", "done": true },
-          { "reps": "10", "weight": "14", "done": true }
-        ]
-      }
-    },
-    "2026-03-25": {
-      "type": "lower-a",
-      "completed": true,
-      "sets": {
-        "Goblet Squat": [
-          { "reps": "10", "weight": "30", "done": true },
-          { "reps": "10", "weight": "30", "done": true },
-          { "reps": "8", "weight": "32", "done": true },
-          { "reps": "8", "weight": "32", "done": true }
-        ],
-        "Romanian Deadlift": [
-          { "reps": "10", "weight": "36", "done": true },
-          { "reps": "10", "weight": "36", "done": true },
-          { "reps": "8", "weight": "38", "done": true },
-          { "reps": "8", "weight": "38", "done": true }
-        ],
-        "Bulgarian Split Squat": [
-          { "reps": "10", "weight": "16", "done": true },
-          { "reps": "10", "weight": "16", "done": true },
-          { "reps": "8", "weight": "18", "done": true }
-        ],
-        "Hip Thrust": [
-          { "reps": "12", "weight": "45", "done": true },
-          { "reps": "12", "weight": "45", "done": true },
-          { "reps": "10", "weight": "50", "done": true },
-          { "reps": "10", "weight": "50", "done": true }
-        ],
-        "Plank": [
-          { "reps": "50", "weight": "", "done": true },
-          { "reps": "45", "weight": "", "done": true },
-          { "reps": "45", "weight": "", "done": true }
-        ]
-      }
-    },
-    "2026-03-28": {
-      "type": "full-body",
-      "completed": true,
-      "sets": {
-        "Push Up": [
-          { "reps": "16", "weight": "", "done": true },
-          { "reps": "14", "weight": "", "done": true },
-          { "reps": "13", "weight": "", "done": true }
-        ],
-        "Chest Supported Row": [
-          { "reps": "10", "weight": "30", "done": true },
-          { "reps": "10", "weight": "30", "done": true },
-          { "reps": "9", "weight": "32", "done": true },
-          { "reps": "8", "weight": "32", "done": true }
-        ],
-        "DB Romanian Deadlift": [
-          { "reps": "12", "weight": "32", "done": true },
-          { "reps": "12", "weight": "32", "done": true },
-          { "reps": "10", "weight": "34", "done": true }
-        ],
-        "Arnold Press": [
-          { "reps": "10", "weight": "18", "done": true },
-          { "reps": "9", "weight": "18", "done": true },
-          { "reps": "8", "weight": "20", "done": true }
-        ],
-        "Walking Lunge": [
-          { "reps": "12", "weight": "14", "done": true },
-          { "reps": "12", "weight": "14", "done": true },
-          { "reps": "10", "weight": "16", "done": true }
-        ],
-        "Hollow Hold": [
-          { "reps": "40", "weight": "", "done": true },
-          { "reps": "35", "weight": "", "done": true },
-          { "reps": "35", "weight": "", "done": true }
-        ]
-      }
-    },
     "2026-03-30": {
       "type": "upper-a",
       "completed": true,
       "sets": {
         "DB Bench Press": [
-          { "reps": "8", "weight": "30", "done": true },
-          { "reps": "8", "weight": "30", "done": true },
-          { "reps": "7", "weight": "32", "done": true },
-          { "reps": "6", "weight": "32", "done": true }
+          {
+            "reps": "8",
+            "weight": "26",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "26",
+            "done": true
+          },
+          {
+            "reps": "7",
+            "weight": "28",
+            "done": true
+          },
+          {
+            "reps": "6",
+            "weight": "28",
+            "done": true
+          }
         ],
         "One Arm Row": [
-          { "reps": "10", "weight": "34", "done": true },
-          { "reps": "10", "weight": "34", "done": true },
-          { "reps": "9", "weight": "36", "done": true },
-          { "reps": "8", "weight": "36", "done": true }
+          {
+            "reps": "10",
+            "weight": "30",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "30",
+            "done": true
+          },
+          {
+            "reps": "9",
+            "weight": "32",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "32",
+            "done": true
+          }
         ],
         "Incline DB Press": [
-          { "reps": "10", "weight": "24", "done": true },
-          { "reps": "9", "weight": "24", "done": true },
-          { "reps": "8", "weight": "26", "done": true }
+          {
+            "reps": "10",
+            "weight": "22",
+            "done": true
+          },
+          {
+            "reps": "9",
+            "weight": "22",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "22",
+            "done": true
+          }
         ],
         "Lateral Raise": [
-          { "reps": "15", "weight": "9", "done": true },
-          { "reps": "14", "weight": "9", "done": true },
-          { "reps": "12", "weight": "10", "done": true }
+          {
+            "reps": "14",
+            "weight": "8",
+            "done": true
+          },
+          {
+            "reps": "14",
+            "weight": "8",
+            "done": true
+          },
+          {
+            "reps": "12",
+            "weight": "8",
+            "done": true
+          }
         ],
         "DB Curl": [
-          { "reps": "12", "weight": "14", "done": true },
-          { "reps": "11", "weight": "14", "done": true },
-          { "reps": "10", "weight": "14", "done": true }
+          {
+            "reps": "12",
+            "weight": "12",
+            "done": true
+          },
+          {
+            "reps": "11",
+            "weight": "12",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "12",
+            "done": true
+          }
         ]
       }
     },
@@ -248,59 +108,104 @@
       "completed": true,
       "sets": {
         "Goblet Squat": [
-          { "reps": "10", "weight": "32", "done": true },
-          { "reps": "10", "weight": "32", "done": true },
-          { "reps": "8", "weight": "34", "done": true },
-          { "reps": "8", "weight": "34", "done": true }
+          {
+            "reps": "10",
+            "weight": "28",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "28",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "30",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "30",
+            "done": true
+          }
         ],
         "Romanian Deadlift": [
-          { "reps": "10", "weight": "38", "done": true },
-          { "reps": "10", "weight": "38", "done": true },
-          { "reps": "8", "weight": "40", "done": true },
-          { "reps": "8", "weight": "40", "done": true }
+          {
+            "reps": "10",
+            "weight": "34",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "34",
+            "done": true
+          },
+          {
+            "reps": "9",
+            "weight": "36",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "36",
+            "done": true
+          }
         ],
         "Bulgarian Split Squat": [
-          { "reps": "10", "weight": "18", "done": true },
-          { "reps": "10", "weight": "18", "done": true },
-          { "reps": "8", "weight": "20", "done": true }
+          {
+            "reps": "10",
+            "weight": "14",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "14",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "16",
+            "done": true
+          }
         ],
         "Hip Thrust": [
-          { "reps": "12", "weight": "50", "done": true },
-          { "reps": "12", "weight": "50", "done": true },
-          { "reps": "10", "weight": "55", "done": true },
-          { "reps": "10", "weight": "55", "done": true }
+          {
+            "reps": "12",
+            "weight": "40",
+            "done": true
+          },
+          {
+            "reps": "12",
+            "weight": "40",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "45",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "45",
+            "done": true
+          }
         ],
         "Plank": [
-          { "reps": "55", "weight": "", "done": true },
-          { "reps": "50", "weight": "", "done": true },
-          { "reps": "45", "weight": "", "done": true }
-        ]
-      }
-    },
-    "2026-04-03": {
-      "type": "custom",
-      "name": "Pump + Mobility",
-      "completed": true,
-      "customExercises": [
-        { "n": "Band Pull Apart", "sets": 3, "reps": "20", "weight": false },
-        { "n": "EZ Curl", "sets": 3, "reps": "12-15", "weight": true },
-        { "n": "Bike Crunch", "sets": 3, "reps": "20", "weight": false }
-      ],
-      "sets": {
-        "Band Pull Apart": [
-          { "reps": "20", "weight": "", "done": true },
-          { "reps": "20", "weight": "", "done": true },
-          { "reps": "20", "weight": "", "done": true }
-        ],
-        "EZ Curl": [
-          { "reps": "15", "weight": "20", "done": true },
-          { "reps": "13", "weight": "20", "done": true },
-          { "reps": "12", "weight": "22", "done": true }
-        ],
-        "Bike Crunch": [
-          { "reps": "20", "weight": "", "done": true },
-          { "reps": "20", "weight": "", "done": true },
-          { "reps": "20", "weight": "", "done": true }
+          {
+            "reps": "45",
+            "weight": "",
+            "done": true
+          },
+          {
+            "reps": "45",
+            "weight": "",
+            "done": true
+          },
+          {
+            "reps": "40",
+            "weight": "",
+            "done": true
+          }
         ]
       }
     },
@@ -309,35 +214,111 @@
       "completed": true,
       "sets": {
         "Push Up": [
-          { "reps": "17", "weight": "", "done": true },
-          { "reps": "15", "weight": "", "done": true },
-          { "reps": "13", "weight": "", "done": true }
+          {
+            "reps": "15",
+            "weight": "",
+            "done": true
+          },
+          {
+            "reps": "14",
+            "weight": "",
+            "done": true
+          },
+          {
+            "reps": "12",
+            "weight": "",
+            "done": true
+          }
         ],
         "Chest Supported Row": [
-          { "reps": "10", "weight": "32", "done": true },
-          { "reps": "10", "weight": "32", "done": true },
-          { "reps": "9", "weight": "34", "done": true },
-          { "reps": "8", "weight": "34", "done": true }
+          {
+            "reps": "10",
+            "weight": "28",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "28",
+            "done": true
+          },
+          {
+            "reps": "9",
+            "weight": "30",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "30",
+            "done": true
+          }
         ],
         "DB Romanian Deadlift": [
-          { "reps": "12", "weight": "34", "done": true },
-          { "reps": "12", "weight": "34", "done": true },
-          { "reps": "10", "weight": "36", "done": true }
+          {
+            "reps": "12",
+            "weight": "30",
+            "done": true
+          },
+          {
+            "reps": "12",
+            "weight": "30",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "32",
+            "done": true
+          }
         ],
         "Arnold Press": [
-          { "reps": "10", "weight": "20", "done": true },
-          { "reps": "9", "weight": "20", "done": true },
-          { "reps": "8", "weight": "22", "done": true }
+          {
+            "reps": "10",
+            "weight": "16",
+            "done": true
+          },
+          {
+            "reps": "9",
+            "weight": "16",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "18",
+            "done": true
+          }
         ],
         "Walking Lunge": [
-          { "reps": "12", "weight": "16", "done": true },
-          { "reps": "12", "weight": "16", "done": true },
-          { "reps": "10", "weight": "18", "done": true }
+          {
+            "reps": "12",
+            "weight": "12",
+            "done": true
+          },
+          {
+            "reps": "12",
+            "weight": "12",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "14",
+            "done": true
+          }
         ],
         "Hollow Hold": [
-          { "reps": "45", "weight": "", "done": true },
-          { "reps": "40", "weight": "", "done": true },
-          { "reps": "35", "weight": "", "done": true }
+          {
+            "reps": "35",
+            "weight": "",
+            "done": true
+          },
+          {
+            "reps": "35",
+            "weight": "",
+            "done": true
+          },
+          {
+            "reps": "30",
+            "weight": "",
+            "done": true
+          }
         ]
       }
     },
@@ -346,31 +327,99 @@
       "completed": true,
       "sets": {
         "DB Bench Press": [
-          { "reps": "8", "weight": "32", "done": true },
-          { "reps": "8", "weight": "32", "done": true },
-          { "reps": "7", "weight": "34", "done": true },
-          { "reps": "6", "weight": "34", "done": true }
+          {
+            "reps": "8",
+            "weight": "28",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "28",
+            "done": true
+          },
+          {
+            "reps": "7",
+            "weight": "30",
+            "done": true
+          },
+          {
+            "reps": "6",
+            "weight": "30",
+            "done": true
+          }
         ],
         "One Arm Row": [
-          { "reps": "10", "weight": "36", "done": true },
-          { "reps": "10", "weight": "36", "done": true },
-          { "reps": "9", "weight": "38", "done": true },
-          { "reps": "8", "weight": "38", "done": true }
+          {
+            "reps": "10",
+            "weight": "32",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "32",
+            "done": true
+          },
+          {
+            "reps": "9",
+            "weight": "34",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "34",
+            "done": true
+          }
         ],
         "Incline DB Press": [
-          { "reps": "10", "weight": "26", "done": true },
-          { "reps": "9", "weight": "26", "done": true },
-          { "reps": "8", "weight": "28", "done": true }
+          {
+            "reps": "10",
+            "weight": "22",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "24",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "24",
+            "done": true
+          }
         ],
         "Lateral Raise": [
-          { "reps": "15", "weight": "10", "done": true },
-          { "reps": "14", "weight": "10", "done": true },
-          { "reps": "12", "weight": "10", "done": true }
+          {
+            "reps": "15",
+            "weight": "8",
+            "done": true
+          },
+          {
+            "reps": "14",
+            "weight": "8",
+            "done": true
+          },
+          {
+            "reps": "12",
+            "weight": "9",
+            "done": true
+          }
         ],
         "DB Curl": [
-          { "reps": "12", "weight": "14", "done": true },
-          { "reps": "12", "weight": "14", "done": true },
-          { "reps": "10", "weight": "16", "done": true }
+          {
+            "reps": "12",
+            "weight": "12",
+            "done": true
+          },
+          {
+            "reps": "12",
+            "weight": "12",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "14",
+            "done": true
+          }
         ]
       }
     },
@@ -379,32 +428,822 @@
       "completed": true,
       "sets": {
         "Goblet Squat": [
-          { "reps": "10", "weight": "34", "done": true },
-          { "reps": "10", "weight": "34", "done": true },
-          { "reps": "8", "weight": "36", "done": true },
-          { "reps": "8", "weight": "36", "done": true }
+          {
+            "reps": "10",
+            "weight": "30",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "30",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "32",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "32",
+            "done": true
+          }
         ],
         "Romanian Deadlift": [
-          { "reps": "10", "weight": "40", "done": true },
-          { "reps": "10", "weight": "40", "done": true },
-          { "reps": "8", "weight": "42", "done": true },
-          { "reps": "8", "weight": "42", "done": true }
+          {
+            "reps": "10",
+            "weight": "36",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "36",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "38",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "38",
+            "done": true
+          }
         ],
         "Bulgarian Split Squat": [
-          { "reps": "10", "weight": "20", "done": true },
-          { "reps": "10", "weight": "20", "done": true },
-          { "reps": "8", "weight": "22", "done": true }
+          {
+            "reps": "10",
+            "weight": "16",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "16",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "18",
+            "done": true
+          }
         ],
         "Hip Thrust": [
-          { "reps": "12", "weight": "55", "done": true },
-          { "reps": "12", "weight": "55", "done": true },
-          { "reps": "10", "weight": "60", "done": true },
-          { "reps": "10", "weight": "60", "done": true }
+          {
+            "reps": "12",
+            "weight": "45",
+            "done": true
+          },
+          {
+            "reps": "12",
+            "weight": "45",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "50",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "50",
+            "done": true
+          }
         ],
         "Plank": [
-          { "reps": "60", "weight": "", "done": true },
-          { "reps": "55", "weight": "", "done": true },
-          { "reps": "50", "weight": "", "done": true }
+          {
+            "reps": "50",
+            "weight": "",
+            "done": true
+          },
+          {
+            "reps": "45",
+            "weight": "",
+            "done": true
+          },
+          {
+            "reps": "45",
+            "weight": "",
+            "done": true
+          }
+        ]
+      }
+    },
+    "2026-04-11": {
+      "type": "full-body",
+      "completed": true,
+      "sets": {
+        "Push Up": [
+          {
+            "reps": "16",
+            "weight": "",
+            "done": true
+          },
+          {
+            "reps": "14",
+            "weight": "",
+            "done": true
+          },
+          {
+            "reps": "13",
+            "weight": "",
+            "done": true
+          }
+        ],
+        "Chest Supported Row": [
+          {
+            "reps": "10",
+            "weight": "30",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "30",
+            "done": true
+          },
+          {
+            "reps": "9",
+            "weight": "32",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "32",
+            "done": true
+          }
+        ],
+        "DB Romanian Deadlift": [
+          {
+            "reps": "12",
+            "weight": "32",
+            "done": true
+          },
+          {
+            "reps": "12",
+            "weight": "32",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "34",
+            "done": true
+          }
+        ],
+        "Arnold Press": [
+          {
+            "reps": "10",
+            "weight": "18",
+            "done": true
+          },
+          {
+            "reps": "9",
+            "weight": "18",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "20",
+            "done": true
+          }
+        ],
+        "Walking Lunge": [
+          {
+            "reps": "12",
+            "weight": "14",
+            "done": true
+          },
+          {
+            "reps": "12",
+            "weight": "14",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "16",
+            "done": true
+          }
+        ],
+        "Hollow Hold": [
+          {
+            "reps": "40",
+            "weight": "",
+            "done": true
+          },
+          {
+            "reps": "35",
+            "weight": "",
+            "done": true
+          },
+          {
+            "reps": "35",
+            "weight": "",
+            "done": true
+          }
+        ]
+      }
+    },
+    "2026-04-13": {
+      "type": "upper-a",
+      "completed": true,
+      "sets": {
+        "DB Bench Press": [
+          {
+            "reps": "8",
+            "weight": "30",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "30",
+            "done": true
+          },
+          {
+            "reps": "7",
+            "weight": "32",
+            "done": true
+          },
+          {
+            "reps": "6",
+            "weight": "32",
+            "done": true
+          }
+        ],
+        "One Arm Row": [
+          {
+            "reps": "10",
+            "weight": "34",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "34",
+            "done": true
+          },
+          {
+            "reps": "9",
+            "weight": "36",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "36",
+            "done": true
+          }
+        ],
+        "Incline DB Press": [
+          {
+            "reps": "10",
+            "weight": "24",
+            "done": true
+          },
+          {
+            "reps": "9",
+            "weight": "24",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "26",
+            "done": true
+          }
+        ],
+        "Lateral Raise": [
+          {
+            "reps": "15",
+            "weight": "9",
+            "done": true
+          },
+          {
+            "reps": "14",
+            "weight": "9",
+            "done": true
+          },
+          {
+            "reps": "12",
+            "weight": "10",
+            "done": true
+          }
+        ],
+        "DB Curl": [
+          {
+            "reps": "12",
+            "weight": "14",
+            "done": true
+          },
+          {
+            "reps": "11",
+            "weight": "14",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "14",
+            "done": true
+          }
+        ]
+      }
+    },
+    "2026-04-15": {
+      "type": "lower-a",
+      "completed": true,
+      "sets": {
+        "Goblet Squat": [
+          {
+            "reps": "10",
+            "weight": "32",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "32",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "34",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "34",
+            "done": true
+          }
+        ],
+        "Romanian Deadlift": [
+          {
+            "reps": "10",
+            "weight": "38",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "38",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "40",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "40",
+            "done": true
+          }
+        ],
+        "Bulgarian Split Squat": [
+          {
+            "reps": "10",
+            "weight": "18",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "18",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "20",
+            "done": true
+          }
+        ],
+        "Hip Thrust": [
+          {
+            "reps": "12",
+            "weight": "50",
+            "done": true
+          },
+          {
+            "reps": "12",
+            "weight": "50",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "55",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "55",
+            "done": true
+          }
+        ],
+        "Plank": [
+          {
+            "reps": "55",
+            "weight": "",
+            "done": true
+          },
+          {
+            "reps": "50",
+            "weight": "",
+            "done": true
+          },
+          {
+            "reps": "45",
+            "weight": "",
+            "done": true
+          }
+        ]
+      }
+    },
+    "2026-04-17": {
+      "type": "custom",
+      "name": "Pump + Mobility",
+      "completed": true,
+      "customExercises": [
+        {
+          "n": "Band Pull Apart",
+          "sets": 3,
+          "reps": "20",
+          "weight": false
+        },
+        {
+          "n": "EZ Curl",
+          "sets": 3,
+          "reps": "12-15",
+          "weight": true
+        },
+        {
+          "n": "Bike Crunch",
+          "sets": 3,
+          "reps": "20",
+          "weight": false
+        }
+      ],
+      "sets": {
+        "Band Pull Apart": [
+          {
+            "reps": "20",
+            "weight": "",
+            "done": true
+          },
+          {
+            "reps": "20",
+            "weight": "",
+            "done": true
+          },
+          {
+            "reps": "20",
+            "weight": "",
+            "done": true
+          }
+        ],
+        "EZ Curl": [
+          {
+            "reps": "15",
+            "weight": "20",
+            "done": true
+          },
+          {
+            "reps": "13",
+            "weight": "20",
+            "done": true
+          },
+          {
+            "reps": "12",
+            "weight": "22",
+            "done": true
+          }
+        ],
+        "Bike Crunch": [
+          {
+            "reps": "20",
+            "weight": "",
+            "done": true
+          },
+          {
+            "reps": "20",
+            "weight": "",
+            "done": true
+          },
+          {
+            "reps": "20",
+            "weight": "",
+            "done": true
+          }
+        ]
+      }
+    },
+    "2026-04-18": {
+      "type": "full-body",
+      "completed": true,
+      "sets": {
+        "Push Up": [
+          {
+            "reps": "17",
+            "weight": "",
+            "done": true
+          },
+          {
+            "reps": "15",
+            "weight": "",
+            "done": true
+          },
+          {
+            "reps": "13",
+            "weight": "",
+            "done": true
+          }
+        ],
+        "Chest Supported Row": [
+          {
+            "reps": "10",
+            "weight": "32",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "32",
+            "done": true
+          },
+          {
+            "reps": "9",
+            "weight": "34",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "34",
+            "done": true
+          }
+        ],
+        "DB Romanian Deadlift": [
+          {
+            "reps": "12",
+            "weight": "34",
+            "done": true
+          },
+          {
+            "reps": "12",
+            "weight": "34",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "36",
+            "done": true
+          }
+        ],
+        "Arnold Press": [
+          {
+            "reps": "10",
+            "weight": "20",
+            "done": true
+          },
+          {
+            "reps": "9",
+            "weight": "20",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "22",
+            "done": true
+          }
+        ],
+        "Walking Lunge": [
+          {
+            "reps": "12",
+            "weight": "16",
+            "done": true
+          },
+          {
+            "reps": "12",
+            "weight": "16",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "18",
+            "done": true
+          }
+        ],
+        "Hollow Hold": [
+          {
+            "reps": "45",
+            "weight": "",
+            "done": true
+          },
+          {
+            "reps": "40",
+            "weight": "",
+            "done": true
+          },
+          {
+            "reps": "35",
+            "weight": "",
+            "done": true
+          }
+        ]
+      }
+    },
+    "2026-04-20": {
+      "type": "upper-a",
+      "completed": true,
+      "sets": {
+        "DB Bench Press": [
+          {
+            "reps": "8",
+            "weight": "32",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "32",
+            "done": true
+          },
+          {
+            "reps": "7",
+            "weight": "34",
+            "done": true
+          },
+          {
+            "reps": "6",
+            "weight": "34",
+            "done": true
+          }
+        ],
+        "One Arm Row": [
+          {
+            "reps": "10",
+            "weight": "36",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "36",
+            "done": true
+          },
+          {
+            "reps": "9",
+            "weight": "38",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "38",
+            "done": true
+          }
+        ],
+        "Incline DB Press": [
+          {
+            "reps": "10",
+            "weight": "26",
+            "done": true
+          },
+          {
+            "reps": "9",
+            "weight": "26",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "28",
+            "done": true
+          }
+        ],
+        "Lateral Raise": [
+          {
+            "reps": "15",
+            "weight": "10",
+            "done": true
+          },
+          {
+            "reps": "14",
+            "weight": "10",
+            "done": true
+          },
+          {
+            "reps": "12",
+            "weight": "10",
+            "done": true
+          }
+        ],
+        "DB Curl": [
+          {
+            "reps": "12",
+            "weight": "14",
+            "done": true
+          },
+          {
+            "reps": "12",
+            "weight": "14",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "16",
+            "done": true
+          }
+        ]
+      }
+    },
+    "2026-04-22": {
+      "type": "lower-a",
+      "completed": true,
+      "sets": {
+        "Goblet Squat": [
+          {
+            "reps": "10",
+            "weight": "34",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "34",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "36",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "36",
+            "done": true
+          }
+        ],
+        "Romanian Deadlift": [
+          {
+            "reps": "10",
+            "weight": "40",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "40",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "42",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "42",
+            "done": true
+          }
+        ],
+        "Bulgarian Split Squat": [
+          {
+            "reps": "10",
+            "weight": "20",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "20",
+            "done": true
+          },
+          {
+            "reps": "8",
+            "weight": "22",
+            "done": true
+          }
+        ],
+        "Hip Thrust": [
+          {
+            "reps": "12",
+            "weight": "55",
+            "done": true
+          },
+          {
+            "reps": "12",
+            "weight": "55",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "60",
+            "done": true
+          },
+          {
+            "reps": "10",
+            "weight": "60",
+            "done": true
+          }
+        ],
+        "Plank": [
+          {
+            "reps": "60",
+            "weight": "",
+            "done": true
+          },
+          {
+            "reps": "55",
+            "weight": "",
+            "done": true
+          },
+          {
+            "reps": "50",
+            "weight": "",
+            "done": true
+          }
         ]
       }
     }
@@ -412,7 +1251,7 @@
   "cardio": [
     {
       "id": "c1",
-      "date": "2026-03-15",
+      "date": "2026-03-29",
       "activity": "Outdoor walk",
       "duration": 49,
       "calories": 430,
@@ -425,7 +1264,7 @@
     },
     {
       "id": "c2",
-      "date": "2026-03-17",
+      "date": "2026-03-31",
       "activity": "Incline treadmill walk",
       "duration": 28,
       "calories": 240,
@@ -433,12 +1272,12 @@
       "heartRate": 122,
       "distKm": 2.8,
       "pace": "10:00",
-      "speedKmH": 6.0,
+      "speedKmH": 6,
       "notes": "Lekka sesja po silowym"
     },
     {
       "id": "c3",
-      "date": "2026-03-20",
+      "date": "2026-04-03",
       "activity": "Outdoor walk",
       "duration": 54,
       "calories": 480,
@@ -451,7 +1290,7 @@
     },
     {
       "id": "c4",
-      "date": "2026-03-22",
+      "date": "2026-04-05",
       "activity": "Long walk",
       "duration": 67,
       "calories": 560,
@@ -464,7 +1303,7 @@
     },
     {
       "id": "c5",
-      "date": "2026-03-24",
+      "date": "2026-04-07",
       "activity": "Recovery walk",
       "duration": 31,
       "calories": 285,
@@ -477,20 +1316,20 @@
     },
     {
       "id": "c6",
-      "date": "2026-03-27",
+      "date": "2026-04-10",
       "activity": "Outdoor walk",
       "duration": 45,
       "calories": 400,
       "steps": 6200,
       "heartRate": 126,
-      "distKm": 5.0,
+      "distKm": 5,
       "pace": "9:00",
       "speedKmH": 6.67,
       "notes": "Tempo konwersacyjne"
     },
     {
       "id": "c7",
-      "date": "2026-03-29",
+      "date": "2026-04-12",
       "activity": "Long walk",
       "duration": 73,
       "calories": 640,
@@ -503,7 +1342,7 @@
     },
     {
       "id": "c8",
-      "date": "2026-04-01",
+      "date": "2026-04-15",
       "activity": "Incline treadmill walk",
       "duration": 38,
       "calories": 330,
@@ -516,7 +1355,7 @@
     },
     {
       "id": "c9",
-      "date": "2026-04-03",
+      "date": "2026-04-17",
       "activity": "Outdoor walk",
       "duration": 59,
       "calories": 510,
@@ -529,7 +1368,7 @@
     },
     {
       "id": "c10",
-      "date": "2026-04-05",
+      "date": "2026-04-19",
       "activity": "Long walk",
       "duration": 82,
       "calories": 720,
@@ -542,7 +1381,7 @@
     },
     {
       "id": "c11",
-      "date": "2026-04-07",
+      "date": "2026-04-21",
       "activity": "Recovery walk",
       "duration": 29,
       "calories": 250,
@@ -555,7 +1394,7 @@
     },
     {
       "id": "c12",
-      "date": "2026-04-08",
+      "date": "2026-04-22",
       "activity": "Outdoor walk",
       "duration": 51,
       "calories": 420,
@@ -585,14 +1424,70 @@
   },
   "notifications": [],
   "measurements": [
-    { "id": "m1", "date": "2026-02-20", "weight": 95.8, "fatPct": 24.8, "muscleKg": 71.9, "visceral": 13 },
-    { "id": "m2", "date": "2026-02-27", "weight": 95.1, "fatPct": 24.4, "muscleKg": 72.0, "visceral": 13 },
-    { "id": "m3", "date": "2026-03-06", "weight": 94.4, "fatPct": 24.0, "muscleKg": 72.1, "visceral": 12 },
-    { "id": "m4", "date": "2026-03-13", "weight": 93.8, "fatPct": 23.7, "muscleKg": 72.3, "visceral": 12 },
-    { "id": "m5", "date": "2026-03-20", "weight": 93.1, "fatPct": 23.2, "muscleKg": 72.6, "visceral": 12 },
-    { "id": "m6", "date": "2026-03-27", "weight": 92.6, "fatPct": 22.8, "muscleKg": 72.9, "visceral": 11 },
-    { "id": "m7", "date": "2026-04-03", "weight": 92.1, "fatPct": 22.3, "muscleKg": 73.2, "visceral": 11 },
-    { "id": "m8", "date": "2026-04-09", "weight": 91.7, "fatPct": 21.9, "muscleKg": 73.5, "visceral": 11 }
+    {
+      "id": "m1",
+      "date": "2026-03-06",
+      "weight": 95.8,
+      "fatPct": 24.8,
+      "muscleKg": 71.9,
+      "visceral": 13
+    },
+    {
+      "id": "m2",
+      "date": "2026-03-13",
+      "weight": 95.1,
+      "fatPct": 24.4,
+      "muscleKg": 72,
+      "visceral": 13
+    },
+    {
+      "id": "m3",
+      "date": "2026-03-20",
+      "weight": 94.4,
+      "fatPct": 24,
+      "muscleKg": 72.1,
+      "visceral": 12
+    },
+    {
+      "id": "m4",
+      "date": "2026-03-27",
+      "weight": 93.8,
+      "fatPct": 23.7,
+      "muscleKg": 72.3,
+      "visceral": 12
+    },
+    {
+      "id": "m5",
+      "date": "2026-04-03",
+      "weight": 93.1,
+      "fatPct": 23.2,
+      "muscleKg": 72.6,
+      "visceral": 12
+    },
+    {
+      "id": "m6",
+      "date": "2026-04-10",
+      "weight": 92.6,
+      "fatPct": 22.8,
+      "muscleKg": 72.9,
+      "visceral": 11
+    },
+    {
+      "id": "m7",
+      "date": "2026-04-17",
+      "weight": 92.1,
+      "fatPct": 22.3,
+      "muscleKg": 73.2,
+      "visceral": 11
+    },
+    {
+      "id": "m8",
+      "date": "2026-04-22",
+      "weight": 91.7,
+      "fatPct": 21.9,
+      "muscleKg": 73.5,
+      "visceral": 11
+    }
   ],
   "bodyHeight": 182,
   "trainingPlans": [
@@ -608,11 +1503,36 @@
           "color": "var(--p)",
           "weekday": 0,
           "exercises": [
-            { "n": "DB Bench Press", "sets": 4, "reps": "6-8", "weight": true },
-            { "n": "One Arm Row", "sets": 4, "reps": "8-10", "weight": true },
-            { "n": "Incline DB Press", "sets": 3, "reps": "8-10", "weight": true },
-            { "n": "Lateral Raise", "sets": 3, "reps": "12-15", "weight": true },
-            { "n": "DB Curl", "sets": 3, "reps": "10-12", "weight": true }
+            {
+              "n": "DB Bench Press",
+              "sets": 4,
+              "reps": "6-8",
+              "weight": true
+            },
+            {
+              "n": "One Arm Row",
+              "sets": 4,
+              "reps": "8-10",
+              "weight": true
+            },
+            {
+              "n": "Incline DB Press",
+              "sets": 3,
+              "reps": "8-10",
+              "weight": true
+            },
+            {
+              "n": "Lateral Raise",
+              "sets": 3,
+              "reps": "12-15",
+              "weight": true
+            },
+            {
+              "n": "DB Curl",
+              "sets": 3,
+              "reps": "10-12",
+              "weight": true
+            }
           ]
         },
         "lower-a": {
@@ -621,11 +1541,37 @@
           "color": "var(--s)",
           "weekday": 2,
           "exercises": [
-            { "n": "Goblet Squat", "sets": 4, "reps": "8-10", "weight": true },
-            { "n": "Romanian Deadlift", "sets": 4, "reps": "8-10", "weight": true },
-            { "n": "Bulgarian Split Squat", "sets": 3, "reps": "8-10", "weight": true },
-            { "n": "Hip Thrust", "sets": 4, "reps": "10-12", "weight": true },
-            { "n": "Plank", "sets": 3, "reps": "40-60", "weight": false, "isTime": true }
+            {
+              "n": "Goblet Squat",
+              "sets": 4,
+              "reps": "8-10",
+              "weight": true
+            },
+            {
+              "n": "Romanian Deadlift",
+              "sets": 4,
+              "reps": "8-10",
+              "weight": true
+            },
+            {
+              "n": "Bulgarian Split Squat",
+              "sets": 3,
+              "reps": "8-10",
+              "weight": true
+            },
+            {
+              "n": "Hip Thrust",
+              "sets": 4,
+              "reps": "10-12",
+              "weight": true
+            },
+            {
+              "n": "Plank",
+              "sets": 3,
+              "reps": "40-60",
+              "weight": false,
+              "isTime": true
+            }
           ]
         },
         "full-body": {
@@ -634,12 +1580,43 @@
           "color": "var(--td)",
           "weekday": 5,
           "exercises": [
-            { "n": "Push Up", "sets": 3, "reps": "12-18", "weight": false },
-            { "n": "Chest Supported Row", "sets": 4, "reps": "8-10", "weight": true },
-            { "n": "DB Romanian Deadlift", "sets": 3, "reps": "10-12", "weight": true },
-            { "n": "Arnold Press", "sets": 3, "reps": "8-10", "weight": true },
-            { "n": "Walking Lunge", "sets": 3, "reps": "10-12", "weight": true },
-            { "n": "Hollow Hold", "sets": 3, "reps": "30-45", "weight": false, "isTime": true }
+            {
+              "n": "Push Up",
+              "sets": 3,
+              "reps": "12-18",
+              "weight": false
+            },
+            {
+              "n": "Chest Supported Row",
+              "sets": 4,
+              "reps": "8-10",
+              "weight": true
+            },
+            {
+              "n": "DB Romanian Deadlift",
+              "sets": 3,
+              "reps": "10-12",
+              "weight": true
+            },
+            {
+              "n": "Arnold Press",
+              "sets": 3,
+              "reps": "8-10",
+              "weight": true
+            },
+            {
+              "n": "Walking Lunge",
+              "sets": 3,
+              "reps": "10-12",
+              "weight": true
+            },
+            {
+              "n": "Hollow Hold",
+              "sets": 3,
+              "reps": "30-45",
+              "weight": false,
+              "isTime": true
+            }
           ]
         }
       }
@@ -656,9 +1633,24 @@
           "color": "var(--p)",
           "weekday": 1,
           "exercises": [
-            { "n": "DB Floor Press", "sets": 4, "reps": "8-10", "weight": true },
-            { "n": "Standing Press", "sets": 3, "reps": "8-10", "weight": true },
-            { "n": "Dead Bug", "sets": 3, "reps": "10-12", "weight": false }
+            {
+              "n": "DB Floor Press",
+              "sets": 4,
+              "reps": "8-10",
+              "weight": true
+            },
+            {
+              "n": "Standing Press",
+              "sets": 3,
+              "reps": "8-10",
+              "weight": true
+            },
+            {
+              "n": "Dead Bug",
+              "sets": 3,
+              "reps": "10-12",
+              "weight": false
+            }
           ]
         },
         "day-2": {
@@ -667,9 +1659,24 @@
           "color": "var(--s)",
           "weekday": 4,
           "exercises": [
-            { "n": "Row", "sets": 4, "reps": "8-10", "weight": true },
-            { "n": "Split Squat", "sets": 3, "reps": "8-10", "weight": true },
-            { "n": "Hip Hinge", "sets": 3, "reps": "10-12", "weight": true }
+            {
+              "n": "Row",
+              "sets": 4,
+              "reps": "8-10",
+              "weight": true
+            },
+            {
+              "n": "Split Squat",
+              "sets": 3,
+              "reps": "8-10",
+              "weight": true
+            },
+            {
+              "n": "Hip Hinge",
+              "sets": 3,
+              "reps": "10-12",
+              "weight": true
+            }
           ]
         }
       }

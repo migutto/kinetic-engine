@@ -1,11 +1,11 @@
 {
   "type": "kinetic_cardio",
   "version": "3.1",
-  "exportDate": "2026-04-09T11:05:00.000Z",
+  "exportDate": "2026-04-22T12:00:00.000Z",
   "cardio": [
     {
       "id": "c1",
-      "date": "2026-03-15",
+      "date": "2026-03-29",
       "activity": "Outdoor walk",
       "duration": 49,
       "calories": 430,
@@ -18,7 +18,7 @@
     },
     {
       "id": "c2",
-      "date": "2026-03-17",
+      "date": "2026-03-31",
       "activity": "Incline treadmill walk",
       "duration": 28,
       "calories": 240,
@@ -26,12 +26,12 @@
       "heartRate": 122,
       "distKm": 2.8,
       "pace": "10:00",
-      "speedKmH": 6.0,
+      "speedKmH": 6,
       "notes": "Lekka sesja po silowym"
     },
     {
       "id": "c3",
-      "date": "2026-03-20",
+      "date": "2026-04-03",
       "activity": "Outdoor walk",
       "duration": 54,
       "calories": 480,
@@ -44,7 +44,7 @@
     },
     {
       "id": "c4",
-      "date": "2026-03-22",
+      "date": "2026-04-05",
       "activity": "Long walk",
       "duration": 67,
       "calories": 560,
@@ -57,7 +57,7 @@
     },
     {
       "id": "c5",
-      "date": "2026-03-24",
+      "date": "2026-04-07",
       "activity": "Recovery walk",
       "duration": 31,
       "calories": 285,
@@ -70,20 +70,20 @@
     },
     {
       "id": "c6",
-      "date": "2026-03-27",
+      "date": "2026-04-10",
       "activity": "Outdoor walk",
       "duration": 45,
       "calories": 400,
       "steps": 6200,
       "heartRate": 126,
-      "distKm": 5.0,
+      "distKm": 5,
       "pace": "9:00",
       "speedKmH": 6.67,
       "notes": "Tempo konwersacyjne"
     },
     {
       "id": "c7",
-      "date": "2026-03-29",
+      "date": "2026-04-12",
       "activity": "Long walk",
       "duration": 73,
       "calories": 640,
@@ -96,7 +96,7 @@
     },
     {
       "id": "c8",
-      "date": "2026-04-01",
+      "date": "2026-04-15",
       "activity": "Incline treadmill walk",
       "duration": 38,
       "calories": 330,
@@ -109,7 +109,7 @@
     },
     {
       "id": "c9",
-      "date": "2026-04-03",
+      "date": "2026-04-17",
       "activity": "Outdoor walk",
       "duration": 59,
       "calories": 510,
@@ -122,7 +122,7 @@
     },
     {
       "id": "c10",
-      "date": "2026-04-05",
+      "date": "2026-04-19",
       "activity": "Long walk",
       "duration": 82,
       "calories": 720,
@@ -135,7 +135,7 @@
     },
     {
       "id": "c11",
-      "date": "2026-04-07",
+      "date": "2026-04-21",
       "activity": "Recovery walk",
       "duration": 29,
       "calories": 250,
@@ -148,7 +148,7 @@
     },
     {
       "id": "c12",
-      "date": "2026-04-08",
+      "date": "2026-04-22",
       "activity": "Outdoor walk",
       "duration": 51,
       "calories": 420,
